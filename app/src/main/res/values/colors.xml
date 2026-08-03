@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- HamHaeVoca mint palette -->
+    <color name="primary">#1FE1B6</color>
+    <color name="primary_pressed">#12CFA5</color>
+    <color name="primary_soft">#DFFFF7</color>
+    <color name="primary_dark">#08B991</color>
+
+    <color name="background">#F6F7F9</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_alt">#F2F4F6</color>
+    <color name="surface_pressed">#E9ECEF</color>
+
+    <color name="text_primary">#111111</color>
+    <color name="text_secondary">#6B7684</color>
+    <color name="text_tertiary">#8B95A1</color>
+    <color name="border">#E5E8EB</color>
+
+    <color name="success">#00A870</color>
+    <color name="success_soft">#DDF8ED</color>
+    <color name="danger">#E54747</color>
+    <color name="danger_soft">#FDE8E8</color>
+    <color name="warning">#F59F00</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Compatibility colors referenced by older Android Studio themes. -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+</resources>

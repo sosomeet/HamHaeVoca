@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity android:name=".MatchingActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".QuizResultActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".QuizActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".QuizSetupActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".FlashcardActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".BookDetailActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".ImportActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
