@@ -13,13 +13,13 @@ import android.widget.TextView;
 
 import com.example.hamhaevoca.data.DatabaseHelper;
 import com.example.hamhaevoca.model.VocabItem;
+import com.example.hamhaevoca.util.MatchingRoundPlanner;
 import com.example.hamhaevoca.util.Ui;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Random;
 
 public class MatchingActivity extends Activity {
     private long bookId;
@@ -33,15 +33,16 @@ public class MatchingActivity extends Activity {
     private LinearLayout leftColumn;
     private LinearLayout rightColumn;
 
-    private final List<VocabItem> eligible = new ArrayList<VocabItem>();
-    private final List<VocabItem> currentRound = new ArrayList<VocabItem>();
-    private int nextIndex = 0;
-    private int roundNumber = 0;
+    private final ArrayList<ArrayList<VocabItem>> plannedRounds =
+            new ArrayList<ArrayList<VocabItem>>();
+    private final ArrayList<VocabItem> remainingRoundItems =
+            new ArrayList<VocabItem>();
+    private int roundIndex = -1;
+    private int totalSelectedCount = 0;
     private int completedCount = 0;
     private int correctCount = 0;
     private int wrongCount = 0;
     private int failedRounds = 0;
-    private int excludedCount = 0;
     private Button selectedLeft;
     private Button selectedRight;
     private boolean inputLocked = false;
@@ -70,27 +71,18 @@ public class MatchingActivity extends Activity {
 
     private void prepareItems() {
         List<VocabItem> all = DatabaseHelper.getInstance(this).getWords(bookId);
-        Set<String> terms = new HashSet<String>();
-        Set<String> meanings = new HashSet<String>();
-        for (VocabItem item : all) {
-            String termKey = item.getTerm().trim().toLowerCase();
-            String meaningKey = item.getMeaning().trim().toLowerCase();
-            if (terms.contains(termKey) || meanings.contains(meaningKey)) {
-                excludedCount++;
-                continue;
-            }
-            terms.add(termKey);
-            meanings.add(meaningKey);
-            eligible.add(item);
+        plannedRounds.clear();
+        plannedRounds.addAll(MatchingRoundPlanner.createRounds(
+                all, maximumWords, 5, new Random()));
+
+        for (ArrayList<VocabItem> round : plannedRounds) {
+            totalSelectedCount += round.size();
         }
-        Collections.shuffle(eligible);
-        if (maximumWords > 0 && eligible.size() > maximumWords) {
-            eligible.subList(maximumWords, eligible.size()).clear();
-        }
-        if (eligible.size() < 2) {
+
+        if (totalSelectedCount < 1) {
             new AlertDialog.Builder(this)
                     .setTitle("게임을 시작할 수 없음")
-                    .setMessage("서로 구분 가능한 단어와 뜻이 최소 2쌍 필요합니다.")
+                    .setMessage("학습할 단어가 없습니다.")
                     .setPositiveButton("확인", (d, w) -> finish())
                     .setCancelable(false)
                     .show();
@@ -101,11 +93,13 @@ public class MatchingActivity extends Activity {
 
     private void startNextRound() {
         cancelTimer();
-        currentRound.clear();
-        int end = Math.min(nextIndex + 5, eligible.size());
-        for (int i = nextIndex; i < end; i++) currentRound.add(eligible.get(i));
-        nextIndex = end;
-        roundNumber++;
+        roundIndex++;
+        if (roundIndex >= plannedRounds.size()) {
+            showCompletion();
+            return;
+        }
+        remainingRoundItems.clear();
+        remainingRoundItems.addAll(plannedRounds.get(roundIndex));
         renderRound();
     }
 
@@ -117,8 +111,8 @@ public class MatchingActivity extends Activity {
         rightColumn.removeAllViews();
         matchingFeedback.setText("");
 
-        List<VocabItem> left = new ArrayList<VocabItem>(currentRound);
-        List<VocabItem> right = new ArrayList<VocabItem>(currentRound);
+        List<VocabItem> left = new ArrayList<VocabItem>(remainingRoundItems);
+        List<VocabItem> right = new ArrayList<VocabItem>(remainingRoundItems);
         Collections.shuffle(left);
         Collections.shuffle(right);
         for (VocabItem item : left) leftColumn.addView(createItemButton(item, true));
@@ -141,7 +135,8 @@ public class MatchingActivity extends Activity {
         button.setStateListAnimator(null);
         button.setMinHeight(Ui.dp(this, 58));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT);
         params.setMargins(0, 0, 0, Ui.dp(this, 8));
         button.setLayoutParams(params);
         button.setOnClickListener(v -> selectButton((Button) v, left));
@@ -167,25 +162,26 @@ public class MatchingActivity extends Activity {
         long rightId = (Long) selectedRight.getTag();
         if (leftId == rightId) {
             correctCount++;
-            matchingFeedback.setText("정답입니다.");
             selectedLeft.setBackgroundResource(R.drawable.bg_choice_correct);
             selectedRight.setBackgroundResource(R.drawable.bg_choice_correct);
             startTimer(roundDurationMillis);
             final Button left = selectedLeft;
             final Button right = selectedRight;
+            final long matchedId = leftId;
             handler.postDelayed(() -> {
                 leftColumn.removeView(left);
                 rightColumn.removeView(right);
+                removeRemainingItem(matchedId);
                 selectedLeft = null;
                 selectedRight = null;
                 inputLocked = false;
                 completedCount++;
                 updateHeader();
-                if (leftColumn.getChildCount() == 0) finishRound();
+                if (remainingRoundItems.isEmpty()) finishRound();
             }, 250);
         } else {
             wrongCount++;
-            matchingFeedback.setText("틀렸습니다. 남은 시간 1초 차감");
+            matchingFeedback.setText("남은 시간 1초 차감");
             selectedLeft.setBackgroundResource(R.drawable.bg_choice_wrong);
             selectedRight.setBackgroundResource(R.drawable.bg_choice_wrong);
             long reduced = Math.max(0, remainingMillis - 1000);
@@ -201,16 +197,26 @@ public class MatchingActivity extends Activity {
         }
     }
 
+    private void removeRemainingItem(long id) {
+        for (int i = 0; i < remainingRoundItems.size(); i++) {
+            if (remainingRoundItems.get(i).getId() == id) {
+                remainingRoundItems.remove(i);
+                return;
+            }
+        }
+    }
+
     private void resetButtonStyle(Button button) {
         if (button != null) button.setBackgroundResource(R.drawable.bg_choice_default);
     }
 
     private void finishRound() {
         cancelTimer();
-        if (nextIndex >= eligible.size()) showCompletion();
-        else {
+        if (roundIndex + 1 >= plannedRounds.size()) {
+            showCompletion();
+        } else {
             matchingFeedback.setText("라운드 완료");
-            handler.postDelayed(this::startNextRound, 500);
+            handler.postDelayed(this::startNextRound, 400);
         }
     }
 
@@ -226,6 +232,7 @@ public class MatchingActivity extends Activity {
                 remainingMillis = millisUntilFinished;
                 matchingTimer.setText((int) Math.ceil(millisUntilFinished / 1000.0) + "초");
             }
+
             @Override public void onFinish() {
                 remainingMillis = 0;
                 matchingTimer.setText("0초");
@@ -235,12 +242,13 @@ public class MatchingActivity extends Activity {
     }
 
     private void onTimeOut() {
-        if (isFinishing()) return;
+        if (isFinishing() || remainingRoundItems.isEmpty()) return;
         inputLocked = true;
         failedRounds++;
         new AlertDialog.Builder(this)
                 .setTitle("시간 초과")
-                .setMessage("현재 라운드를 다시 섞어서 시작합니다.")
+                .setMessage("현재 남은 " + remainingRoundItems.size()
+                        + "쌍을 다시 섞어서 시작합니다.")
                 .setPositiveButton("다시 시작", (d, w) -> renderRound())
                 .setNegativeButton("단어장으로", (d, w) -> finish())
                 .setCancelable(false)
@@ -248,28 +256,35 @@ public class MatchingActivity extends Activity {
     }
 
     private void showCompletion() {
+        cancelTimer();
         new AlertDialog.Builder(this)
                 .setTitle("카드 맞추기 완료")
-                .setMessage("완료한 쌍: " + completedCount + "\n오답 시도: " + wrongCount
-                        + "\n실패 라운드: " + failedRounds + "\n중복으로 제외된 항목: " + excludedCount)
-                .setPositiveButton("다시 시작", (d, w) -> {
-                    nextIndex = 0;
-                    roundNumber = 0;
-                    completedCount = 0;
-                    correctCount = 0;
-                    wrongCount = 0;
-                    failedRounds = 0;
-                    Collections.shuffle(eligible);
-                    startNextRound();
-                })
+                .setMessage("완료한 쌍: " + completedCount
+                        + "\n오답 시도: " + wrongCount
+                        + "\n실패 라운드: " + failedRounds
+                        + "\n누락된 단어: 0개")
+                .setPositiveButton("다시 시작", (d, w) -> restartGame())
                 .setNegativeButton("단어장으로", (d, w) -> finish())
                 .setCancelable(false)
                 .show();
     }
 
+    private void restartGame() {
+        plannedRounds.clear();
+        remainingRoundItems.clear();
+        roundIndex = -1;
+        totalSelectedCount = 0;
+        completedCount = 0;
+        correctCount = 0;
+        wrongCount = 0;
+        failedRounds = 0;
+        prepareItems();
+    }
+
     private void updateHeader() {
-        roundText.setText("라운드 " + roundNumber);
-        matchingStats.setText("완료 " + completedCount + " / " + eligible.size() + " · 정답 " + correctCount + " · 오답 " + wrongCount);
+        roundText.setText("라운드 " + (roundIndex + 1) + " / " + plannedRounds.size());
+        matchingStats.setText("완료 " + completedCount + " / " + totalSelectedCount
+                + " · 정답 " + correctCount + " · 오답 " + wrongCount);
     }
 
     private void cancelTimer() {

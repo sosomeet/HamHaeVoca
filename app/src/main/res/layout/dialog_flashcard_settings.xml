@@ -26,6 +26,32 @@
         android:paddingEnd="12dp"
         android:spinnerMode="dropdown" />
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="한 번에 학습할 단어 수"
+        android:textColor="@color/text_primary"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/dialogFlashBatchSizeInput"
+        style="@style/InputField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:hint="기본 30개"
+        android:inputType="number"
+        android:maxLines="1" />
+
+    <TextView
+        style="@style/CaptionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:text="학습 진행 위치는 단어를 넘길 때마다 자동 저장됩니다." />
+
     <Switch
         android:id="@+id/dialogFrontSideSwitch"
         android:layout_width="match_parent"

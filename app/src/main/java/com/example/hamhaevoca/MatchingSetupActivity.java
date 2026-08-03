@@ -11,10 +11,7 @@ import android.widget.TextView;
 import com.example.hamhaevoca.data.DatabaseHelper;
 import com.example.hamhaevoca.model.VocabItem;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.Set;
 
 public class MatchingSetupActivity extends Activity {
     private long bookId;
@@ -22,7 +19,7 @@ public class MatchingSetupActivity extends Activity {
     private SeekBar timeSeekBar;
     private TextView timeValue;
     private TextView availableCountView;
-    private int eligibleCount;
+    private int totalWordCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +33,9 @@ public class MatchingSetupActivity extends Activity {
         availableCountView = findViewById(R.id.matchingAvailableCount);
 
         List<VocabItem> words = DatabaseHelper.getInstance(this).getWords(bookId);
-        eligibleCount = countEligibleWords(words);
-        availableCountView.setText("맞추기 가능 " + eligibleCount + "개 · 비우면 모두 사용");
+        totalWordCount = words.size();
+        availableCountView.setText("전체 " + totalWordCount
+                + "개를 사용할 수 있습니다. 중복 단어와 뜻은 서로 다른 라운드에 배치됩니다.");
 
         timeSeekBar.setMax(15);
         timeSeekBar.setProgress(0);
@@ -55,29 +53,14 @@ public class MatchingSetupActivity extends Activity {
         findViewById(R.id.matchingSetupBackButton).setOnClickListener(v -> finish());
         findViewById(R.id.startMatchingButton).setOnClickListener(v -> startMatching());
 
-        if (eligibleCount < 2) {
+        if (totalWordCount < 1) {
             new AlertDialog.Builder(this)
                     .setTitle("맞추기를 시작할 수 없음")
-                    .setMessage("서로 구분 가능한 단어와 뜻이 최소 2쌍 필요합니다.")
+                    .setMessage("단어가 1개 이상 필요합니다.")
                     .setPositiveButton("확인", (d, w) -> finish())
                     .setCancelable(false)
                     .show();
         }
-    }
-
-    private int countEligibleWords(List<VocabItem> words) {
-        Set<String> terms = new HashSet<String>();
-        Set<String> meanings = new HashSet<String>();
-        int count = 0;
-        for (VocabItem item : words) {
-            String termKey = item.getTerm().trim().toLowerCase(Locale.getDefault());
-            String meaningKey = item.getMeaning().trim().toLowerCase(Locale.getDefault());
-            if (terms.contains(termKey) || meanings.contains(meaningKey)) continue;
-            terms.add(termKey);
-            meanings.add(meaningKey);
-            count++;
-        }
-        return count;
     }
 
     private void updateTimeLabel() {
@@ -86,7 +69,7 @@ public class MatchingSetupActivity extends Activity {
 
     private int readMaximumWordCount() {
         String raw = maxWordsInput.getText().toString().trim();
-        if (raw.isEmpty()) return eligibleCount;
+        if (raw.isEmpty()) return totalWordCount;
         final int requested;
         try {
             requested = Integer.parseInt(raw);
@@ -94,12 +77,12 @@ public class MatchingSetupActivity extends Activity {
             maxWordsInput.setError("숫자를 입력하세요.");
             return -1;
         }
-        if (requested < 2) {
-            maxWordsInput.setError("2개 이상 입력하세요.");
+        if (requested < 1) {
+            maxWordsInput.setError("1개 이상 입력하세요.");
             return -1;
         }
-        if (requested > eligibleCount) {
-            maxWordsInput.setError("맞추기 가능한 " + eligibleCount + "개 이하로 입력하세요.");
+        if (requested > totalWordCount) {
+            maxWordsInput.setError("전체 단어 수인 " + totalWordCount + "개 이하로 입력하세요.");
             return -1;
         }
         return requested;
@@ -107,7 +90,7 @@ public class MatchingSetupActivity extends Activity {
 
     private void startMatching() {
         int maximumWords = readMaximumWordCount();
-        if (maximumWords < 2) return;
+        if (maximumWords < 1) return;
         Intent intent = new Intent(this, MatchingActivity.class);
         intent.putExtra("book_id", bookId);
         intent.putExtra("max_words", maximumWords);

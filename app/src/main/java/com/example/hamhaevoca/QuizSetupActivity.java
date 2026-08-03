@@ -71,7 +71,13 @@ public class QuizSetupActivity extends Activity {
         if (availableQuestionCount == 0) {
             availableCountView.setText("현재 설정으로 출제 가능한 문제가 없습니다.");
         } else {
-            availableCountView.setText("출제 가능 " + availableQuestionCount + "개 · 비우면 모두 출제");
+            if (availableQuestionCount == words.size()) {
+            availableCountView.setText("전체 " + words.size()
+                    + "개 모두 출제 가능 · 중복 항목은 힌트로 구분됩니다.");
+        } else {
+            availableCountView.setText("전체 " + words.size() + "개 중 "
+                    + availableQuestionCount + "개 출제 가능");
+        }
         }
     }
 
@@ -102,7 +108,8 @@ public class QuizSetupActivity extends Activity {
         if (questions.isEmpty()) {
             new AlertDialog.Builder(this)
                     .setTitle("시험을 시작할 수 없음")
-                    .setMessage("5개의 서로 다른 보기를 만들 수 있어야 합니다. 단어 또는 뜻의 중복을 확인하고 최소 5개 이상의 고유 단어를 준비하세요.")
+                    .setMessage("문제마다 정답을 포함한 5개의 서로 다른 보기가 필요합니다. "
+                            + "현재 단어장에서는 보기를 만들 수 없습니다.")
                     .setPositiveButton("확인", null)
                     .show();
             return;

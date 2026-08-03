@@ -104,10 +104,18 @@
         android:gravity="center"
         android:text="왼쪽은 미암기 · 오른쪽은 외움 · 카드를 누르면 앞뒤 전환" />
 
-    <LinearLayout
+    <Button
+        android:id="@+id/flashPreviousButton"
+        style="@style/SecondaryButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
+        android:text="← 이전 단어" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal">
 
         <Button
