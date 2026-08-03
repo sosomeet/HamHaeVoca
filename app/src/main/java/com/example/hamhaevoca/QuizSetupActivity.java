@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -22,6 +23,10 @@ public class QuizSetupActivity extends Activity {
     private RadioGroup modeGroup;
     private SeekBar timeSeekBar;
     private TextView timeValue;
+    private TextView availableCountView;
+    private EditText maxWordsInput;
+    private List<VocabItem> words;
+    private int availableQuestionCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +36,12 @@ public class QuizSetupActivity extends Activity {
         modeGroup = findViewById(R.id.quizModeGroup);
         timeSeekBar = findViewById(R.id.quizTimeSeekBar);
         timeValue = findViewById(R.id.quizTimeValue);
+        availableCountView = findViewById(R.id.quizAvailableCount);
+        maxWordsInput = findViewById(R.id.quizMaxWordsInput);
+        words = DatabaseHelper.getInstance(this).getWords(bookId);
 
         timeSeekBar.setMax(15);
-        timeSeekBar.setProgress(5);
+        timeSeekBar.setProgress(0);
         updateTimeLabel();
         timeSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) { updateTimeLabel(); }
@@ -41,7 +49,9 @@ public class QuizSetupActivity extends Activity {
             @Override public void onStopTrackingTouch(SeekBar seekBar) { }
         });
 
+        modeGroup.setOnCheckedChangeListener((group, checkedId) -> updateAvailableCount());
         findViewById(R.id.startQuizButton).setOnClickListener(v -> startQuiz());
+        updateAvailableCount();
     }
 
     private void updateTimeLabel() {
@@ -55,9 +65,40 @@ public class QuizSetupActivity extends Activity {
         return QuizEngine.TERM_TO_MEANING;
     }
 
+    private void updateAvailableCount() {
+        ArrayList<QuizQuestion> questions = QuizEngine.createQuestions(words, selectedMode(), new Random(0));
+        availableQuestionCount = questions.size();
+        if (availableQuestionCount == 0) {
+            availableCountView.setText("현재 설정으로 출제 가능한 문제가 없습니다.");
+        } else {
+            availableCountView.setText("출제 가능 " + availableQuestionCount + "개 · 비우면 모두 출제");
+        }
+    }
+
+    private int readMaximumQuestionCount() {
+        String raw = maxWordsInput.getText().toString().trim();
+        if (raw.isEmpty()) return availableQuestionCount;
+        final int requested;
+        try {
+            requested = Integer.parseInt(raw);
+        } catch (NumberFormatException e) {
+            maxWordsInput.setError("숫자를 입력하세요.");
+            return -1;
+        }
+        if (requested < 1) {
+            maxWordsInput.setError("1개 이상 입력하세요.");
+            return -1;
+        }
+        if (requested > availableQuestionCount) {
+            maxWordsInput.setError("출제 가능한 " + availableQuestionCount + "개 이하로 입력하세요.");
+            return -1;
+        }
+        return requested;
+    }
+
     private void startQuiz() {
-        List<VocabItem> words = DatabaseHelper.getInstance(this).getWords(bookId);
         ArrayList<QuizQuestion> questions = QuizEngine.createQuestions(words, selectedMode(), new Random());
+        availableQuestionCount = questions.size();
         if (questions.isEmpty()) {
             new AlertDialog.Builder(this)
                     .setTitle("시험을 시작할 수 없음")
@@ -66,10 +107,14 @@ public class QuizSetupActivity extends Activity {
                     .show();
             return;
         }
+        int maximumQuestions = readMaximumQuestionCount();
+        if (maximumQuestions < 1) return;
+
         Intent intent = new Intent(this, QuizActivity.class);
         intent.putExtra("book_id", bookId);
         intent.putExtra("mode", selectedMode());
         intent.putExtra("time_limit", timeSeekBar.getProgress() + 5);
+        intent.putExtra("max_words", maximumQuestions);
         startActivity(intent);
     }
 }

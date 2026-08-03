@@ -8,14 +8,19 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.hamhaevoca.model.BookSummary;
 import com.example.hamhaevoca.model.QuizAnswerData;
+import com.example.hamhaevoca.model.MergeResult;
 import com.example.hamhaevoca.model.QuizAttemptSummary;
 import com.example.hamhaevoca.model.VocabItem;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "hamhaevoca.db";
@@ -133,6 +138,157 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         } finally {
             db.endTransaction();
         }
+    }
+
+    /**
+     * Existing study history is preserved while imported words are merged into a book.
+     *
+     * Matching order:
+     * 1) normalized term + meaning exact match
+     * 2) a unique normalized term match (allows a meaning correction)
+     * 3) otherwise insert as a new word
+     *
+     * Existing words that are not included in the imported file are kept and appended after
+     * the imported rows. This prevents an accidental import from deleting study history.
+     */
+    public MergeResult mergeBookWords(long bookId, String sourceType, List<VocabItem> importedItems) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            List<VocabItem> existingItems = readWords(db, bookId);
+            Map<String, List<VocabItem>> exactMatches = new HashMap<String, List<VocabItem>>();
+            Map<String, List<VocabItem>> termMatches = new HashMap<String, List<VocabItem>>();
+            for (VocabItem item : existingItems) {
+                addToMap(exactMatches, wordKey(item.getTerm(), item.getMeaning()), item);
+                addToMap(termMatches, normalize(item.getTerm()), item);
+            }
+
+            Map<String, Integer> importedTermCounts = new HashMap<String, Integer>();
+            for (VocabItem item : importedItems) {
+                String key = normalize(item.getTerm());
+                Integer count = importedTermCounts.get(key);
+                importedTermCounts.put(key, count == null ? 1 : count + 1);
+            }
+
+            Set<Long> usedIds = new HashSet<Long>();
+            String timestamp = now();
+            int added = 0;
+            int updated = 0;
+            int retained = 0;
+            int order = 0;
+
+            for (VocabItem imported : importedItems) {
+                VocabItem match = firstUnused(exactMatches.get(
+                        wordKey(imported.getTerm(), imported.getMeaning())), usedIds);
+
+                String normalizedTerm = normalize(imported.getTerm());
+                if (match == null && importedTermCounts.get(normalizedTerm) != null
+                        && importedTermCounts.get(normalizedTerm) == 1) {
+                    List<VocabItem> sameTerm = unusedItems(termMatches.get(normalizedTerm), usedIds);
+                    if (sameTerm.size() == 1) match = sameTerm.get(0);
+                }
+
+                if (match == null) {
+                    ContentValues values = new ContentValues();
+                    values.put("book_id", bookId);
+                    values.put("term", imported.getTerm());
+                    values.put("meaning", imported.getMeaning());
+                    values.put("sort_order", order++);
+                    values.put("memorized", 0);
+                    values.put("correct_count", 0);
+                    values.put("incorrect_count", 0);
+                    values.put("created_at", timestamp);
+                    values.put("updated_at", timestamp);
+                    db.insertOrThrow("words", null, values);
+                    added++;
+                    continue;
+                }
+
+                usedIds.add(match.getId());
+                boolean contentChanged = !match.getTerm().equals(imported.getTerm())
+                        || !match.getMeaning().equals(imported.getMeaning());
+                ContentValues values = new ContentValues();
+                values.put("term", imported.getTerm());
+                values.put("meaning", imported.getMeaning());
+                values.put("sort_order", order++);
+                if (contentChanged) values.put("updated_at", timestamp);
+                db.update("words", values, "id = ? AND book_id = ?",
+                        new String[]{String.valueOf(match.getId()), String.valueOf(bookId)});
+                if (contentChanged) updated++;
+                else retained++;
+            }
+
+            // Keep words omitted from the new file. Their study counts stay intact.
+            for (VocabItem existing : existingItems) {
+                if (usedIds.contains(existing.getId())) continue;
+                ContentValues values = new ContentValues();
+                values.put("sort_order", order++);
+                db.update("words", values, "id = ? AND book_id = ?",
+                        new String[]{String.valueOf(existing.getId()), String.valueOf(bookId)});
+            }
+
+            ContentValues bookValues = new ContentValues();
+            bookValues.put("source_type", sourceType);
+            bookValues.put("updated_at", timestamp);
+            int affected = db.update("books", bookValues, "id = ?",
+                    new String[]{String.valueOf(bookId)});
+            if (affected != 1) throw new IllegalArgumentException("갱신할 단어장을 찾을 수 없습니다.");
+
+            db.setTransactionSuccessful();
+            return new MergeResult(added, updated, retained, existingItems.size() - usedIds.size());
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private List<VocabItem> readWords(SQLiteDatabase db, long bookId) {
+        List<VocabItem> result = new ArrayList<VocabItem>();
+        Cursor cursor = db.query("words",
+                new String[]{"id", "book_id", "term", "meaning", "sort_order",
+                        "memorized", "correct_count", "incorrect_count"},
+                "book_id = ?", new String[]{String.valueOf(bookId)}, null, null,
+                "sort_order ASC");
+        try {
+            while (cursor.moveToNext()) result.add(readWord(cursor));
+        } finally {
+            cursor.close();
+        }
+        return result;
+    }
+
+    private void addToMap(Map<String, List<VocabItem>> map, String key, VocabItem item) {
+        List<VocabItem> values = map.get(key);
+        if (values == null) {
+            values = new ArrayList<VocabItem>();
+            map.put(key, values);
+        }
+        values.add(item);
+    }
+
+    private VocabItem firstUnused(List<VocabItem> items, Set<Long> usedIds) {
+        if (items == null) return null;
+        for (VocabItem item : items) {
+            if (!usedIds.contains(item.getId())) return item;
+        }
+        return null;
+    }
+
+    private List<VocabItem> unusedItems(List<VocabItem> items, Set<Long> usedIds) {
+        List<VocabItem> result = new ArrayList<VocabItem>();
+        if (items == null) return result;
+        for (VocabItem item : items) {
+            if (!usedIds.contains(item.getId())) result.add(item);
+        }
+        return result;
+    }
+
+    private String wordKey(String term, String meaning) {
+        return normalize(term) + "\u0001" + normalize(meaning);
+    }
+
+    private String normalize(String value) {
+        if (value == null) return "";
+        return value.trim().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
     }
 
     public List<BookSummary> getBookSummaries() {

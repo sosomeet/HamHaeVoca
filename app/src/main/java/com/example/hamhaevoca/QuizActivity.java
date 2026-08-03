@@ -33,7 +33,6 @@ public class QuizActivity extends Activity {
     private TextView timerText;
     private TextView directionText;
     private TextView promptText;
-    private TextView feedbackText;
     private ProgressBar progressBar;
     private int index = 0;
     private boolean answered = false;
@@ -48,15 +47,18 @@ public class QuizActivity extends Activity {
         setContentView(R.layout.activity_quiz);
         bookId = getIntent().getLongExtra("book_id", -1);
         mode = getIntent().getStringExtra("mode");
-        timeLimit = getIntent().getIntExtra("time_limit", 10);
+        timeLimit = getIntent().getIntExtra("time_limit", 5);
+        int maximumWords = getIntent().getIntExtra("max_words", 0);
         List<VocabItem> words = DatabaseHelper.getInstance(this).getWords(bookId);
         questions = QuizEngine.createQuestions(words, mode, new Random());
+        if (maximumWords > 0 && questions.size() > maximumWords) {
+            questions = new ArrayList<QuizQuestion>(questions.subList(0, maximumWords));
+        }
 
         progressText = findViewById(R.id.quizProgressText);
         timerText = findViewById(R.id.quizTimerText);
         directionText = findViewById(R.id.quizDirectionText);
         promptText = findViewById(R.id.quizPromptText);
-        feedbackText = findViewById(R.id.quizFeedbackText);
         progressBar = findViewById(R.id.quizProgressBar);
         choiceButtons[0] = findViewById(R.id.choice1);
         choiceButtons[1] = findViewById(R.id.choice2);
@@ -67,7 +69,7 @@ public class QuizActivity extends Activity {
             final int choiceIndex = i;
             choiceButtons[i].setOnClickListener(v -> selectAnswer(choiceIndex));
         }
-        findViewById(R.id.exitQuizButton).setOnClickListener(v -> confirmExit());
+        findViewById(R.id.quizBackButton).setOnClickListener(v -> confirmExit());
 
         if (questions == null || questions.isEmpty()) {
             finish();
@@ -88,7 +90,6 @@ public class QuizActivity extends Activity {
         progressBar.setProgress(index + 1);
         directionText.setText("term-to-meaning".equals(question.getDirection()) ? "영단어를 보고 뜻을 고르세요" : "뜻을 보고 영단어를 고르세요");
         promptText.setText(question.getPrompt());
-        feedbackText.setText("");
         for (int i = 0; i < 5; i++) {
             choiceButtons[i].setText((i + 1) + ". " + question.getChoices().get(i));
             choiceButtons[i].setEnabled(true);
@@ -142,10 +143,6 @@ public class QuizActivity extends Activity {
                 choiceButtons[i].setTextColor(getResources().getColor(R.color.text_primary));
             }
         }
-        if (timedOut) feedbackText.setText("시간 초과 · 정답: " + question.getCorrectAnswer());
-        else if (correct) feedbackText.setText("정답입니다.");
-        else feedbackText.setText("오답입니다 · 정답: " + question.getCorrectAnswer());
-
         handler.postDelayed(() -> {
             index++;
             showQuestion();

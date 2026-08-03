@@ -15,6 +15,16 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
+        <ImageButton
+            android:id="@+id/quizBackButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/bg_icon_button"
+            android:contentDescription="시험 중단 및 뒤로 가기"
+            android:padding="13dp"
+            android:src="@drawable/ic_arrow_back" />
+
         <TextView
             android:id="@+id/quizProgressText"
             android:layout_width="0dp"
@@ -58,29 +68,18 @@
         android:layout_marginTop="10dp"
         android:layout_weight="1"
         android:background="@drawable/bg_card"
-        android:elevation="3dp"
         android:gravity="center"
         android:padding="24dp"
         android:textColor="@color/text_primary"
         android:textSize="31sp"
         android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/quizFeedbackText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:gravity="start|center_vertical"
-        android:minHeight="32dp"
-        android:textColor="@color/text_primary"
-        android:textSize="15sp"
-        android:textStyle="bold" />
-
     <Button
         android:id="@+id/choice1"
         style="@style/ChoiceButton"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp" />
 
     <Button
         android:id="@+id/choice2"
@@ -109,12 +108,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp" />
-
-    <Button
-        android:id="@+id/exitQuizButton"
-        style="@style/SecondaryButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="시험 중단" />
 </LinearLayout>

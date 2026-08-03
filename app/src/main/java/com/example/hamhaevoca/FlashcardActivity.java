@@ -2,11 +2,11 @@ package com.example.hamhaevoca;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -24,13 +24,19 @@ import java.util.Locale;
 import java.util.Set;
 
 public class FlashcardActivity extends Activity {
+    private static final String PREFS_NAME = "flashcard_settings";
+    private static final String PREF_ORDER = "order";
+    private static final String PREF_MEANING_FRONT = "meaning_front";
+
     private long bookId;
     private DatabaseHelper db;
     private TextView progressView;
     private TextView countView;
     private TextView cardView;
-    private Spinner orderSpinner;
-    private Switch frontSwitch;
+    private View swipeBackground;
+
+    private int selectedOrder = 0;
+    private boolean meaningOnFront = false;
 
     private final List<VocabItem> sourceWords = new ArrayList<VocabItem>();
     private final List<VocabItem> roundWords = new ArrayList<VocabItem>();
@@ -51,38 +57,62 @@ public class FlashcardActivity extends Activity {
         bookId = getIntent().getLongExtra("book_id", -1);
         db = DatabaseHelper.getInstance(this);
 
+        SharedPreferences preferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        selectedOrder = preferences.getInt(PREF_ORDER, 0);
+        if (selectedOrder < 0 || selectedOrder > 2) selectedOrder = 0;
+        meaningOnFront = preferences.getBoolean(PREF_MEANING_FRONT, false);
+
         progressView = findViewById(R.id.flashProgress);
         countView = findViewById(R.id.flashCounts);
         cardView = findViewById(R.id.flashCard);
-        orderSpinner = findViewById(R.id.flashOrderSpinner);
-        frontSwitch = findViewById(R.id.frontSideSwitch);
+        swipeBackground = findViewById(R.id.flashSwipeBackground);
+
         findViewById(R.id.flashBackButton).setOnClickListener(v -> finish());
-
-        String[] orders = new String[]{"단어장 순서", "무작위", "알파벳순"};
-        orderSpinner.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, orders));
-        orderSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
-            private boolean first = true;
-            @Override public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
-                if (first) { first = false; return; }
-                new AlertDialog.Builder(FlashcardActivity.this)
-                        .setTitle("학습 순서 변경")
-                        .setMessage("현재 회차를 처음부터 다시 시작합니다.")
-                        .setPositiveButton("변경", (d, w) -> startNewSession())
-                        .setNegativeButton("취소", (d, w) -> { })
-                        .show();
-            }
-            @Override public void onNothingSelected(android.widget.AdapterView<?> parent) { }
-        });
-        frontSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            showingFront = true;
-            renderCard();
-        });
-
+        findViewById(R.id.flashSettingsButton).setOnClickListener(v -> showSettingsDialog());
         cardView.setOnTouchListener((v, event) -> handleCardTouch(event));
         findViewById(R.id.notLearnedButton).setOnClickListener(v -> judge(false));
         findViewById(R.id.learnedButton).setOnClickListener(v -> judge(true));
 
         loadWords();
+    }
+
+    private void showSettingsDialog() {
+        View view = getLayoutInflater().inflate(R.layout.dialog_flashcard_settings, null);
+        Spinner orderSpinner = view.findViewById(R.id.dialogFlashOrderSpinner);
+        Switch frontSwitch = view.findViewById(R.id.dialogFrontSideSwitch);
+
+        String[] orders = new String[]{"단어장 순서", "무작위", "알파벳순"};
+        orderSpinner.setAdapter(new ArrayAdapter<String>(this,
+                android.R.layout.simple_spinner_dropdown_item, orders));
+        orderSpinner.setSelection(selectedOrder);
+        frontSwitch.setChecked(meaningOnFront);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("낱말카드 설정")
+                .setView(view)
+                .setPositiveButton("적용", null)
+                .setNegativeButton("취소", null)
+                .create();
+
+        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(v -> {
+                    int newOrder = orderSpinner.getSelectedItemPosition();
+                    boolean newMeaningOnFront = frontSwitch.isChecked();
+                    boolean orderChanged = newOrder != selectedOrder;
+
+                    selectedOrder = newOrder;
+                    meaningOnFront = newMeaningOnFront;
+                    getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
+                            .putInt(PREF_ORDER, selectedOrder)
+                            .putBoolean(PREF_MEANING_FRONT, meaningOnFront)
+                            .apply();
+                    dialog.dismiss();
+
+                    showingFront = true;
+                    if (orderChanged) startNewSession();
+                    else renderCard();
+                }));
+        dialog.show();
     }
 
     private void loadWords() {
@@ -91,9 +121,15 @@ public class FlashcardActivity extends Activity {
         if (wrongIds != null && !wrongIds.trim().isEmpty()) {
             Set<Long> ids = new HashSet<Long>();
             for (String value : wrongIds.split(",")) {
-                try { ids.add(Long.parseLong(value.trim())); } catch (Exception ignored) { }
+                try {
+                    ids.add(Long.parseLong(value.trim()));
+                } catch (Exception ignored) {
+                    // Ignore malformed IDs supplied by a stale result screen.
+                }
             }
-            for (VocabItem item : all) if (ids.contains(item.getId())) sourceWords.add(item);
+            for (VocabItem item : all) {
+                if (ids.contains(item.getId())) sourceWords.add(item);
+            }
         } else {
             sourceWords.addAll(all);
         }
@@ -119,12 +155,14 @@ public class FlashcardActivity extends Activity {
     private void setRound(List<VocabItem> words) {
         roundWords.clear();
         roundWords.addAll(words);
-        int order = orderSpinner.getSelectedItemPosition();
-        if (order == 1) Collections.shuffle(roundWords);
-        else if (order == 2) {
+        if (selectedOrder == 1) {
+            Collections.shuffle(roundWords);
+        } else if (selectedOrder == 2) {
             Collections.sort(roundWords, new Comparator<VocabItem>() {
-                @Override public int compare(VocabItem a, VocabItem b) {
-                    return a.getTerm().toLowerCase(Locale.getDefault()).compareTo(b.getTerm().toLowerCase(Locale.getDefault()));
+                @Override
+                public int compare(VocabItem a, VocabItem b) {
+                    return a.getTerm().toLowerCase(Locale.getDefault())
+                            .compareTo(b.getTerm().toLowerCase(Locale.getDefault()));
                 }
             });
         }
@@ -134,8 +172,7 @@ public class FlashcardActivity extends Activity {
         notLearnedCount = 0;
         showingFront = true;
         locked = false;
-        cardView.setTranslationX(0f);
-        cardView.setAlpha(1f);
+        resetSwipeVisuals();
         renderCard();
     }
 
@@ -144,20 +181,28 @@ public class FlashcardActivity extends Activity {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             downX = event.getRawX();
             downY = event.getRawY();
+            resetSwipeFeedback();
             return true;
         }
         if (event.getAction() == MotionEvent.ACTION_MOVE) {
             float dx = event.getRawX() - downX;
             cardView.setTranslationX(dx);
-            cardView.setRotation(dx / 30f);
+            float rotation = Math.max(-11f, Math.min(11f, dx / 32f));
+            cardView.setRotation(rotation);
+            showSwipeFeedback(dx);
             return true;
         }
-        if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+        if (event.getAction() == MotionEvent.ACTION_UP
+                || event.getAction() == MotionEvent.ACTION_CANCEL) {
             float dx = event.getRawX() - downX;
             float dy = event.getRawY() - downY;
-            if (Math.abs(dx) > 120) animateJudge(dx > 0);
-            else {
-                cardView.animate().translationX(0f).rotation(0f).setDuration(120).start();
+            if (Math.abs(dx) > 120) {
+                animateJudge(dx > 0);
+            } else {
+                cardView.animate().translationX(0f).rotation(0f)
+                        .setDuration(140)
+                        .withEndAction(this::resetSwipeFeedback)
+                        .start();
                 if (Math.abs(dx) < 20 && Math.abs(dy) < 20) flipCard();
             }
             return true;
@@ -165,16 +210,43 @@ public class FlashcardActivity extends Activity {
         return false;
     }
 
+    private void showSwipeFeedback(float dx) {
+        if (dx == 0f) {
+            resetSwipeFeedback();
+            return;
+        }
+        swipeBackground.setBackgroundResource(dx < 0
+                ? R.drawable.bg_swipe_wrong : R.drawable.bg_swipe_learned);
+        float width = Math.max(1f, cardView.getWidth());
+        float alpha = Math.min(0.9f, Math.abs(dx) / (width * 0.42f));
+        swipeBackground.setAlpha(alpha);
+    }
+
+    private void resetSwipeFeedback() {
+        swipeBackground.setAlpha(0f);
+    }
+
+    private void resetSwipeVisuals() {
+        cardView.animate().cancel();
+        cardView.setTranslationX(0f);
+        cardView.setRotation(0f);
+        cardView.setAlpha(1f);
+        resetSwipeFeedback();
+    }
+
     private void animateJudge(final boolean learned) {
         if (locked) return;
         locked = true;
-        float target = learned ? cardView.getWidth() * 1.2f : -cardView.getWidth() * 1.2f;
-        cardView.animate().translationX(target).alpha(0f).setDuration(160).withEndAction(() -> {
-            processJudge(learned);
-            cardView.setTranslationX(0f);
-            cardView.setRotation(0f);
-            cardView.setAlpha(1f);
-        }).start();
+        swipeBackground.setBackgroundResource(learned
+                ? R.drawable.bg_swipe_learned : R.drawable.bg_swipe_wrong);
+        swipeBackground.setAlpha(0.75f);
+        float width = Math.max(cardView.getWidth(), getResources().getDisplayMetrics().widthPixels);
+        float target = learned ? width * 1.1f : -width * 1.1f;
+        cardView.animate().translationX(target).rotation(learned ? 12f : -12f)
+                .alpha(0f).setDuration(180).withEndAction(() -> {
+                    processJudge(learned);
+                    resetSwipeVisuals();
+                }).start();
     }
 
     private void judge(boolean learned) {
@@ -187,15 +259,17 @@ public class FlashcardActivity extends Activity {
         VocabItem item = roundWords.get(index);
         db.setMemorized(item.getId(), bookId, learned);
         item.setMemorized(learned);
-        if (learned) learnedCount++;
-        else {
+        if (learned) {
+            learnedCount++;
+        } else {
             notLearnedCount++;
             notLearned.add(item);
         }
         index++;
         showingFront = true;
-        if (index >= roundWords.size()) finishRound();
-        else {
+        if (index >= roundWords.size()) {
+            finishRound();
+        } else {
             locked = false;
             renderCard();
         }
@@ -206,7 +280,8 @@ public class FlashcardActivity extends Activity {
             final int remaining = notLearned.size();
             new AlertDialog.Builder(this)
                     .setTitle("회차 완료")
-                    .setMessage("아직 못 외운 단어 " + remaining + "개로 다음 회차를 시작합니다.")
+                    .setMessage("아직 못 외운 단어 " + remaining
+                            + "개로 다음 회차를 시작합니다.")
                     .setPositiveButton("계속", (d, w) -> {
                         roundNumber++;
                         setRound(new ArrayList<VocabItem>(notLearned));
@@ -253,10 +328,11 @@ public class FlashcardActivity extends Activity {
     private void renderCard() {
         if (roundWords.isEmpty() || index >= roundWords.size()) return;
         VocabItem item = roundWords.get(index);
-        boolean englishFront = !frontSwitch.isChecked();
-        boolean showEnglish = showingFront ? englishFront : !englishFront;
-        cardView.setText(showEnglish ? item.getTerm() : item.getMeaning());
-        progressView.setText("회차 " + roundNumber + " · " + (index + 1) + " / " + roundWords.size());
-        countView.setText("외움 " + learnedCount + " · 못 외움 " + notLearnedCount + "\n카드를 눌러 앞뒤 전환");
+        boolean showMeaning = showingFront ? meaningOnFront : !meaningOnFront;
+        cardView.setText(showMeaning ? item.getMeaning() : item.getTerm());
+        progressView.setText("회차 " + roundNumber + " · " + (index + 1)
+                + " / " + roundWords.size());
+        countView.setText("외움 " + learnedCount + " · 못 외움 " + notLearnedCount
+                + "\n카드를 눌러 앞뒤 전환");
     }
 }

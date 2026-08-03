@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +14,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,11 +33,13 @@ public class BookDetailActivity extends Activity {
     private DatabaseHelper db;
     private TextView titleView;
     private TextView statsView;
-    private TextView recentView;
+    private TextView filterResultText;
     private EditText searchInput;
+    private Button wrongFilterButton;
     private WordAdapter adapter;
     private final List<VocabItem> allWords = new ArrayList<VocabItem>();
     private final List<VocabItem> shownWords = new ArrayList<VocabItem>();
+    private int minimumWrongCount = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,32 +48,43 @@ public class BookDetailActivity extends Activity {
         bookId = getIntent().getLongExtra("book_id", -1);
         db = DatabaseHelper.getInstance(this);
 
-        titleView = findViewById(R.id.detailBookTitle);
-        statsView = findViewById(R.id.detailBookStats);
-        recentView = findViewById(R.id.recentQuizText);
-        searchInput = findViewById(R.id.searchInput);
         ListView listView = findViewById(R.id.wordList);
+        View header = getLayoutInflater().inflate(R.layout.header_book_detail, listView, false);
+        listView.addHeaderView(header, null, false);
+
+        titleView = header.findViewById(R.id.detailBookTitle);
+        statsView = header.findViewById(R.id.detailBookStats);
+        filterResultText = header.findViewById(R.id.filterResultText);
+        searchInput = header.findViewById(R.id.searchInput);
+        wrongFilterButton = header.findViewById(R.id.wrongFilterButton);
+
         adapter = new WordAdapter(this, shownWords);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener((parent, view, position, id) -> showEditDialog(shownWords.get(position)));
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            Object selected = parent.getItemAtPosition(position);
+            if (selected instanceof VocabItem) showEditDialog((VocabItem) selected);
+        });
         listView.setOnItemLongClickListener((parent, view, position, id) -> {
-            confirmDeleteWord(shownWords.get(position));
-            return true;
+            Object selected = parent.getItemAtPosition(position);
+            if (selected instanceof VocabItem) {
+                confirmDeleteWord((VocabItem) selected);
+                return true;
+            }
+            return false;
         });
 
         searchInput.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) { filterWords(); }
-            @Override public void afterTextChanged(Editable s) {}
+            @Override public void afterTextChanged(Editable s) { }
         });
 
-        findViewById(R.id.addWordButton).setOnClickListener(v -> showEditDialog(null));
-        findViewById(R.id.flashcardButton).setOnClickListener(v -> openLearning(FlashcardActivity.class));
-        findViewById(R.id.quizButton).setOnClickListener(v -> openLearning(QuizSetupActivity.class));
-        findViewById(R.id.matchingButton).setOnClickListener(v -> openLearning(MatchingActivity.class));
-        findViewById(R.id.resetMemorizedButton).setOnClickListener(v -> confirmReset());
-        findViewById(R.id.deleteBookButton).setOnClickListener(v -> confirmDeleteBook());
-        findViewById(R.id.renameBookButton).setOnClickListener(v -> renameBook());
+        header.findViewById(R.id.detailBackButton).setOnClickListener(v -> finish());
+        header.findViewById(R.id.bookSettingsButton).setOnClickListener(v -> openBookSettings());
+        header.findViewById(R.id.flashcardButton).setOnClickListener(v -> openLearning(FlashcardActivity.class));
+        header.findViewById(R.id.quizButton).setOnClickListener(v -> openLearning(QuizSetupActivity.class));
+        header.findViewById(R.id.matchingButton).setOnClickListener(v -> openLearning(MatchingSetupActivity.class));
+        wrongFilterButton.setOnClickListener(v -> showWrongFilterDialog());
     }
 
     @Override
@@ -91,39 +105,111 @@ public class BookDetailActivity extends Activity {
             return;
         }
         titleView.setText(summary.getName());
-        statsView.setText("전체 " + summary.getTotalCount() + " · 외움 " + summary.getMemorizedCount() + " · 미암기 " + summary.getUnmemorizedCount());
+        statsView.setText("전체 " + summary.getTotalCount() + " · 외움 "
+                + summary.getMemorizedCount() + " · 미암기 " + summary.getUnmemorizedCount());
         allWords.clear();
         allWords.addAll(db.getWords(bookId));
         filterWords();
-        showRecentAttempts();
-    }
-
-    private void showRecentAttempts() {
-        List<QuizAttemptSummary> attempts = db.getRecentAttempts(bookId, 5);
-        if (attempts.isEmpty()) {
-            recentView.setText("최근 시험 기록 없음");
-            return;
-        }
-        StringBuilder builder = new StringBuilder("최근 시험\n");
-        for (QuizAttemptSummary attempt : attempts) {
-            int rate = attempt.getTotalCount() == 0 ? 0 : Math.round(attempt.getCorrectCount() * 100f / attempt.getTotalCount());
-            builder.append(attempt.getCompletedAt().replace('T', ' '))
-                    .append(" · ").append(attempt.getCorrectCount()).append('/').append(attempt.getTotalCount())
-                    .append(" (").append(rate).append("%)\n");
-        }
-        recentView.setText(builder.toString().trim());
     }
 
     private void filterWords() {
+        if (searchInput == null || adapter == null) return;
         String query = searchInput.getText().toString().trim().toLowerCase(Locale.getDefault());
         shownWords.clear();
         for (VocabItem item : allWords) {
-            if (query.isEmpty() || item.getTerm().toLowerCase(Locale.getDefault()).contains(query)
-                    || item.getMeaning().toLowerCase(Locale.getDefault()).contains(query)) {
-                shownWords.add(item);
-            }
+            boolean matchesText = query.isEmpty()
+                    || item.getTerm().toLowerCase(Locale.getDefault()).contains(query)
+                    || item.getMeaning().toLowerCase(Locale.getDefault()).contains(query);
+            boolean matchesWrongCount = minimumWrongCount <= 0
+                    || item.getIncorrectCount() >= minimumWrongCount;
+            if (matchesText && matchesWrongCount) shownWords.add(item);
         }
         adapter.notifyDataSetChanged();
+        updateFilterSummary();
+    }
+
+    private void updateFilterSummary() {
+        if (minimumWrongCount <= 0) {
+            wrongFilterButton.setText("오답 필터: 전체");
+        } else {
+            wrongFilterButton.setText("오답 필터: " + minimumWrongCount + "회 이상");
+        }
+        filterResultText.setText("표시 중 " + shownWords.size() + "개 / 전체 " + allWords.size() + "개");
+    }
+
+    private void showWrongFilterDialog() {
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setHint("0은 전체 표시");
+        input.setSingleLine(true);
+        if (minimumWrongCount > 0) {
+            input.setText(String.valueOf(minimumWrongCount));
+            input.setSelection(input.length());
+        }
+        int padding = getResources().getDimensionPixelSize(R.dimen.dialog_padding);
+        input.setPadding(padding, padding / 2, padding, padding / 2);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("오답 횟수 필터")
+                .setMessage("입력한 횟수 이상 틀린 단어만 표시합니다.")
+                .setView(input)
+                .setPositiveButton("적용", null)
+                .setNeutralButton("전체", (d, w) -> {
+                    minimumWrongCount = 0;
+                    filterWords();
+                })
+                .setNegativeButton("취소", null)
+                .create();
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String raw = input.getText().toString().trim();
+            if (raw.isEmpty()) {
+                minimumWrongCount = 0;
+            } else {
+                try {
+                    minimumWrongCount = Math.max(0, Integer.parseInt(raw));
+                } catch (NumberFormatException e) {
+                    input.setError("0 이상의 숫자를 입력하세요.");
+                    return;
+                }
+            }
+            dialog.dismiss();
+            filterWords();
+        }));
+        dialog.show();
+    }
+
+    private void openBookSettings() {
+        Intent intent = new Intent(this, BookSettingsActivity.class);
+        intent.putExtra("book_id", bookId);
+        startActivity(intent);
+    }
+
+    private void showRecentAttemptsDialog() {
+        List<QuizAttemptSummary> attempts = db.getRecentAttempts(bookId, 5);
+        if (attempts.isEmpty()) {
+            new AlertDialog.Builder(this)
+                    .setTitle("최근 시험 기록")
+                    .setMessage("아직 완료한 시험이 없습니다.")
+                    .setPositiveButton("확인", null)
+                    .show();
+            return;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (QuizAttemptSummary attempt : attempts) {
+            int rate = attempt.getTotalCount() == 0 ? 0
+                    : Math.round(attempt.getCorrectCount() * 100f / attempt.getTotalCount());
+            builder.append(attempt.getCompletedAt().replace('T', ' '))
+                    .append("\n정답 ").append(attempt.getCorrectCount())
+                    .append(" / ").append(attempt.getTotalCount())
+                    .append(" · ").append(rate).append("%")
+                    .append(" · 제한 ").append(attempt.getTimeLimit()).append("초")
+                    .append("\n\n");
+        }
+        new AlertDialog.Builder(this)
+                .setTitle("최근 시험 기록")
+                .setMessage(builder.toString().trim())
+                .setPositiveButton("확인", null)
+                .show();
     }
 
     private void openLearning(Class<?> cls) {
@@ -133,6 +219,59 @@ public class BookDetailActivity extends Activity {
         }
         Intent intent = new Intent(this, cls);
         intent.putExtra("book_id", bookId);
+        startActivity(intent);
+    }
+
+    private void showMatchingLimitDialog() {
+        if (allWords.size() < 2) {
+            Toast.makeText(this, "맞추기에는 최소 2개의 단어가 필요합니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setSingleLine(true);
+        input.setHint("비우면 전체 · 최대 " + allWords.size() + "개");
+        int padding = getResources().getDimensionPixelSize(R.dimen.dialog_padding);
+        input.setPadding(padding, padding / 2, padding, padding / 2);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("맞추기 단어 수")
+                .setMessage("이번 맞추기에 사용할 최대 단어 개수를 입력하세요.")
+                .setView(input)
+                .setPositiveButton("시작", null)
+                .setNegativeButton("취소", null)
+                .create();
+        dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            String raw = input.getText().toString().trim();
+            int maxWords = 0;
+            if (!raw.isEmpty()) {
+                try {
+                    maxWords = Integer.parseInt(raw);
+                } catch (NumberFormatException e) {
+                    input.setError("숫자를 입력하세요.");
+                    return;
+                }
+                if (maxWords < 2) {
+                    input.setError("최소 2개 이상 입력하세요.");
+                    return;
+                }
+                if (maxWords > allWords.size()) {
+                    input.setError("전체 단어 수 이하로 입력하세요.");
+                    return;
+                }
+            }
+            dialog.dismiss();
+            Intent intent = new Intent(this, MatchingActivity.class);
+            intent.putExtra("book_id", bookId);
+            intent.putExtra("max_words", maxWords);
+            startActivity(intent);
+        }));
+        dialog.show();
+    }
+
+    private void openBookUpdate() {
+        Intent intent = new Intent(this, ImportActivity.class);
+        intent.putExtra("update_book_id", bookId);
         startActivity(intent);
     }
 
@@ -250,8 +389,14 @@ public class BookDetailActivity extends Activity {
             VocabItem item = getItem(position);
             ((TextView) convertView.findViewById(R.id.wordTerm)).setText(item.getTerm());
             ((TextView) convertView.findViewById(R.id.wordMeaning)).setText(item.getMeaning());
+            int totalAnswers = item.getCorrectCount() + item.getIncorrectCount();
+            int wrongRate = totalAnswers == 0 ? 0
+                    : Math.round(item.getIncorrectCount() * 100f / totalAnswers);
             TextView state = convertView.findViewById(R.id.wordState);
-            state.setText((item.isMemorized() ? "외움" : "미암기") + " · 정답 " + item.getCorrectCount() + " · 오답 " + item.getIncorrectCount());
+            state.setText((item.isMemorized() ? "외움" : "미암기")
+                    + " · 시험 " + totalAnswers + "회 · 오답률 " + wrongRate + "%");
+            TextView wrongCount = convertView.findViewById(R.id.wordWrongCount);
+            wrongCount.setText("오답 " + item.getIncorrectCount() + "회");
             return convertView;
         }
     }

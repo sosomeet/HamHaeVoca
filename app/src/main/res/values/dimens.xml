@@ -2,4 +2,5 @@
     <dimen name="screen_padding">16dp</dimen>
     <dimen name="dialog_padding">20dp</dimen>
     <dimen name="card_radius">16dp</dimen>
+    <dimen name="list_item_gap">8dp</dimen>
 </resources>

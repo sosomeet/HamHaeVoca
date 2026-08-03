@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menuUpdateBook" android:title="단어장 갱신" />
+    <item android:id="@+id/menuAddWord" android:title="단어 추가" />
+    <item android:id="@+id/menuResetMemorized" android:title="암기 상태 초기화" />
+    <item android:id="@+id/menuRenameBook" android:title="이름 변경" />
+    <item android:id="@+id/menuRecentQuiz" android:title="최근 시험 기록" />
+    <item android:id="@+id/menuDeleteBook" android:title="단어장 삭제" />
+</menu>

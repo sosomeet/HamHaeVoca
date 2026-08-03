@@ -23,6 +23,9 @@ import java.util.Set;
 
 public class MatchingActivity extends Activity {
     private long bookId;
+    private int maximumWords;
+    private int timeLimitSeconds = 5;
+    private long roundDurationMillis = 5000L;
     private TextView roundText;
     private TextView matchingStats;
     private TextView matchingTimer;
@@ -43,7 +46,7 @@ public class MatchingActivity extends Activity {
     private Button selectedRight;
     private boolean inputLocked = false;
     private CountDownTimer timer;
-    private long remainingMillis = 5000;
+    private long remainingMillis = 5000L;
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
@@ -51,6 +54,11 @@ public class MatchingActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_matching);
         bookId = getIntent().getLongExtra("book_id", -1);
+        maximumWords = getIntent().getIntExtra("max_words", 0);
+        timeLimitSeconds = Math.max(5, Math.min(20,
+                getIntent().getIntExtra("time_limit", 5)));
+        roundDurationMillis = timeLimitSeconds * 1000L;
+        remainingMillis = roundDurationMillis;
         roundText = findViewById(R.id.matchingRoundText);
         matchingStats = findViewById(R.id.matchingStats);
         matchingTimer = findViewById(R.id.matchingTimer);
@@ -76,6 +84,9 @@ public class MatchingActivity extends Activity {
             eligible.add(item);
         }
         Collections.shuffle(eligible);
+        if (maximumWords > 0 && eligible.size() > maximumWords) {
+            eligible.subList(maximumWords, eligible.size()).clear();
+        }
         if (eligible.size() < 2) {
             new AlertDialog.Builder(this)
                     .setTitle("게임을 시작할 수 없음")
@@ -113,7 +124,7 @@ public class MatchingActivity extends Activity {
         for (VocabItem item : left) leftColumn.addView(createItemButton(item, true));
         for (VocabItem item : right) rightColumn.addView(createItemButton(item, false));
         updateHeader();
-        startTimer(5000);
+        startTimer(roundDurationMillis);
     }
 
     private Button createItemButton(VocabItem item, boolean left) {
@@ -159,7 +170,7 @@ public class MatchingActivity extends Activity {
             matchingFeedback.setText("정답입니다.");
             selectedLeft.setBackgroundResource(R.drawable.bg_choice_correct);
             selectedRight.setBackgroundResource(R.drawable.bg_choice_correct);
-            startTimer(5000);
+            startTimer(roundDurationMillis);
             final Button left = selectedLeft;
             final Button right = selectedRight;
             handler.postDelayed(() -> {

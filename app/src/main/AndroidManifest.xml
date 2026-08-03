@@ -9,6 +9,8 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".MatchingActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".MatchingSetupActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".BookSettingsActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".QuizResultActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".QuizActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".QuizSetupActivity" android:screenOrientation="portrait" android:exported="false" />

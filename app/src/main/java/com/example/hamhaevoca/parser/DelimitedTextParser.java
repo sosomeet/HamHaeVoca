@@ -121,6 +121,7 @@ public final class DelimitedTextParser {
 
             String term = cells.size() > 0 ? normalizeText(cells.get(0)) : "";
             String meaning = cells.size() > 1 ? normalizeText(cells.get(1)) : "";
+            String day = cells.size() > 2 ? normalizeDay(cells.get(2)) : "";
 
             if (!headerSkipped && looksLikeHeader(term, meaning)) {
                 headerSkipped = true;
@@ -131,19 +132,19 @@ public final class DelimitedTextParser {
 
             if (term.length() == 0 || meaning.length() == 0) {
                 invalid++;
-                rows.add(new ParsedRow(i + 1, term, meaning, false, false, "단어 또는 뜻이 비어 있습니다."));
+                rows.add(new ParsedRow(i + 1, term, meaning, day, false, false, "단어 또는 뜻이 비어 있습니다."));
                 continue;
             }
 
-            String key = term.toLowerCase(Locale.US) + "\u0000" + meaning;
+            String key = term.toLowerCase(Locale.US) + "\u0000" + meaning + "\u0000" + day;
             if (seen.contains(key)) {
                 duplicate++;
-                rows.add(new ParsedRow(i + 1, term, meaning, true, true, "중복 항목입니다."));
+                rows.add(new ParsedRow(i + 1, term, meaning, day, true, true, "중복 항목입니다."));
                 continue;
             }
             seen.add(key);
             valid++;
-            rows.add(new ParsedRow(i + 1, term, meaning, true, false, ""));
+            rows.add(new ParsedRow(i + 1, term, meaning, day, true, false, ""));
         }
         return new ParseResult(rows, total, valid, invalid, duplicate);
     }
@@ -151,6 +152,16 @@ public final class DelimitedTextParser {
     private static String normalizeText(String value) {
         if (value == null) return "";
         return value.trim().replaceAll("\\s+", " ");
+    }
+
+    private static String normalizeDay(String value) {
+        String normalized = normalizeText(value);
+        if (normalized.isEmpty()) return "";
+        normalized = normalized.replaceAll("(?i)^day\\s*", "").trim();
+        if (normalized.matches("\\d+\\.0+")) {
+            normalized = normalized.substring(0, normalized.indexOf('.'));
+        }
+        return normalized;
     }
 
     private static boolean looksLikeHeader(String term, String meaning) {

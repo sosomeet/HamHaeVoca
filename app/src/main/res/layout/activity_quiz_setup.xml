@@ -15,17 +15,17 @@
         android:paddingBottom="24dp">
 
         <TextView
+            style="@style/TitleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="시험 설정"
-            style="@style/TitleText" />
+            android:text="시험 설정" />
 
         <TextView
+            style="@style/BodyText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="출제 방식과 문제당 시간을 선택하세요."
-            style="@style/BodyText" />
+            android:text="출제 방식, 문제 수와 문제당 시간을 선택하세요." />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -36,10 +36,10 @@
             android:padding="18dp">
 
             <TextView
+                style="@style/SectionText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="출제 방식"
-                style="@style/SectionText" />
+                android:text="출제 방식" />
 
             <RadioGroup
                 android:id="@+id/quizModeGroup"
@@ -86,10 +86,42 @@
             android:padding="18dp">
 
             <TextView
+                style="@style/SectionText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="문제당 제한시간"
-                style="@style/SectionText" />
+                android:text="최대 문제 수" />
+
+            <TextView
+                android:id="@+id/quizAvailableCount"
+                style="@style/BodyText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp" />
+
+            <EditText
+                android:id="@+id/quizMaxWordsInput"
+                style="@style/InputField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:hint="비우면 출제 가능한 단어 전체"
+                android:inputType="number"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                style="@style/SectionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="문제당 제한시간" />
 
             <TextView
                 android:id="@+id/quizTimeValue"
@@ -115,17 +147,17 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    style="@style/CaptionText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="5초"
-                    style="@style/CaptionText" />
+                    android:text="5초" />
 
                 <TextView
+                    style="@style/CaptionText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="20초"
-                    style="@style/CaptionText" />
+                    android:text="20초" />
             </LinearLayout>
         </LinearLayout>
 
