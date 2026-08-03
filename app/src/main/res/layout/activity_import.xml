@@ -74,6 +74,16 @@
             android:paddingStart="12dp"
             android:paddingEnd="12dp" />
 
+        <Switch
+            android:id="@+id/useDayColumnSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:checked="true"
+            android:text="세 번째 열을 Day로 사용"
+            android:textColor="@color/text_primary"
+            android:textSize="15sp" />
+
         <Button
             android:id="@+id/dayFilterButton"
             style="@style/SecondaryButton"

@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -48,6 +49,7 @@ public class ImportActivity extends Activity {
     private TextView descriptionText;
     private Button saveButton;
     private Button dayFilterButton;
+    private Switch useDayColumnSwitch;
     private TextView daySelectionText;
     private LinearLayout previewContainer;
 
@@ -77,6 +79,7 @@ public class ImportActivity extends Activity {
         summaryText = findViewById(R.id.importSummary);
         saveButton = findViewById(R.id.saveImportButton);
         dayFilterButton = findViewById(R.id.dayFilterButton);
+        useDayColumnSwitch = findViewById(R.id.useDayColumnSwitch);
         daySelectionText = findViewById(R.id.daySelectionText);
 
         String[] delimiters = new String[]{"자동", "탭", "쉼표", "세미콜론", "파이프"};
@@ -89,6 +92,10 @@ public class ImportActivity extends Activity {
         findViewById(R.id.parseButton).setOnClickListener(v -> parseCurrentInput());
         findViewById(R.id.clearImportButton).setOnClickListener(v -> confirmClear());
         dayFilterButton.setOnClickListener(v -> showDaySelectionDialog());
+        useDayColumnSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            updateDaySelectionControls();
+            if (currentResult != null) renderPreviewAndSummary();
+        });
         saveButton.setOnClickListener(v -> saveBook());
         saveButton.setEnabled(false);
         dayFilterButton.setEnabled(false);
@@ -236,9 +243,7 @@ public class ImportActivity extends Activity {
 
     private void renderPreviewAndSummary() {
         previewContainer.removeAllViews();
-        int displayed = 0;
         for (ParsedRow row : currentResult.getRows()) {
-            if (displayed >= 20) break;
             View rowView = LayoutInflater.from(this).inflate(
                     R.layout.row_preview, previewContainer, false);
             ((TextView) rowView.findViewById(R.id.previewRowNumber))
@@ -264,7 +269,6 @@ public class ImportActivity extends Activity {
                     getResources().getDimensionPixelSize(R.dimen.list_item_gap));
             rowView.setLayoutParams(params);
             previewContainer.addView(rowView);
-            displayed++;
         }
 
         int selectedCount = currentResult.countValidRowsForDays(selectedDaysForFiltering());
@@ -276,19 +280,27 @@ public class ImportActivity extends Activity {
     }
 
     private boolean isRowSelectedByDay(ParsedRow row) {
+        if (!useDayColumnSwitch.isChecked()) return true;
         if (availableDays.isEmpty() || selectedDays.size() == availableDays.size()) return true;
         return !row.getDay().isEmpty() && selectedDays.contains(row.getDay());
     }
 
     private Set<String> selectedDaysForFiltering() {
+        if (!useDayColumnSwitch.isChecked()) return null;
         if (availableDays.isEmpty() || selectedDays.size() == availableDays.size()) return null;
         return selectedDays;
     }
 
     private void updateDaySelectionControls() {
+        if (!useDayColumnSwitch.isChecked()) {
+            dayFilterButton.setEnabled(false);
+            dayFilterButton.setText("Day 선택 사용 안 함");
+            daySelectionText.setText("세 번째 열을 Day로 해석하지 않고 모든 단어를 저장합니다.");
+            return;
+        }
         if (availableDays.isEmpty()) {
             dayFilterButton.setEnabled(false);
-            dayFilterButton.setText("Day 선택: 전체");
+            dayFilterButton.setText("Day 정보 없음");
             daySelectionText.setText("세 번째 열에 Day 정보가 없어 모든 단어를 저장합니다.");
             return;
         }
@@ -308,7 +320,7 @@ public class ImportActivity extends Activity {
     }
 
     private void showDaySelectionDialog() {
-        if (availableDays.isEmpty()) return;
+        if (!useDayColumnSwitch.isChecked() || availableDays.isEmpty()) return;
         String[] labels = new String[availableDays.size()];
         boolean[] checked = new boolean[availableDays.size()];
         final LinkedHashSet<String> pending = new LinkedHashSet<String>(selectedDays);

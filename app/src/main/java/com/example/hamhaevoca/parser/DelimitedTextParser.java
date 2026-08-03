@@ -105,7 +105,7 @@ public final class DelimitedTextParser {
         int invalid = 0;
         int duplicate = 0;
         int total = 0;
-        boolean headerSkipped = false;
+        boolean firstDataRowSkipped = false;
 
         for (int i = 0; i < table.size(); i++) {
             List<String> cells = table.get(i);
@@ -117,18 +117,15 @@ public final class DelimitedTextParser {
                 }
             }
             if (allEmpty) continue;
+            if (!firstDataRowSkipped) {
+                firstDataRowSkipped = true;
+                continue;
+            }
             total++;
 
             String term = cells.size() > 0 ? normalizeText(cells.get(0)) : "";
             String meaning = cells.size() > 1 ? normalizeText(cells.get(1)) : "";
             String day = cells.size() > 2 ? normalizeDay(cells.get(2)) : "";
-
-            if (!headerSkipped && looksLikeHeader(term, meaning)) {
-                headerSkipped = true;
-                total--;
-                continue;
-            }
-            headerSkipped = true;
 
             if (term.length() == 0 || meaning.length() == 0) {
                 invalid++;

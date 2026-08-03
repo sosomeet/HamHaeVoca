@@ -2,6 +2,7 @@ package com.example.hamhaevoca;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -257,16 +258,17 @@ public class MatchingActivity extends Activity {
 
     private void showCompletion() {
         cancelTimer();
-        new AlertDialog.Builder(this)
-                .setTitle("카드 맞추기 완료")
-                .setMessage("완료한 쌍: " + completedCount
-                        + "\n오답 시도: " + wrongCount
-                        + "\n실패 라운드: " + failedRounds
-                        + "\n누락된 단어: 0개")
-                .setPositiveButton("다시 시작", (d, w) -> restartGame())
-                .setNegativeButton("단어장으로", (d, w) -> finish())
-                .setCancelable(false)
-                .show();
+        Intent intent = new Intent(this, MatchingResultActivity.class);
+        intent.putExtra("book_id", bookId);
+        intent.putExtra("max_words", maximumWords);
+        intent.putExtra("time_limit", timeLimitSeconds);
+        intent.putExtra("total_count", totalSelectedCount);
+        intent.putExtra("completed_count", completedCount);
+        intent.putExtra("correct_count", correctCount);
+        intent.putExtra("wrong_count", wrongCount);
+        intent.putExtra("failed_rounds", failedRounds);
+        startActivity(intent);
+        finish();
     }
 
     private void restartGame() {

@@ -28,10 +28,17 @@
         android:textStyle="bold" />
 
     <TextView
+        style="@style/SectionText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="틀린 단어" />
+
+    <TextView
         android:id="@+id/noWrongText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="10dp"
         android:gravity="center"
         android:text="모든 문제를 맞혔습니다."
         style="@style/BodyText" />

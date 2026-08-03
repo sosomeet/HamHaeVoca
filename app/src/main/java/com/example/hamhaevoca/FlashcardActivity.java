@@ -51,8 +51,11 @@ public class FlashcardActivity extends Activity {
 
     private long bookId;
     private DatabaseHelper db;
-    private TextView progressView;
-    private TextView countView;
+    private TextView batchInfoView;
+    private TextView roundInfoView;
+    private TextView wordInfoView;
+    private TextView notLearnedCountView;
+    private TextView learnedCountView;
     private TextView cardView;
     private View swipeBackground;
     private Button previousButton;
@@ -95,8 +98,11 @@ public class FlashcardActivity extends Activity {
         String wrongIds = getIntent().getStringExtra("wrong_ids");
         sessionPrefix = "session_" + bookId + "_" + (wrongIds == null ? 0 : wrongIds.hashCode()) + "_";
 
-        progressView = findViewById(R.id.flashProgress);
-        countView = findViewById(R.id.flashCounts);
+        batchInfoView = findViewById(R.id.flashBatchInfo);
+        roundInfoView = findViewById(R.id.flashRoundInfo);
+        wordInfoView = findViewById(R.id.flashWordInfo);
+        notLearnedCountView = findViewById(R.id.flashNotLearnedCount);
+        learnedCountView = findViewById(R.id.flashLearnedCount);
         cardView = findViewById(R.id.flashCard);
         swipeBackground = findViewById(R.id.flashSwipeBackground);
         previousButton = findViewById(R.id.flashPreviousButton);
@@ -499,13 +505,11 @@ public class FlashcardActivity extends Activity {
 
         int totalBatches = (int) Math.ceil(sourceWords.size() / (double) batchSize);
         int currentBatch = Math.min(totalBatches, batchStartIndex / batchSize + 1);
-        progressView.setText("묶음 " + currentBatch + " / " + totalBatches
-                + " · 회차 " + roundNumber + " · " + (index + 1)
-                + " / " + roundWords.size());
-        int currentRangeEnd = Math.min(batchStartIndex + batchWords.size(), sourceWords.size());
-        countView.setText("현재 묶음 " + (batchStartIndex + 1) + "~" + currentRangeEnd
-                + " · 외움 " + learnedCount + " · 못 외움 " + notLearnedCount
-                + "\n진행 상황은 자동 저장됩니다.");
+        batchInfoView.setText("묶음 " + currentBatch + " / " + totalBatches);
+        roundInfoView.setText("회차 " + roundNumber);
+        wordInfoView.setText((index + 1) + " / " + roundWords.size());
+        notLearnedCountView.setText("못 외움 " + notLearnedCount);
+        learnedCountView.setText("외움 " + learnedCount);
     }
 
     private boolean restoreSession() {
