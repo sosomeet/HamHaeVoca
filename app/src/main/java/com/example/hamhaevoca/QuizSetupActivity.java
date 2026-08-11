@@ -13,6 +13,7 @@ import com.example.hamhaevoca.data.DatabaseHelper;
 import com.example.hamhaevoca.model.QuizQuestion;
 import com.example.hamhaevoca.model.VocabItem;
 import com.example.hamhaevoca.util.QuizEngine;
+import com.example.hamhaevoca.util.PosTagParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,22 +63,36 @@ public class QuizSetupActivity extends Activity {
         int checked = modeGroup.getCheckedRadioButtonId();
         if (checked == R.id.modeMeaningToTerm) return QuizEngine.MEANING_TO_TERM;
         if (checked == R.id.modeMixed) return QuizEngine.MIXED;
+        if (checked == R.id.modePartOfSpeech) return QuizEngine.PART_OF_SPEECH;
         return QuizEngine.TERM_TO_MEANING;
     }
 
     private void updateAvailableCount() {
-        ArrayList<QuizQuestion> questions = QuizEngine.createQuestions(words, selectedMode(), new Random(0));
+        String mode = selectedMode();
+        if (QuizEngine.PART_OF_SPEECH.equals(mode)) {
+            availableQuestionCount = PosTagParser.filterTaggedItems(words).size();
+            if (availableQuestionCount == 0) {
+                availableCountView.setText("지원 품사 태그가 있는 단어가 없습니다.");
+            } else if (availableQuestionCount == words.size()) {
+                availableCountView.setText("전체 " + words.size()
+                        + "개 모두 품사 문제로 출제 가능");
+            } else {
+                availableCountView.setText("전체 " + words.size() + "개 중 품사 태그가 있는 "
+                        + availableQuestionCount + "개 출제 가능");
+            }
+            return;
+        }
+
+        ArrayList<QuizQuestion> questions = QuizEngine.createQuestions(words, mode, new Random(0));
         availableQuestionCount = questions.size();
         if (availableQuestionCount == 0) {
             availableCountView.setText("현재 설정으로 출제 가능한 문제가 없습니다.");
-        } else {
-            if (availableQuestionCount == words.size()) {
+        } else if (availableQuestionCount == words.size()) {
             availableCountView.setText("전체 " + words.size()
                     + "개 모두 출제 가능 · 중복 항목은 힌트로 구분됩니다.");
         } else {
             availableCountView.setText("전체 " + words.size() + "개 중 "
                     + availableQuestionCount + "개 출제 가능");
-        }
         }
     }
 
@@ -103,7 +118,29 @@ public class QuizSetupActivity extends Activity {
     }
 
     private void startQuiz() {
-        ArrayList<QuizQuestion> questions = QuizEngine.createQuestions(words, selectedMode(), new Random());
+        String mode = selectedMode();
+        if (QuizEngine.PART_OF_SPEECH.equals(mode)) {
+            availableQuestionCount = PosTagParser.filterTaggedItems(words).size();
+            if (availableQuestionCount == 0) {
+                new AlertDialog.Builder(this)
+                        .setTitle("품사 시험을 시작할 수 없음")
+                        .setMessage("뜻 앞에 (n), (v), (adj) 같은 지원 품사 태그가 필요합니다.")
+                        .setPositiveButton("확인", null)
+                        .show();
+                return;
+            }
+            int maximumQuestions = readMaximumQuestionCount();
+            if (maximumQuestions < 1) return;
+            Intent intent = new Intent(this, PosQuizActivity.class);
+            intent.putExtra("book_id", bookId);
+            intent.putExtra("mode", mode);
+            intent.putExtra("time_limit", timeSeekBar.getProgress() + 5);
+            intent.putExtra("max_words", maximumQuestions);
+            startActivity(intent);
+            return;
+        }
+
+        ArrayList<QuizQuestion> questions = QuizEngine.createQuestions(words, mode, new Random());
         availableQuestionCount = questions.size();
         if (questions.isEmpty()) {
             new AlertDialog.Builder(this)
@@ -119,7 +156,7 @@ public class QuizSetupActivity extends Activity {
 
         Intent intent = new Intent(this, QuizActivity.class);
         intent.putExtra("book_id", bookId);
-        intent.putExtra("mode", selectedMode());
+        intent.putExtra("mode", mode);
         intent.putExtra("time_limit", timeSeekBar.getProgress() + 5);
         intent.putExtra("max_words", maximumQuestions);
         startActivity(intent);

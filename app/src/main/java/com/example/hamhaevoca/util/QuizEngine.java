@@ -23,6 +23,7 @@ public final class QuizEngine {
     public static final String TERM_TO_MEANING = "term-to-meaning";
     public static final String MEANING_TO_TERM = "meaning-to-term";
     public static final String MIXED = "mixed";
+    public static final String PART_OF_SPEECH = "part-of-speech";
 
     private static final int CHOICE_COUNT = 5;
 

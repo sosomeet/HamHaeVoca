@@ -74,6 +74,15 @@
                     android:text="두 방식 혼합"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
+
+                <RadioButton
+                    android:id="@+id/modePartOfSpeech"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:buttonTint="@color/primary"
+                    android:text="품사 태그 · 복수 선택"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp" />
             </RadioGroup>
         </LinearLayout>
 

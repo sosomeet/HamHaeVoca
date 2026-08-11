@@ -449,6 +449,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         touchBook(db, bookId);
     }
 
+    /**
+     * 낱말카드에서 "못 외움"으로 판정한 횟수를 오답 횟수에 반영한다.
+     */
+    public void incrementIncorrectCount(long wordId, long bookId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("UPDATE words SET incorrect_count = incorrect_count + 1, updated_at = ? "
+                        + "WHERE id = ? AND book_id = ?",
+                new Object[]{now(), wordId, bookId});
+        touchBook(db, bookId);
+    }
+
+    /**
+     * 낱말카드의 이전 단어 기능으로 직전 "못 외움" 판정을 취소할 때 사용한다.
+     * 오답 횟수는 0 아래로 내려가지 않는다.
+     */
+    public void decrementIncorrectCount(long wordId, long bookId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("UPDATE words SET incorrect_count = MAX(incorrect_count - 1, 0), updated_at = ? "
+                        + "WHERE id = ? AND book_id = ?",
+                new Object[]{now(), wordId, bookId});
+        touchBook(db, bookId);
+    }
+
     public void resetMemorized(long bookId) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues values = new ContentValues();

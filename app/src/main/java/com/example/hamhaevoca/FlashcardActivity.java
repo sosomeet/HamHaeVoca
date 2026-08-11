@@ -378,6 +378,8 @@ public class FlashcardActivity extends Activity {
         if (learned) {
             learnedCount++;
         } else {
+            // 낱말카드의 "못 외움"도 해당 단어의 누적 오답 횟수에 포함한다.
+            db.incrementIncorrectCount(item.getId(), bookId);
             notLearnedCount++;
             notLearned.add(item);
         }
@@ -407,6 +409,8 @@ public class FlashcardActivity extends Activity {
         if (decision.learned) {
             learnedCount = Math.max(0, learnedCount - 1);
         } else {
+            // 이전 단어로 돌아가 직전 "못 외움" 판정을 취소하면 오답 횟수도 함께 복구한다.
+            db.decrementIncorrectCount(decision.itemId, bookId);
             notLearnedCount = Math.max(0, notLearnedCount - 1);
             removeLastById(notLearned, decision.itemId);
         }
