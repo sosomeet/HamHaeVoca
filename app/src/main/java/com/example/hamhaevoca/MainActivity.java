@@ -5,6 +5,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.sqlite.SQLiteConstraintException;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.widget.EditText;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,12 +24,17 @@ import com.example.hamhaevoca.model.BookSummary;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class MainActivity extends Activity {
     private DatabaseHelper db;
     private BookAdapter adapter;
     private final List<BookSummary> books = new ArrayList<BookSummary>();
     private TextView emptyView;
+    private Button folderFilterButton;
+    private final List<BookSummary> allBooks = new ArrayList<>();
+    private String searchQuery = "";
+    private Long activeFolderId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,13 +44,26 @@ public class MainActivity extends Activity {
 
         ListView listView = findViewById(R.id.bookList);
         emptyView = findViewById(R.id.emptyView);
-        adapter = new BookAdapter(this, books);
+        adapter = new BookAdapter(this, books, db);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener((parent, view, position, id) -> openBook(books.get(position).getId()));
         listView.setOnItemLongClickListener((parent, view, position, id) -> {
             showBookMenu(books.get(position));
             return true;
         });
+
+        EditText search = findViewById(R.id.bookSearchInput);
+        search.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                searchQuery = s.toString().trim().toLowerCase(Locale.ROOT);
+                applyFilters();
+            }
+            @Override public void afterTextChanged(Editable e) {}
+        });
+        folderFilterButton = findViewById(R.id.folderFilterButton);
+        folderFilterButton.setOnClickListener(v -> selectFolderFilter());
+        findViewById(R.id.folderManageButton).setOnClickListener(v -> manageFolders());
 
         Button importButton = findViewById(R.id.importButton);
         importButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, ImportActivity.class)));
@@ -54,10 +76,101 @@ public class MainActivity extends Activity {
     }
 
     private void reload() {
+        allBooks.clear();
+        allBooks.addAll(db.getBookSummaries());
+        applyFilters();
+    }
+
+    private void applyFilters() {
         books.clear();
-        books.addAll(db.getBookSummaries());
+        for (BookSummary book : allBooks) {
+            if (!book.getName().toLowerCase(Locale.ROOT).contains(searchQuery)) continue;
+            Long folderId = db.getBookFolderId(book.getId());
+            if (activeFolderId != null) {
+                if (activeFolderId == -1L && folderId != null) continue;
+                if (activeFolderId != -1L && !activeFolderId.equals(folderId)) continue;
+            }
+            books.add(book);
+        }
         adapter.notifyDataSetChanged();
+        emptyView.setText(allBooks.isEmpty() ? "아직 저장된 단어장이 없어요." : "검색 조건에 맞는 단어장이 없습니다.");
         emptyView.setVisibility(books.isEmpty() ? View.VISIBLE : View.GONE);
+    }
+
+    private void selectFolderFilter() {
+        List<DatabaseHelper.Folder> folders = db.getFolders();
+        String[] labels = new String[folders.size() + 2];
+        labels[0] = "전체"; labels[1] = "미분류";
+        for (int i = 0; i < folders.size(); i++) labels[i + 2] = folders.get(i).name;
+        new AlertDialog.Builder(this).setTitle("폴더 선택").setItems(labels, (d, index) -> {
+            activeFolderId = index == 0 ? null : index == 1 ? -1L : folders.get(index - 2).id;
+            folderFilterButton.setText("폴더: " + labels[index] + " ▾");
+            applyFilters();
+        }).show();
+    }
+
+    private void manageFolders() {
+        List<DatabaseHelper.Folder> folders = db.getFolders();
+        String[] items = new String[folders.size() + 1];
+        items[0] = "+ 새 폴더";
+        for (int i = 0; i < folders.size(); i++) items[i + 1] = folders.get(i).name;
+        new AlertDialog.Builder(this).setTitle("폴더 관리").setItems(items, (d, index) -> {
+            if (index == 0) { editFolder(null); return; }
+            DatabaseHelper.Folder folder = folders.get(index - 1);
+            new AlertDialog.Builder(this).setTitle(folder.name)
+                    .setItems(new String[]{"이름 변경", "삭제"}, (dialog, action) -> {
+                        if (action == 0) editFolder(folder);
+                        else confirmDeleteFolder(folder);
+                    }).show();
+        }).show();
+    }
+
+    private void editFolder(DatabaseHelper.Folder folder) {
+        EditText input = new EditText(this);
+        input.setSingleLine(true);
+        if (folder != null) { input.setText(folder.name); input.setSelection(input.length()); }
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(folder == null ? "새 폴더" : "폴더 이름 변경")
+                .setView(input).setPositiveButton("저장", null)
+                .setNegativeButton("취소", null).create();
+        dialog.setOnShowListener(ignored -> dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                .setOnClickListener(v -> {
+                    String name = input.getText().toString().trim();
+                    if (name.isEmpty()) { input.setError("폴더 이름을 입력하세요."); return; }
+                    try {
+                        if (folder == null) db.createFolder(name);
+                        else db.renameFolder(folder.id, name);
+                        dialog.dismiss();
+                        reload();
+                        if (folder != null && activeFolderId != null && activeFolderId == folder.id)
+                            folderFilterButton.setText("폴더: " + name + " ▾");
+                    } catch (SQLiteConstraintException e) { input.setError("이미 존재하는 폴더입니다."); }
+                }));
+        dialog.show();
+    }
+
+    private void confirmDeleteFolder(DatabaseHelper.Folder folder) {
+        new AlertDialog.Builder(this).setTitle("폴더 삭제")
+                .setMessage("폴더를 삭제해도 단어장과 학습 기록은 유지됩니다. 단어장은 미분류로 이동합니다.")
+                .setPositiveButton("삭제", (d, w) -> {
+                    db.deleteFolder(folder.id);
+                    if (activeFolderId != null && activeFolderId == folder.id) {
+                        activeFolderId = null;
+                        folderFilterButton.setText("폴더: 전체 ▾");
+                    }
+                    reload();
+                }).setNegativeButton("취소", null).show();
+    }
+
+    private void changeBookFolder(BookSummary book) {
+        List<DatabaseHelper.Folder> folders = db.getFolders();
+        String[] items = new String[folders.size() + 1]; items[0] = "미분류";
+        for (int i = 0; i < folders.size(); i++) items[i + 1] = folders.get(i).name;
+        new AlertDialog.Builder(this).setTitle(book.getName() + " · 폴더 변경")
+                .setItems(items, (d, index) -> {
+                    db.setBookFolder(book.getId(), index == 0 ? null : folders.get(index - 1).id);
+                    reload();
+                }).show();
     }
 
     private void openBook(long bookId) {
@@ -67,12 +180,13 @@ public class MainActivity extends Activity {
     }
 
     private void showBookMenu(final BookSummary book) {
-        final String[] actions = new String[]{"단어장 열기", "이름 변경", "삭제"};
+        final String[] actions = new String[]{"단어장 열기", "이름 변경", "폴더 변경", "삭제"};
         new AlertDialog.Builder(this)
                 .setTitle(book.getName())
                 .setItems(actions, (dialog, which) -> {
                     if (which == 0) openBook(book.getId());
                     else if (which == 1) renameBook(book);
+                    else if (which == 2) changeBookFolder(book);
                     else confirmDelete(book);
                 })
                 .show();
@@ -119,10 +233,12 @@ public class MainActivity extends Activity {
 
     private static class BookAdapter extends ArrayAdapter<BookSummary> {
         private final LayoutInflater inflater;
+        private final DatabaseHelper database;
 
-        BookAdapter(Context context, List<BookSummary> data) {
+        BookAdapter(Context context, List<BookSummary> data, DatabaseHelper db) {
             super(context, 0, data);
             inflater = LayoutInflater.from(context);
+            database = db;
         }
 
         @Override
@@ -139,7 +255,7 @@ public class MainActivity extends Activity {
                 holder = (ViewHolder) convertView.getTag();
             }
             BookSummary item = getItem(position);
-            holder.name.setText(item.getName());
+            holder.name.setText("[" + database.getBookFolderName(item.getId()) + "] " + item.getName());
             holder.stats.setText("전체 " + item.getTotalCount() + " · 외움 " + item.getMemorizedCount() + " · 미암기 " + item.getUnmemorizedCount());
             holder.date.setText("수정: " + item.getUpdatedAt().replace('T', ' '));
             return convertView;

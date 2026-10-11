@@ -93,6 +93,30 @@
             android:background="@drawable/bg_card"
             android:orientation="vertical"
             android:padding="18dp">
+            <TextView style="@style/SectionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="최소 오답 횟수" />
+            <TextView style="@style/BodyText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="0회는 전체 단어, 2회는 2회 이상 틀린 단어만 출제" />
+            <EditText android:id="@+id/quizMinIncorrectInput"
+                style="@style/InputField"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:singleLine="true"
+                android:text="0" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="18dp">
 
             <TextView
                 style="@style/SectionText"

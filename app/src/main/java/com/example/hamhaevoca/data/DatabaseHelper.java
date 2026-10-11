@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "hamhaevoca.db";
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     private static DatabaseHelper instance;
 
@@ -47,12 +47,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        db.execSQL("CREATE TABLE folders (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL COLLATE NOCASE UNIQUE)");
         db.execSQL("CREATE TABLE books (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "name TEXT NOT NULL," +
                 "source_type TEXT NOT NULL," +
                 "created_at TEXT NOT NULL," +
-                "updated_at TEXT NOT NULL)");
+                "updated_at TEXT NOT NULL," +
+                "folder_id INTEGER REFERENCES folders(id) ON DELETE SET NULL)");
 
         db.execSQL("CREATE TABLE words (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -100,7 +102,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // Version 1: no migrations yet.
+        if (oldVersion < 2) {
+            db.execSQL("CREATE TABLE IF NOT EXISTS folders (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL COLLATE NOCASE UNIQUE)");
+            db.execSQL("ALTER TABLE books ADD COLUMN folder_id INTEGER REFERENCES folders(id) ON DELETE SET NULL");
+        }
     }
 
     private String now() {
@@ -585,5 +590,66 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             cursor.close();
         }
         return result;
+    }
+
+    public static final class Folder {
+        public final long id;
+        public final String name;
+        public Folder(long id, String name) { this.id = id; this.name = name; }
+    }
+
+    public List<Folder> getFolders() {
+        List<Folder> result = new ArrayList<>();
+        try (Cursor c = getReadableDatabase().query("folders", new String[]{"id", "name"},
+                null, null, null, null, "name COLLATE NOCASE ASC")) {
+            while (c.moveToNext()) result.add(new Folder(c.getLong(0), c.getString(1)));
+        }
+        return result;
+    }
+
+    public long createFolder(String name) {
+        String clean = name == null ? "" : name.trim();
+        if (clean.isEmpty()) throw new IllegalArgumentException("폴더 이름을 입력하세요.");
+        ContentValues v = new ContentValues(); v.put("name", clean);
+        return getWritableDatabase().insertOrThrow("folders", null, v);
+    }
+
+    public void renameFolder(long id, String name) {
+        String clean = name == null ? "" : name.trim();
+        if (clean.isEmpty()) throw new IllegalArgumentException("폴더 이름을 입력하세요.");
+        ContentValues v = new ContentValues(); v.put("name", clean);
+        getWritableDatabase().update("folders", v, "id=?", new String[]{String.valueOf(id)});
+    }
+
+    public void deleteFolder(long id) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            ContentValues v = new ContentValues(); v.putNull("folder_id");
+            db.update("books", v, "folder_id=?", new String[]{String.valueOf(id)});
+            db.delete("folders", "id=?", new String[]{String.valueOf(id)});
+            db.setTransactionSuccessful();
+        } finally { db.endTransaction(); }
+    }
+
+    public void setBookFolder(long bookId, Long folderId) {
+        ContentValues v = new ContentValues();
+        if (folderId == null) v.putNull("folder_id"); else v.put("folder_id", folderId);
+        getWritableDatabase().update("books", v, "id=?", new String[]{String.valueOf(bookId)});
+    }
+
+    public Long getBookFolderId(long bookId) {
+        try (Cursor c = getReadableDatabase().query("books", new String[]{"folder_id"},
+                "id=?", new String[]{String.valueOf(bookId)}, null, null, null)) {
+            return c.moveToFirst() && !c.isNull(0) ? c.getLong(0) : null;
+        }
+    }
+
+    public String getBookFolderName(long bookId) {
+        try (Cursor c = getReadableDatabase().rawQuery(
+                "SELECT f.name FROM books b LEFT JOIN folders f ON b.folder_id=f.id WHERE b.id=?",
+                new String[]{String.valueOf(bookId)})) {
+            return c.moveToFirst() && !c.isNull(0) ? c.getString(0) : "미분류";
+        }
     }
 }

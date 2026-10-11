@@ -37,6 +37,28 @@
         android:text="내 단어장"
         style="@style/SectionText" />
 
+    <EditText
+        android:id="@+id/bookSearchInput"
+        style="@style/InputField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:hint="단어장 제목 검색"
+        android:inputType="text"
+        android:singleLine="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button android:id="@+id/folderFilterButton"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:text="폴더: 전체 ▾" />
+        <Button android:id="@+id/folderManageButton"
+            android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:text="폴더 관리" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/emptyView"
         android:layout_width="match_parent"

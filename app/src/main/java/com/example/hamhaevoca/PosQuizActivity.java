@@ -70,7 +70,12 @@ public class PosQuizActivity extends Activity {
         int maximumWords = getIntent().getIntExtra("max_words", 0);
 
         List<VocabItem> all = DatabaseHelper.getInstance(this).getWords(bookId);
-        questions = PosTagParser.filterTaggedItems(all);
+        int minimum = Math.max(0, getIntent().getIntExtra("min_incorrect", 0));
+        List<VocabItem> eligible = new ArrayList<>();
+        for (VocabItem word : all) {
+            if (word.getIncorrectCount() >= minimum) eligible.add(word);
+        }
+        questions = PosTagParser.filterTaggedItems(eligible);
         Collections.shuffle(questions);
         if (maximumWords > 0 && questions.size() > maximumWords) {
             questions = new ArrayList<VocabItem>(questions.subList(0, maximumWords));

@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
@@ -26,6 +28,7 @@ public class QuizSetupActivity extends Activity {
     private TextView timeValue;
     private TextView availableCountView;
     private EditText maxWordsInput;
+    private EditText minIncorrectInput;
     private List<VocabItem> words;
     private int availableQuestionCount = 0;
 
@@ -39,6 +42,12 @@ public class QuizSetupActivity extends Activity {
         timeValue = findViewById(R.id.quizTimeValue);
         availableCountView = findViewById(R.id.quizAvailableCount);
         maxWordsInput = findViewById(R.id.quizMaxWordsInput);
+        minIncorrectInput = findViewById(R.id.quizMinIncorrectInput);
+        minIncorrectInput.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) { updateAvailableCount(); }
+            @Override public void afterTextChanged(Editable e) {}
+        });
         words = DatabaseHelper.getInstance(this).getWords(bookId);
 
         timeSeekBar.setMax(15);
@@ -67,10 +76,43 @@ public class QuizSetupActivity extends Activity {
         return QuizEngine.TERM_TO_MEANING;
     }
 
+    private int minimumIncorrectCount() {
+        String raw = minIncorrectInput.getText().toString().trim();
+        if (raw.isEmpty()) return 0;
+        try { return Integer.parseInt(raw); }
+        catch (NumberFormatException e) { return -1; }
+    }
+
+    private List<VocabItem> eligibleWords() {
+        List<VocabItem> eligible = new ArrayList<>();
+        int minimum = minimumIncorrectCount();
+        if (minimum < 0) return eligible;
+        for (VocabItem word : words) {
+            if (word.getIncorrectCount() >= minimum) eligible.add(word);
+        }
+        return eligible;
+    }
+
+    private ArrayList<QuizQuestion> eligibleQuestions(String mode, Random random) {
+        ArrayList<QuizQuestion> all = QuizEngine.createQuestions(words, mode, random);
+        java.util.HashSet<Long> ids = new java.util.HashSet<>();
+        for (VocabItem word : eligibleWords()) ids.add(word.getId());
+        ArrayList<QuizQuestion> eligible = new ArrayList<>();
+        for (QuizQuestion question : all) {
+            if (ids.contains(question.getItemId())) eligible.add(question);
+        }
+        return eligible;
+    }
+
     private void updateAvailableCount() {
+        if (minimumIncorrectCount() < 0) {
+            availableQuestionCount = 0;
+            availableCountView.setText("오답 횟수는 0 이상의 정수여야 합니다.");
+            return;
+        }
         String mode = selectedMode();
         if (QuizEngine.PART_OF_SPEECH.equals(mode)) {
-            availableQuestionCount = PosTagParser.filterTaggedItems(words).size();
+            availableQuestionCount = PosTagParser.filterTaggedItems(eligibleWords()).size();
             if (availableQuestionCount == 0) {
                 availableCountView.setText("지원 품사 태그가 있는 단어가 없습니다.");
             } else if (availableQuestionCount == words.size()) {
@@ -83,7 +125,7 @@ public class QuizSetupActivity extends Activity {
             return;
         }
 
-        ArrayList<QuizQuestion> questions = QuizEngine.createQuestions(words, mode, new Random(0));
+        ArrayList<QuizQuestion> questions = eligibleQuestions(mode, new Random(0));
         availableQuestionCount = questions.size();
         if (availableQuestionCount == 0) {
             availableCountView.setText("현재 설정으로 출제 가능한 문제가 없습니다.");
@@ -118,9 +160,13 @@ public class QuizSetupActivity extends Activity {
     }
 
     private void startQuiz() {
+        if (minimumIncorrectCount() < 0) {
+            minIncorrectInput.setError("0 이상의 정수를 입력하세요.");
+            return;
+        }
         String mode = selectedMode();
         if (QuizEngine.PART_OF_SPEECH.equals(mode)) {
-            availableQuestionCount = PosTagParser.filterTaggedItems(words).size();
+            availableQuestionCount = PosTagParser.filterTaggedItems(eligibleWords()).size();
             if (availableQuestionCount == 0) {
                 new AlertDialog.Builder(this)
                         .setTitle("품사 시험을 시작할 수 없음")
@@ -136,11 +182,12 @@ public class QuizSetupActivity extends Activity {
             intent.putExtra("mode", mode);
             intent.putExtra("time_limit", timeSeekBar.getProgress() + 5);
             intent.putExtra("max_words", maximumQuestions);
+            intent.putExtra("min_incorrect", minimumIncorrectCount());
             startActivity(intent);
             return;
         }
 
-        ArrayList<QuizQuestion> questions = QuizEngine.createQuestions(words, mode, new Random());
+        ArrayList<QuizQuestion> questions = eligibleQuestions(mode, new Random());
         availableQuestionCount = questions.size();
         if (questions.isEmpty()) {
             new AlertDialog.Builder(this)
@@ -159,6 +206,7 @@ public class QuizSetupActivity extends Activity {
         intent.putExtra("mode", mode);
         intent.putExtra("time_limit", timeSeekBar.getProgress() + 5);
         intent.putExtra("max_words", maximumQuestions);
+        intent.putExtra("min_incorrect", minimumIncorrectCount());
         startActivity(intent);
     }
 }

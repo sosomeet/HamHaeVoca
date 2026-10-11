@@ -51,6 +51,17 @@ public class QuizActivity extends Activity {
         int maximumWords = getIntent().getIntExtra("max_words", 0);
         List<VocabItem> words = DatabaseHelper.getInstance(this).getWords(bookId);
         questions = QuizEngine.createQuestions(words, mode, new Random());
+        int minimum = Math.max(0, getIntent().getIntExtra("min_incorrect", 0));
+        java.util.HashSet<Long> allowed = new java.util.HashSet<>();
+        for (VocabItem word : words) {
+            if (word.getIncorrectCount() >= minimum) allowed.add(word.getId());
+        }
+        ArrayList<QuizQuestion> filtered = new ArrayList<>();
+        for (QuizQuestion question : questions) {
+            if (allowed.contains(question.getItemId())) filtered.add(question);
+        }
+        questions = filtered;
+
         if (maximumWords > 0 && questions.size() > maximumWords) {
             questions = new ArrayList<QuizQuestion>(questions.subList(0, maximumWords));
         }
