@@ -107,35 +107,16 @@ public class QuizSetupActivity extends Activity {
     private void updateAvailableCount() {
         if (minimumIncorrectCount() < 0) {
             availableQuestionCount = 0;
-            availableCountView.setText("오답 횟수는 0 이상의 정수여야 합니다.");
+            availableCountView.setText("0 이상의 숫자를 입력하세요.");
             return;
         }
         String mode = selectedMode();
         if (QuizEngine.PART_OF_SPEECH.equals(mode)) {
             availableQuestionCount = PosTagParser.filterTaggedItems(eligibleWords()).size();
-            if (availableQuestionCount == 0) {
-                availableCountView.setText("지원 품사 태그가 있는 단어가 없습니다.");
-            } else if (availableQuestionCount == words.size()) {
-                availableCountView.setText("전체 " + words.size()
-                        + "개 모두 품사 문제로 출제 가능");
-            } else {
-                availableCountView.setText("전체 " + words.size() + "개 중 품사 태그가 있는 "
-                        + availableQuestionCount + "개 출제 가능");
-            }
-            return;
-        }
-
-        ArrayList<QuizQuestion> questions = eligibleQuestions(mode, new Random(0));
-        availableQuestionCount = questions.size();
-        if (availableQuestionCount == 0) {
-            availableCountView.setText("현재 설정으로 출제 가능한 문제가 없습니다.");
-        } else if (availableQuestionCount == words.size()) {
-            availableCountView.setText("전체 " + words.size()
-                    + "개 모두 출제 가능 · 중복 항목은 힌트로 구분됩니다.");
         } else {
-            availableCountView.setText("전체 " + words.size() + "개 중 "
-                    + availableQuestionCount + "개 출제 가능");
+            availableQuestionCount = eligibleQuestions(mode, new Random(0)).size();
         }
+        availableCountView.setText("출제 가능: " + availableQuestionCount + "개");
     }
 
     private int readMaximumQuestionCount() {

@@ -72,9 +72,14 @@ public class MatchingActivity extends Activity {
 
     private void prepareItems() {
         List<VocabItem> all = DatabaseHelper.getInstance(this).getWords(bookId);
+        int minIncorrect = Math.max(0, getIntent().getIntExtra("min_incorrect", 0));
+        List<VocabItem> eligible = new ArrayList<>();
+        for (VocabItem word : all) {
+            if (word.getIncorrectCount() >= minIncorrect) eligible.add(word);
+        }
         plannedRounds.clear();
         plannedRounds.addAll(MatchingRoundPlanner.createRounds(
-                all, maximumWords, 5, new Random()));
+                eligible, maximumWords, 5, new Random()));
 
         for (ArrayList<VocabItem> round : plannedRounds) {
             totalSelectedCount += round.size();

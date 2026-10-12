@@ -53,28 +53,59 @@
             android:orientation="vertical"
             android:padding="18dp">
 
-            <TextView
-                style="@style/SectionText"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="최대 문제 수" />
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/SectionText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="최소 오답 횟수" />
+                    <EditText
+                        android:id="@+id/matchingMinIncorrectInput"
+                        style="@style/InputField"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:singleLine="true"
+                        android:text="0" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:orientation="vertical">
+                    <TextView
+                        style="@style/SectionText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="최대 문제 수" />
+                    <EditText
+                        android:id="@+id/matchingMaxWordsInput"
+                        style="@style/InputField"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:singleLine="true" />
+                </LinearLayout>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/matchingAvailableCount"
                 style="@style/BodyText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp" />
-
-            <EditText
-                android:id="@+id/matchingMaxWordsInput"
-                style="@style/InputField"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="비우면 가능한 단어 전체"
-                android:inputType="number"
-                android:singleLine="true" />
+                android:layout_marginTop="8dp" />
         </LinearLayout>
 
         <LinearLayout

@@ -22,41 +22,69 @@
         android:text="오늘도 가볍게 단어를 익혀보세요"
         style="@style/BodyText" />
 
-    <Button
-        android:id="@+id/importButton"
-        style="@style/PrimaryButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="22dp"
-        android:text="새 단어장 불러오기" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:text="내 단어장"
-        style="@style/SectionText" />
-
-    <EditText
-        android:id="@+id/bookSearchInput"
-        style="@style/InputField"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:hint="단어장 제목 검색"
-        android:inputType="text"
-        android:singleLine="true" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
-        <Button android:id="@+id/folderFilterButton"
-            android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:text="폴더: 전체 ▾" />
-        <Button android:id="@+id/folderManageButton"
-            android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:text="폴더 관리" />
+
+        <TextView
+            android:id="@+id/bookSectionTitle"
+            style="@style/SectionText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="내 단어장" />
+
+        <ImageButton
+            android:id="@+id/importButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_icon_button"
+            android:contentDescription="새 단어장 불러오기"
+            android:padding="12dp"
+            android:src="@drawable/ic_add_book"
+            android:tint="@color/text_primary" />
+
+        <ImageButton
+            android:id="@+id/folderButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_icon_button"
+            android:contentDescription="폴더 선택 및 관리"
+            android:padding="12dp"
+            android:src="@drawable/ic_folder_outline"
+            android:tint="@color/text_primary" />
+
+        <ImageButton
+            android:id="@+id/bookSearchButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_icon_button"
+            android:contentDescription="단어장 검색 열기 또는 닫기"
+            android:padding="12dp"
+            android:src="@android:drawable/ic_menu_search"
+            android:tint="@color/text_primary" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/bookSearchContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="vertical">
+        <EditText
+            android:id="@+id/bookSearchInput"
+            style="@style/InputField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="단어장 검색"
+            android:inputType="text"
+            android:singleLine="true" />
     </LinearLayout>
 
     <TextView
