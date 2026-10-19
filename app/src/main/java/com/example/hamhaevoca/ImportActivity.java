@@ -126,11 +126,10 @@ public class ImportActivity extends Activity {
     private void chooseFile() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // Do not restrict providers by MIME type: some file managers report
+        // XLSX as application/octet-stream and would disable valid files.
+        // The selected file is validated by filename in parseCurrentInput().
         intent.setType("*/*");
-        intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
-                "text/plain", "text/csv", "text/tab-separated-values",
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        });
         startActivityForResult(intent, REQUEST_FILE);
     }
 
@@ -179,11 +178,15 @@ public class ImportActivity extends Activity {
                 } else if (lower.endsWith(".xls")) {
                     throw new IllegalArgumentException(
                             "이 버전은 .xls를 지원하지 않습니다. Excel에서 .xlsx로 저장해 주세요.");
-                } else {
+                } else if (lower.endsWith(".csv") || lower.endsWith(".tsv")
+                        || lower.endsWith(".txt")) {
                     byte[] bytes = readBytes(selectedUri);
                     String text = new String(bytes, Charset.forName("UTF-8"));
                     currentResult = DelimitedTextParser.parse(text,
                             delimiterSpinner.getSelectedItem().toString());
+                } else {
+                    throw new IllegalArgumentException(
+                            "지원하지 않는 파일 형식입니다. .xlsx, .csv, .tsv, .txt 파일을 선택하세요.");
                 }
             } else {
                 String text = textInput.getText().toString();
