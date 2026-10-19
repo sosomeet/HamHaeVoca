@@ -33,6 +33,8 @@ public class FlashcardActivity extends Activity {
     private static final String PREF_MEANING_FRONT = "meaning_front";
     private static final String PREF_BATCH_SIZE = "batch_size";
     private static final int DEFAULT_BATCH_SIZE = 30;
+    private static final String PREF_MAIN_FONT_SIZE = "main_font_size";
+    private static final String PREF_EXAMPLE_FONT_SIZE = "example_font_size";
 
     private static final String SESSION_PREFS = "flashcard_sessions";
     private static final String FIELD_SOURCE_IDS = "source_ids";
@@ -57,6 +59,10 @@ public class FlashcardActivity extends Activity {
     private TextView notLearnedCountView;
     private TextView learnedCountView;
     private TextView cardView;
+    private TextView exampleTextView;
+    private View exampleSection;
+    private int mainFontSize = 32;
+    private int exampleFontSize = 18;
     private View swipeBackground;
     private Button previousButton;
 
@@ -94,6 +100,8 @@ public class FlashcardActivity extends Activity {
         if (selectedOrder < 0 || selectedOrder > 2) selectedOrder = 0;
         meaningOnFront = preferences.getBoolean(PREF_MEANING_FRONT, false);
         batchSize = Math.max(1, preferences.getInt(PREF_BATCH_SIZE, DEFAULT_BATCH_SIZE));
+        mainFontSize = preferences.getInt(PREF_MAIN_FONT_SIZE, 32);
+        exampleFontSize = preferences.getInt(PREF_EXAMPLE_FONT_SIZE, 18);
 
         String wrongIds = getIntent().getStringExtra("wrong_ids");
         sessionPrefix = "session_" + bookId + "_" + (wrongIds == null ? 0 : wrongIds.hashCode()) + "_";
@@ -104,6 +112,8 @@ public class FlashcardActivity extends Activity {
         notLearnedCountView = findViewById(R.id.flashNotLearnedCount);
         learnedCountView = findViewById(R.id.flashLearnedCount);
         cardView = findViewById(R.id.flashCard);
+        exampleTextView = findViewById(R.id.flashExampleText);
+        exampleSection = findViewById(R.id.flashExampleSection);
         swipeBackground = findViewById(R.id.flashSwipeBackground);
         previousButton = findViewById(R.id.flashPreviousButton);
 
@@ -122,6 +132,10 @@ public class FlashcardActivity extends Activity {
         Spinner orderSpinner = view.findViewById(R.id.dialogFlashOrderSpinner);
         Switch frontSwitch = view.findViewById(R.id.dialogFrontSideSwitch);
         EditText batchInput = view.findViewById(R.id.dialogFlashBatchSizeInput);
+        EditText mainFontInput = view.findViewById(R.id.dialogFlashMainFontSize);
+        EditText exampleFontInput = view.findViewById(R.id.dialogFlashExampleFontSize);
+        mainFontInput.setText(String.valueOf(mainFontSize));
+        exampleFontInput.setText(String.valueOf(exampleFontSize));
 
         String[] orders = new String[]{"단어장 순서", "무작위", "알파벳순"};
         orderSpinner.setAdapter(new ArrayAdapter<String>(this,
@@ -153,6 +167,21 @@ public class FlashcardActivity extends Activity {
                         return;
                     }
 
+                    int newMainFontSize;
+                    int newExampleFontSize;
+                    try {
+                        newMainFontSize = Integer.parseInt(mainFontInput.getText().toString().trim());
+                        newExampleFontSize = Integer.parseInt(exampleFontInput.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        mainFontInput.setError("숫자를 입력하세요.");
+                        exampleFontInput.setError("숫자를 입력하세요.");
+                        return;
+                    }
+                    if (newMainFontSize < 12 || newMainFontSize > 60 || newExampleFontSize < 10 || newExampleFontSize > 36) {
+                        mainFontInput.setError("12~60 사이로 입력하세요.");
+                        exampleFontInput.setError("10~36 사이로 입력하세요.");
+                        return;
+                    }
                     boolean sessionSettingChanged = newOrder != selectedOrder
                             || newBatchSize != batchSize;
                     if (sessionSettingChanged) {
@@ -160,17 +189,28 @@ public class FlashcardActivity extends Activity {
                                 .setTitle("학습 묶음 다시 시작")
                                 .setMessage("학습 순서나 묶음 크기를 바꾸면 현재 낱말카드 진행 위치가 처음으로 돌아갑니다.")
                                 .setPositiveButton("변경", (confirmDialog, which) -> {
+                                    applyFontSizes(newMainFontSize, newExampleFontSize);
                                     applySettings(newOrder, newMeaningOnFront, newBatchSize, true);
                                     dialog.dismiss();
                                 })
                                 .setNegativeButton("취소", null)
                                 .show();
                     } else {
+                        applyFontSizes(newMainFontSize, newExampleFontSize);
                         applySettings(newOrder, newMeaningOnFront, newBatchSize, false);
                         dialog.dismiss();
                     }
                 }));
         dialog.show();
+    }
+
+    private void applyFontSizes(int mainSize, int exampleSize) {
+        mainFontSize = mainSize;
+        exampleFontSize = exampleSize;
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
+                .putInt(PREF_MAIN_FONT_SIZE, mainSize)
+                .putInt(PREF_EXAMPLE_FONT_SIZE, exampleSize)
+                .apply();
     }
 
     private void applySettings(int newOrder, boolean newMeaningOnFront,
@@ -505,7 +545,14 @@ public class FlashcardActivity extends Activity {
         if (roundWords.isEmpty() || index >= roundWords.size()) return;
         VocabItem item = roundWords.get(index);
         boolean showMeaning = showingFront ? meaningOnFront : !meaningOnFront;
+        cardView.setTextSize(mainFontSize);
         cardView.setText(showMeaning ? item.getMeaning() : item.getTerm());
+        boolean showExample = !showingFront && !item.getExample().trim().isEmpty();
+        exampleSection.setVisibility(showExample ? View.VISIBLE : View.GONE);
+        if (showExample) {
+            exampleTextView.setTextSize(exampleFontSize);
+            exampleTextView.setText(item.getExample());
+        }
 
         int totalBatches = (int) Math.ceil(sourceWords.size() / (double) batchSize);
         int currentBatch = Math.min(totalBatches, batchStartIndex / batchSize + 1);

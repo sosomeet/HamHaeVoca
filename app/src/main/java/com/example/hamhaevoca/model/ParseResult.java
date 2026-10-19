@@ -72,7 +72,9 @@ public class ParseResult {
         Set<String> seen = new LinkedHashSet<String>();
         for (ParsedRow row : rows) {
             if (shouldInclude(row, selectedDays) && seen.add(wordKey(row))) {
-                items.add(new VocabItem(row.getTerm(), row.getMeaning()));
+                VocabItem item = new VocabItem(row.getTerm(), row.getMeaning());
+                item.setExample(row.getExample());
+                items.add(item);
             }
         }
         return items;

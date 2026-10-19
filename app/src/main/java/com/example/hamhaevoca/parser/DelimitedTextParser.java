@@ -106,6 +106,7 @@ public final class DelimitedTextParser {
         int duplicate = 0;
         int total = 0;
         boolean firstDataRowSkipped = false;
+        int exampleIndex = -1;
 
         for (int i = 0; i < table.size(); i++) {
             List<String> cells = table.get(i);
@@ -119,6 +120,12 @@ public final class DelimitedTextParser {
             if (allEmpty) continue;
             if (!firstDataRowSkipped) {
                 firstDataRowSkipped = true;
+                for (int col = 0; col < cells.size(); col++) {
+                    if ("example".equalsIgnoreCase(cells.get(col).trim()) || "예문".equals(cells.get(col).trim())) {
+                        exampleIndex = col;
+                        break;
+                    }
+                }
                 continue;
             }
             total++;
@@ -126,22 +133,23 @@ public final class DelimitedTextParser {
             String term = cells.size() > 0 ? normalizeText(cells.get(0)) : "";
             String meaning = cells.size() > 1 ? normalizeText(cells.get(1)) : "";
             String day = cells.size() > 2 ? normalizeDay(cells.get(2)) : "";
+            String example = exampleIndex >= 0 && cells.size() > exampleIndex ? normalizeText(cells.get(exampleIndex)) : "";
 
             if (term.length() == 0 || meaning.length() == 0) {
                 invalid++;
-                rows.add(new ParsedRow(i + 1, term, meaning, day, false, false, "단어 또는 뜻이 비어 있습니다."));
+                rows.add(new ParsedRow(i + 1, term, meaning, day, example, false, false, "단어 또는 뜻이 비어 있습니다."));
                 continue;
             }
 
             String key = term.toLowerCase(Locale.US) + "\u0000" + meaning + "\u0000" + day;
             if (seen.contains(key)) {
                 duplicate++;
-                rows.add(new ParsedRow(i + 1, term, meaning, day, true, true, "중복 항목입니다."));
+                rows.add(new ParsedRow(i + 1, term, meaning, day, example, true, true, "중복 항목입니다."));
                 continue;
             }
             seen.add(key);
             valid++;
-            rows.add(new ParsedRow(i + 1, term, meaning, day, true, false, ""));
+            rows.add(new ParsedRow(i + 1, term, meaning, day, example, true, false, ""));
         }
         return new ParseResult(rows, total, valid, invalid, duplicate);
     }

@@ -142,6 +142,34 @@
             android:textColor="@color/text_primary"
             android:textSize="32sp"
             android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/flashExampleSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:clickable="false">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#999999" />
+
+            <TextView
+                android:id="@+id/flashExampleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:maxLines="5"
+                android:textColor="#888888"
+                android:textSize="18sp" />
+        </LinearLayout>
     </FrameLayout>
 
     <TextView

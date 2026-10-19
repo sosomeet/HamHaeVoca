@@ -7,6 +7,7 @@ public class VocabItem implements Serializable {
     private long bookId;
     private String term;
     private String meaning;
+    private String example = "";
     private int sortOrder;
     private boolean memorized;
     private int correctCount;
@@ -39,6 +40,8 @@ public class VocabItem implements Serializable {
     public void setTerm(String term) { this.term = term; }
     public String getMeaning() { return meaning; }
     public void setMeaning(String meaning) { this.meaning = meaning; }
+    public String getExample() { return example == null ? "" : example; }
+    public void setExample(String example) { this.example = example == null ? "" : example; }
     public int getSortOrder() { return sortOrder; }
     public void setSortOrder(int sortOrder) { this.sortOrder = sortOrder; }
     public boolean isMemorized() { return memorized; }

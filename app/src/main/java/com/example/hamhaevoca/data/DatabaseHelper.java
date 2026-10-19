@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "hamhaevoca.db";
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
 
     private static DatabaseHelper instance;
 
@@ -61,6 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "book_id INTEGER NOT NULL," +
                 "term TEXT NOT NULL," +
                 "meaning TEXT NOT NULL," +
+                "example TEXT NOT NULL DEFAULT ''," +
                 "sort_order INTEGER NOT NULL," +
                 "memorized INTEGER NOT NULL DEFAULT 0," +
                 "correct_count INTEGER NOT NULL DEFAULT 0," +
@@ -106,6 +107,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("CREATE TABLE IF NOT EXISTS folders (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL COLLATE NOCASE UNIQUE)");
             db.execSQL("ALTER TABLE books ADD COLUMN folder_id INTEGER REFERENCES folders(id) ON DELETE SET NULL");
         }
+        if (oldVersion < 3) {
+            db.execSQL("ALTER TABLE words ADD COLUMN example TEXT NOT NULL DEFAULT ''");
+        }
     }
 
     private String now() {
@@ -130,6 +134,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 values.put("book_id", bookId);
                 values.put("term", item.getTerm());
                 values.put("meaning", item.getMeaning());
+                values.put("example", item.getExample());
                 values.put("sort_order", order++);
                 values.put("memorized", 0);
                 values.put("correct_count", 0);
@@ -198,6 +203,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     values.put("book_id", bookId);
                     values.put("term", imported.getTerm());
                     values.put("meaning", imported.getMeaning());
+                values.put("example", imported.getExample());
                     values.put("sort_order", order++);
                     values.put("memorized", 0);
                     values.put("correct_count", 0);
@@ -211,10 +217,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
                 usedIds.add(match.getId());
                 boolean contentChanged = !match.getTerm().equals(imported.getTerm())
-                        || !match.getMeaning().equals(imported.getMeaning());
+                        || !match.getMeaning().equals(imported.getMeaning())
+                        || !match.getExample().equals(imported.getExample());
                 ContentValues values = new ContentValues();
                 values.put("term", imported.getTerm());
                 values.put("meaning", imported.getMeaning());
+                values.put("example", imported.getExample());
                 values.put("sort_order", order++);
                 if (contentChanged) values.put("updated_at", timestamp);
                 db.update("words", values, "id = ? AND book_id = ?",
@@ -250,7 +258,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<VocabItem> result = new ArrayList<VocabItem>();
         Cursor cursor = db.query("words",
                 new String[]{"id", "book_id", "term", "meaning", "sort_order",
-                        "memorized", "correct_count", "incorrect_count"},
+                        "memorized", "correct_count", "incorrect_count", "example"},
                 "book_id = ?", new String[]{String.valueOf(bookId)}, null, null,
                 "sort_order ASC");
         try {
@@ -337,7 +345,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<VocabItem> result = new ArrayList<VocabItem>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query("words",
-                new String[]{"id", "book_id", "term", "meaning", "sort_order", "memorized", "correct_count", "incorrect_count"},
+                new String[]{"id", "book_id", "term", "meaning", "sort_order", "memorized", "correct_count", "incorrect_count", "example"},
                 "book_id = ?", new String[]{String.valueOf(bookId)}, null, null, "sort_order ASC");
         try {
             while (cursor.moveToNext()) {
@@ -360,7 +368,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             args[i + 1] = String.valueOf(ids.get(i));
         }
         Cursor cursor = getReadableDatabase().rawQuery(
-                "SELECT id, book_id, term, meaning, sort_order, memorized, correct_count, incorrect_count " +
+                "SELECT id, book_id, term, meaning, sort_order, memorized, correct_count, incorrect_count, example " +
                         "FROM words WHERE book_id = ? AND id IN (" + placeholders + ") ORDER BY sort_order", args);
         List<VocabItem> result = new ArrayList<VocabItem>();
         try {
@@ -372,9 +380,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     private VocabItem readWord(Cursor cursor) {
-        return new VocabItem(cursor.getLong(0), cursor.getLong(1), cursor.getString(2),
+        VocabItem item = new VocabItem(cursor.getLong(0), cursor.getLong(1), cursor.getString(2),
                 cursor.getString(3), cursor.getInt(4), cursor.getInt(5) == 1,
                 cursor.getInt(6), cursor.getInt(7));
+        item.setExample(cursor.getString(8));
+        return item;
     }
 
     public long addWord(long bookId, String term, String meaning) {
