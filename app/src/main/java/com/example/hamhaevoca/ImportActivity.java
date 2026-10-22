@@ -284,7 +284,7 @@ public class ImportActivity extends LocalizedActivity {
             } else if (!isRowSelectedByDay(row)) {
                 status.setText(Lang.text(ImportActivity.this, R.string.ui_37ae72b4911c));
             } else {
-                status.setText(Lang.text(ImportActivity.this, R.string.ui_38ce0adcf53e));
+                status.setVisibility(View.GONE);
             }
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
