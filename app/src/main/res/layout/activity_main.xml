@@ -9,11 +9,21 @@
     android:paddingEnd="20dp"
     android:paddingBottom="20dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="HamHaeVoca"
-        style="@style/TitleText" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:gravity="center_vertical">
+        <ImageButton
+            android:id="@+id/folderButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/bg_icon_button"
+            android:contentDescription="@string/ui_cc77666197e1"
+            android:padding="12dp"
+            android:src="@drawable/ic_menu_hamburger"
+            android:tint="@color/text_primary" />
+
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+            android:layout_weight="1" android:text="HamHaeVoca" style="@style/TitleText" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/homeSubtitle"
@@ -40,16 +50,6 @@
             android:ellipsize="end"
             android:text="@string/ui_16803999121e" />
 
-
-        <ImageButton
-            android:id="@+id/folderButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_icon_button"
-            android:contentDescription="@string/ui_cc77666197e1"
-            android:padding="12dp"
-            android:src="@drawable/ic_menu_hamburger"
-            android:tint="@color/text_primary" />
 
         <ImageButton
             android:id="@+id/bookSearchButton"
@@ -99,9 +99,11 @@
         android:visibility="gone">
         <TextView android:id="@+id/selectionCount" android:layout_width="0dp" android:layout_weight="1"
             android:layout_height="wrap_content" android:text="@string/ui_b62286738cf1" android:textStyle="bold" />
-        <Button android:id="@+id/moveSelectedButton" android:layout_width="wrap_content"
+        <Button
+            style="@style/SecondaryButton" android:id="@+id/moveSelectedButton" android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="@string/ui_25ef7e23a29a" android:textAllCaps="false" />
-        <Button android:id="@+id/cancelSelectionButton" android:layout_width="wrap_content"
+        <Button
+            style="@style/SecondaryButton" android:id="@+id/cancelSelectionButton" android:layout_width="wrap_content"
             android:layout_height="wrap_content" android:text="@string/ui_19b2d19bc141" android:textAllCaps="false" />
     </LinearLayout>
 

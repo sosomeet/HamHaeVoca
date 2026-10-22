@@ -266,6 +266,13 @@ public class ImportActivity extends LocalizedActivity {
                     .setText(String.valueOf(previewIndex++));
             ((TextView) rowView.findViewById(R.id.previewTerm)).setText(row.getTerm());
             ((TextView) rowView.findViewById(R.id.previewMeaning)).setText(row.getMeaning());
+            TextView exampleView = rowView.findViewById(R.id.previewExample);
+            if (row.getExample() != null && !row.getExample().trim().isEmpty()) {
+                exampleView.setText(row.getExample());
+                exampleView.setVisibility(View.VISIBLE);
+            } else {
+                exampleView.setVisibility(View.GONE);
+            }
             TextView dayView = rowView.findViewById(R.id.previewDay);
             dayView.setText(row.getDay().isEmpty() ? Lang.text(ImportActivity.this, R.string.ui_2f6183a4a2f5) : "Day " + row.getDay());
 

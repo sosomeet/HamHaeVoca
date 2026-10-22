@@ -40,6 +40,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.CheckBox;
 import android.widget.PopupMenu;
+import android.widget.FrameLayout;
+import android.graphics.drawable.ColorDrawable;
 
 public class MainActivity extends LocalizedActivity {
     private DatabaseHelper db;
@@ -59,6 +61,7 @@ public class MainActivity extends LocalizedActivity {
     private View actionBar;
     private TextView selectionLabel;
     private String lang = "ko";
+    private View drawerLayer;
 
     private static final String[] LANG_CODES = {"ko", "en", "fr", "es", "vi", "ja", "zh"};
     private static final String[][] WORDS = {
@@ -199,33 +202,86 @@ public class MainActivity extends LocalizedActivity {
     }
 
     private void showSideMenu() {
-        List<DatabaseHelper.Folder> folders = db.getFolders();
+        if (drawerLayer != null) return;
+        FrameLayout root = findViewById(android.R.id.content);
+        FrameLayout overlay = new FrameLayout(this);
+        overlay.setBackgroundColor(0x66000000);
+        overlay.setOnClickListener(v -> closeSideMenu());
+        drawerLayer = overlay;
+        root.addView(overlay, new FrameLayout.LayoutParams(-1, -1));
+
+        android.widget.ScrollView scroll = new android.widget.ScrollView(this);
+        scroll.setFillViewport(true);
+        scroll.setBackgroundColor(getResources().getColor(R.color.surface));
+        int width = Math.min(dp(320), (int)(getResources().getDisplayMetrics().widthPixels * .84f));
+        FrameLayout.LayoutParams drawerParams = new FrameLayout.LayoutParams(width, -1, Gravity.START);
+        overlay.addView(scroll, drawerParams);
+        scroll.setOnClickListener(v -> {});
         LinearLayout menu = new LinearLayout(this);
         menu.setOrientation(LinearLayout.VERTICAL);
-        menu.setPadding(dp(20),dp(8),dp(20),dp(8));
-        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("HamHaeVoca").setView(menu).create();
-        addMenuItem(menu, "☰  " + t(1), () -> { activeFolderId=null; reload(); dialog.dismiss(); });
-        addMenuItem(menu, "▱  " + t(2), () -> { activeFolderId=-1L; reload(); dialog.dismiss(); });
-        for (DatabaseHelper.Folder folder : folders) {
-            addMenuItem(menu, "▱  " + folder.name, () -> { activeFolderId=folder.id; reload(); dialog.dismiss(); });
+        menu.setPadding(dp(18), dp(32), dp(18), dp(20));
+        scroll.addView(menu);
+        TextView header = new TextView(this);
+        header.setText("HamHaeVoca");
+        header.setTextSize(22);
+        header.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        header.setTextColor(getResources().getColor(R.color.text_primary));
+        header.setPadding(dp(10), 0, 0, dp(24));
+        menu.addView(header);
+        addMenuItem(menu, t(1), null, activeFolderId == null, () -> { activeFolderId=null; reload(); closeSideMenu(); });
+        addMenuItem(menu, t(2), null, Long.valueOf(-1).equals(activeFolderId), () -> { activeFolderId=-1L; reload(); closeSideMenu(); });
+        for (DatabaseHelper.Folder folder : db.getFolders()) {
+            addMenuItem(menu, folder.name, null, Long.valueOf(folder.id).equals(activeFolderId), () -> {
+                activeFolderId=folder.id; reload(); closeSideMenu();
+            });
         }
-        addMenuItem(menu, "＋  " + t(3), () -> { dialog.dismiss(); editFolder(null); });
-        addMenuItem(menu, "⚙  " + t(4), () -> { dialog.dismiss(); manageFolders(); });
+        addMenuItem(menu, t(3), null, false, () -> { closeSideMenu(); editFolder(null); });
+        addMenuItem(menu, t(4), null, false, () -> { closeSideMenu(); manageFolders(); });
         View line = new View(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1,dp(1));
         lp.setMargins(0,dp(10),0,dp(10));
-        line.setLayoutParams(lp); line.setBackgroundColor(0xffdce1e5); menu.addView(line);
-        addMenuItem(menu, "⇅  " + t(5), () -> { dialog.dismiss(); showSortDialog(); });
-        addMenuItem(menu, "◉  " + t(6), () -> { dialog.dismiss(); showLanguageDialog(); });
-        addMenuItem(menu, "☑  " + t(11), () -> { dialog.dismiss(); selectionMode=true; selectedIds.clear(); updateSelectionUi(); });
-        dialog.show();
+        line.setLayoutParams(lp); line.setBackgroundColor(getResources().getColor(R.color.border)); menu.addView(line);
+        String[] sorted = {t(9), t(10), t(7), t(8)};
+        String[] languages = {"한국어", "English", "Français", "Español", "Tiếng Việt", "日本語", "简体中文"};
+        int languageIndex=0;
+        for(int i=0;i<LANG_CODES.length;i++) if (LANG_CODES[i].equals(lang)) languageIndex=i;
+        addMenuItem(menu, t(5), sorted[Math.max(0, Math.min(sortMode, 3))], false, () -> { closeSideMenu(); showSortDialog(); });
+        addMenuItem(menu, t(6), languages[languageIndex], false, () -> { closeSideMenu(); showLanguageDialog(); });
+        addMenuItem(menu, t(11), null, false, () -> {
+            closeSideMenu(); selectionMode=true; selectedIds.clear(); updateSelectionUi(); adapter.notifyDataSetChanged();
+        });
+        scroll.setTranslationX(-width);
+        scroll.animate().translationX(0).setDuration(220).start();
+    }
+    private void closeSideMenu() {
+        if (drawerLayer == null) return;
+        View layer = drawerLayer;
+        drawerLayer = null;
+        layer.animate().alpha(0f).setDuration(150).withEndAction(() -> {
+            if (layer.getParent() instanceof ViewGroup) ((ViewGroup)layer.getParent()).removeView(layer);
+        }).start();
     }
     private int dp(int v) { return (int) (v * getResources().getDisplayMetrics().density + .5f); }
-    private void addMenuItem(LinearLayout parent, String title, Runnable callback) {
-        TextView row = new TextView(this);
-        row.setText(title); row.setTextSize(16); row.setTextColor(0xff111111);
+    private void addMenuItem(LinearLayout parent, String title, String value, boolean active, Runnable callback) {
+        LinearLayout row = new LinearLayout(this);
         row.setGravity(Gravity.CENTER_VERTICAL);
-        row.setPadding(dp(6),dp(13),dp(6),dp(13));
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setPadding(dp(12), dp(14), dp(12), dp(14));
+        if (active) {
+            GradientDrawable bg = new GradientDrawable();
+            bg.setColor(getResources().getColor(R.color.border));
+            bg.setCornerRadius(dp(14));
+            row.setBackground(bg);
+        }
+        TextView label = new TextView(this);
+        label.setText(title); label.setTextSize(16); label.setTextColor(getResources().getColor(R.color.text_primary));
+        row.addView(label, new LinearLayout.LayoutParams(0, -2, 1));
+        if (value != null) {
+            TextView detail = new TextView(this);
+            detail.setText(value); detail.setTextSize(13); detail.setTextColor(getResources().getColor(R.color.text_secondary));
+            detail.setGravity(Gravity.END);
+            row.addView(detail, new LinearLayout.LayoutParams(-2, -2));
+        }
         parent.addView(row, new LinearLayout.LayoutParams(-1,-2));
         row.setOnClickListener(v -> callback.run());
     }
@@ -401,7 +457,7 @@ public class MainActivity extends LocalizedActivity {
     }
 
     @Override public void onBackPressed() {
-        if (selectionMode) leaveSelectionMode(); else super.onBackPressed();
+        if (drawerLayer != null) closeSideMenu(); else if (selectionMode) leaveSelectionMode(); else super.onBackPressed();
     }
 
     private static class BookAdapter extends ArrayAdapter<BookSummary> {
@@ -429,9 +485,19 @@ public class MainActivity extends LocalizedActivity {
                 holder = (ViewHolder) convertView.getTag();
             }
             BookSummary item = getItem(position);
-            holder.name.setText((selecting ? (selected.contains(item.getId()) ? "☑  " : "□  ") : "") + item.getName());
-            convertView.setBackgroundResource(R.drawable.bg_card);
-            convertView.setAlpha(selecting && selected.contains(item.getId()) ? .65f : 1f);
+            holder.name.setText(item.getName());
+            if (selecting && selected.contains(item.getId())) {
+                GradientDrawable selectedBackground = new GradientDrawable();
+                selectedBackground.setColor(getContext().getResources().getColor(R.color.surface));
+                selectedBackground.setCornerRadius(dpCard(getContext(),24));
+                selectedBackground.setStroke((int)dpCard(getContext(),2), getContext().getResources().getColor(R.color.primary));
+                convertView.setBackground(selectedBackground);
+                int pad = (int) dpCard(getContext(), 20);
+                convertView.setPadding(pad, pad, pad, pad);
+            } else {
+                convertView.setBackgroundResource(R.drawable.bg_card);
+            }
+            convertView.setAlpha(1f);
             String code = getContext().getSharedPreferences("MainActivity",Context.MODE_PRIVATE).getString("ui_language","ko");
             int li=0; for(int j=0;j<LANG_CODES.length;j++) if(LANG_CODES[j].equals(code))li=j;
             holder.stats.setText(WORDS[li][25]+" " + item.getTotalCount() + " · " + WORDS[li][26]+" " + item.getMemorizedCount() + " · " + WORDS[li][27]+" " + item.getUnmemorizedCount());
@@ -439,6 +505,7 @@ public class MainActivity extends LocalizedActivity {
             return convertView;
         }
 
+        private static float dpCard(Context context,int v) { return v*context.getResources().getDisplayMetrics().density; }
         private static class ViewHolder {
             TextView name;
             TextView stats;
