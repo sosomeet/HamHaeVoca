@@ -1,163 +1,142 @@
 # HamHaeVoca (함해보카)
 
-Android Studio로 개발한 **로컬 기반 영어 단어 학습 앱**입니다. 단어장을 만들고 파일에서 단어를 가져오며, 낱말카드·객관식 시험·품사 시험·단어 맞추기를 통해 학습할 수 있습니다. 암기 여부와 정답/오답 기록은 기기에 저장됩니다.
+Android용 개인 단어장 학습 앱입니다. Excel/텍스트 파일에서 단어장을 만들고, 낱말카드·시험·맞추기 기능으로 단어를 반복 학습할 수 있습니다.
 
-> **기준 코드:** 공유된 `app.zip`과 예문 기능 수정본 `HamHaeVoca_example_update.zip`을 기준으로 작성했습니다. 예문 기능은 수정본을 실제 프로젝트에 적용한 경우에만 사용할 수 있습니다. 수정본의 실제 Android 기기 빌드 및 실행 검증은 아직 완료되지 않았습니다.
+> **개발 상태:** 기능 확장 및 UI 안정화 중입니다. 아래 기능은 프로젝트 소스와 최근 개발 작업을 기준으로 정리했으며, 전체 Gradle 빌드 및 모든 기기에서의 동작이 검증되었다는 의미는 아닙니다.
 
 ## 주요 기능
 
-| 구분 | 기능 |
+- **단어장 관리:** 단어장 생성, 상세 보기, 수정·갱신, 검색, 정렬
+- **폴더 관리:** 폴더 생성·이름 변경·삭제, 단어장 폴더 이동, 폴더별 단어장 개수 표시
+- **단어장 선택:** 다중 선택 작업과 선택된 카드의 민트색 테두리 표시
+- **파일 가져오기:** CSV, TSV, XLSX 형식에서 단어장 생성 및 갱신
+- **선택적 예문:** `Example` 열이 있으면 단어에 연결해 저장하고 학습·미리보기 화면에서 활용; 없는 파일도 지원
+- **낱말카드:** 앞·뒷면 학습, 암기 상태 관리, 정답 확인 후 예문 표시, 전역 글자 크기 설정
+- **시험:** 객관식 시험, 품사 시험, 시험 결과 및 오답 기록
+- **맞추기:** 단어 맞추기 학습, 결과 확인
+- **학습 기록:** 암기 상태, 정답·오답 횟수 및 시험 이력의 SQLite 저장
+- **다국어 UI:** 한국어, 영어, 프랑스어, 스페인어, 베트남어, 일본어, 중국어 간체
+
+> UI 언어 변경은 앱 자체의 메뉴·버튼·메시지에 적용됩니다. 사용자가 가져온 단어(`Vocabulary`), 뜻(`Mean`), 예문(`Example`)은 자동 번역하지 않습니다.
+
+## 지원 단어장 형식
+
+첫 행에 열 이름을 두는 형식을 기준으로 합니다.
+
+**기본 형식 (4열)**
+
+| Vocabulary | Mean | Day | Category |
+| --- | --- | --- | --- |
+| apple | 사과 | 1 | noun |
+
+**예문 포함 형식 (5열)**
+
+| Vocabulary | Mean | Day | Category | Example |
+| --- | --- | --- | --- | --- |
+| although | 비록 ~일지라도 | 1 | conjunction | Although it rained, we went out. |
+
+- `Example`은 선택 항목이며, 예문이 없으면 예문 영역을 숨깁니다.
+- 가져오기 미리보기의 번호는 헤더를 제외한 **첫 단어 1번**부터 순서대로 표시합니다.
+- 기존 단어장을 갱신할 때는 학습 기록 보존을 목표로 설계되어 있습니다. 데이터 매칭과 보존 결과는 실제 테스트로 확인하세요.
+
+## 화면과 사용 흐름
+
+1. 메인 화면에서 단어장을 추가하거나, 검색·정렬·폴더 메뉴로 단어장을 찾습니다.
+2. 단어장을 열면 단어 목록과 암기·오답 관련 상태를 확인할 수 있습니다.
+3. `낱말카드`, `시험`, `맞추기` 중 학습 방식을 선택합니다.
+4. 학습 결과와 오답 기록을 확인하고 반복 학습합니다.
+
+UI는 기존 HamHaeVoca 디자인을 유지하는 방향으로 개선하고 있습니다. 단어장 선택 상태를 민트색 테두리로 구분하고, 메인 단어장 목록과 단어장 내부 단어 목록에 일관된 좌우 여백을 적용하는 작업이 진행되었습니다.
+
+## 개발 환경
+
+| 항목 | 내용 |
 | --- | --- |
-| 단어장 | 생성, 검색, 폴더 분류, 상세 보기 및 설정 |
-| 가져오기 | CSV / TSV / XLSX 파일 불러오기, 미리보기, Day 선택, 중복·오류 행 검사 |
-| 갱신 | 기존 단어장에 파일 데이터를 병합하고 학습 기록 유지하도록 설계 |
-| 낱말카드 | 영어/뜻 앞면 선택, 순서·묶음 설정, 스와이프 학습, 학습 이어하기 |
-| 시험 | 객관식 / 품사 문제, 문제 수·제한 시간·최소 오답 횟수 설정, 결과 확인 |
-| 맞추기 | 단어-뜻 연결, 제한 시간 및 오답 횟수 필터, 결과 확인 |
-| 학습 기록 | 암기 상태, 정답 횟수, 오답 횟수 및 시험 응답 기록 저장 |
-| 예문 (수정본) | 정답 공개 시 하단 구분선 아래 예문 표시, 본문/예문 크기 전역 설정 |
+| 언어 | Java |
+| UI | Android XML Layout |
+| 데이터베이스 | SQLite (`SQLiteOpenHelper`) |
+| 최소 Android SDK | API 21 |
+| Target SDK | API 32 |
+| 빌드 | Gradle / Android Studio |
+| 패키지 | `com.example.hamhaevoca` |
 
-## 기술 스택
-
-- **Language:** Java 8
-- **UI:** Android XML Layout / Android Views
-- **Database:** SQLite (`SQLiteOpenHelper`)
-- **Build:** Gradle, Android Gradle Plugin 기반
-- **Android:** `minSdk 21`, `compileSdk 32`, `targetSdk 32` (제공된 `app/build.gradle` 기준)
-- **Application ID:** `com.example.hamhaevoca`
-- **주요 의존성:** AndroidX AppCompat, Material Components, ConstraintLayout
+> SDK 설정은 사용 중인 `app/build.gradle`에서 최종 확인하세요. 이 문서의 값은 인수인계된 프로젝트 설정을 기준으로 합니다.
 
 ## 프로젝트 구조
 
 ```text
-app/
-├── build.gradle
-└── src/main/
-    ├── AndroidManifest.xml
-    ├── java/com/example/hamhaevoca/
-    │   ├── MainActivity.java             # 단어장 목록, 검색, 폴더
-    │   ├── BookDetailActivity.java       # 단어장 상세, 단어 목록
-    │   ├── BookSettingsActivity.java     # 단어장 설정
-    │   ├── ImportActivity.java           # 파일 가져오기·갱신 UI
-    │   ├── FlashcardActivity.java        # 낱말카드 학습
-    │   ├── QuizSetupActivity.java        # 시험 설정
-    │   ├── QuizActivity.java             # 객관식 시험
-    │   ├── PosQuizActivity.java          # 품사 시험
-    │   ├── QuizResultActivity.java       # 시험 결과
-    │   ├── MatchingSetupActivity.java    # 맞추기 설정
-    │   ├── MatchingActivity.java         # 맞추기 진행
-    │   ├── MatchingResultActivity.java   # 맞추기 결과
-    │   ├── data/
-    │   │   └── DatabaseHelper.java       # SQLite 및 데이터 갱신
-    │   ├── model/                        # 단어·시험·파싱 데이터 모델
-    │   ├── parser/
-    │   │   ├── DelimitedTextParser.java  # CSV/TSV 정규화
-    │   │   └── XlsxParser.java           # XLSX 첫 시트 읽기
-    │   └── util/                         # 시험 엔진 등 보조 로직
-    └── res/
-        ├── layout/                       # 화면 및 다이얼로그 XML
-        ├── drawable/                     # UI 리소스
-        ├── menu/
-        └── values/
+app/src/main/
+├── AndroidManifest.xml
+├── java/com/example/hamhaevoca/
+│   ├── MainActivity.java
+│   ├── BookDetailActivity.java
+│   ├── BookSettingsActivity.java
+│   ├── ImportActivity.java
+│   ├── FlashcardActivity.java
+│   ├── QuizSetupActivity.java
+│   ├── QuizActivity.java
+│   ├── PosQuizActivity.java
+│   ├── QuizResultActivity.java
+│   ├── MatchingSetupActivity.java
+│   ├── MatchingActivity.java
+│   ├── MatchingResultActivity.java
+│   ├── Lang.java
+│   ├── LocalizedActivity.java
+│   ├── data/         # SQLite DB 및 데이터 처리
+│   ├── model/        # 단어·시험 데이터 모델
+│   ├── parser/       # XLSX 및 구분자 기반 텍스트 파서
+│   └── util/         # 학습 로직 등 유틸리티
+└── res/
+    ├── layout/
+    ├── drawable/
+    ├── values/
+    ├── values-en/
+    ├── values-fr/
+    ├── values-es/
+    ├── values-vi/
+    ├── values-ja/
+    └── values-zh/
 ```
 
-## 시작하기
+## 실행 방법
 
-1. Android Studio에서 프로젝트 루트 폴더를 엽니다. (`app/` 폴더만 받은 경우에는 상위 Gradle 프로젝트 파일도 필요합니다.)
-2. Gradle Sync가 완료될 때까지 기다립니다.
-3. Android 5.0 (API 21) 이상 에뮬레이터 또는 기기를 연결합니다.
-4. `app` 실행 구성을 선택하고 Run을 실행합니다.
+1. Android Studio에서 저장소를 Clone하거나 프로젝트 폴더를 엽니다.
+2. 설치된 Android SDK와 프로젝트의 Gradle 설정을 확인합니다.
+3. Gradle 동기화 후 앱을 빌드합니다.
+4. 에뮬레이터 또는 Android 기기에서 실행합니다.
+5. CSV/TSV/XLSX 파일로 단어장을 가져와 학습 기능을 시험합니다.
 
-### 예문 기능 수정본 적용
+## 데이터 관리와 호환성
 
-기존 프로젝트를 백업한 후 `HamHaeVoca_example_update.zip`의 `src/main/...` 파일들을 기존 프로젝트 `app/src/main/...`의 같은 상대 경로에 덮어씁니다. **기존 데이터를 유지하려면 앱을 삭제하거나 앱 데이터 초기화를 하지 마세요.** 변경 후 Gradle 빌드와 실제 단말 동작 확인이 필요합니다.
+- 단어장, 폴더, 단어 및 학습 기록은 SQLite에 저장됩니다.
+- 기존 데이터를 보존하려면 앱의 데이터를 삭제하거나 무조건 재설치하기보다 업데이트 설치 및 DB 마이그레이션을 검증하세요.
+- 소스의 `DatabaseHelper`는 `example` 열과 폴더 관계를 포함하며 기존 DB 업그레이드 코드를 제공합니다.
+- 대량 가져오기, 기존 단어장 갱신, 사용자 학습 기록 보존은 배포 전 별도 검증이 필요합니다.
 
-## 단어장 파일 형식
+## 현재 검증 및 개선 과제
 
-첫 번째 시트를 읽는 XLSX 및 구분자 텍스트 파일을 지원합니다. 첫 행은 헤더로 사용하며, 다음과 같은 열 배치를 기준으로 합니다.
+아래 항목은 **실기기에서 전체 검증 완료로 간주하지 않습니다.**
 
-| 열 | 헤더 | 설명 | 필수 |
-| --- | --- | --- | --- |
-| A | `Vocabulary` | 영어 단어 또는 표현·문장 구조 | 예 |
-| B | `Mean` | 한국어 뜻·해석 | 예 |
-| C | `Day` | 학습 단위 | 아니요 |
-| D | `Category` | 분류 정보(원본 파일 열) | 아니요 |
-| E | `Example` | 낱말카드 정답 공개 시 표시할 예문 | 아니요, **예문 수정본에서 지원** |
+- [ ] Android Studio에서 전체 Gradle 빌드 성공 확인
+- [ ] 신규 단어장 생성 및 기존 단어장 갱신
+- [ ] XLSX 파일 선택기와 파일 파싱 동작
+- [ ] 업데이트 설치 후 기존 학습 데이터 보존
+- [ ] 낱말카드 예문 표시 및 글자 크기 설정 유지
+- [ ] 폴더 이동·정렬·단어장 다중 선택
+- [ ] 처음 선택한 단어장의 민트색 단일 테두리 표시
+- [ ] 상단 UI와 단어 목록의 좌우 여백 및 텍스트 줄바꿈
+- [ ] 7개 언어 전환 및 모든 화면 번역·잘림 확인
+- [ ] 시험·품사 시험·맞추기 기능 회귀 테스트
 
-예시:
+## 개발 및 기여 시 유의사항
 
-```csv
-Vocabulary,Mean,Day,Category,Example
-although,비록 ~이지만,1,양보·대조,"Although it was raining, we went out."
-because,~ 때문에,1,원인·결과,"I stayed home because I was tired."
-```
+- 기존 UI 스타일과 사용자 데이터를 유지하면서 필요한 부분만 변경합니다.
+- 사용자가 요청하지 않은 아이콘을 새로 추가하지 않습니다.
+- 새로운 UI 문자열은 모든 지원 언어의 리소스 키를 함께 관리합니다.
+- 단어장 가져오기/갱신 시 암기 상태 및 정답·오답 횟수 보존을 고려합니다.
+- UI 변경 후에는 관련 학습 화면의 회귀 테스트를 수행합니다.
+- 정적 검사, Gradle 빌드, 실기기 검증 결과는 서로 구분해 기록합니다.
 
-- **기존 Unit4 형식:** `Vocabulary`, `Mean`, `Day`, `Category` 열을 유지하면 됩니다.
-- **새 Conj 형식:** 같은 열에 `Example` 열을 추가합니다. 예문이 없는 행은 기존처럼 표시합니다.
-- `Example` 열은 **헤더 이름을 기준으로 감지**합니다. 헤더는 `Example` 또는 `예문`을 사용하세요.
-- 현재 가져오기/학습에서 `Category` 값의 독립적인 영속 저장 또는 분류 활용은 보장하지 않습니다. 실제 단어장 폴더와는 별개입니다.
-- 첫 시트와 헤더 처리 방식에 맞게 파일을 준비하고, 불러오기 미리보기에서 유효한 행 수를 확인하세요.
+## Repository
 
-## 낱말카드와 예문
-
-기본 카드 동작은 유지하고, 예문 데이터가 있는 단어에 한해서 **정답을 공개한 뒤** 회색의 얇은 구분선 아래 예문을 표시하도록 수정했습니다.
-
-```text
-[ 정답 확인 전 ]             [ 정답 확인 후 ]
-┌──────────────────┐       ┌──────────────────┐
-│                  │       │                  │
-│       단어       │  →    │        뜻        │
-│                  │       │                  │
-│                  │       │ ──────────────── │
-│                  │       │       예문       │
-└──────────────────┘       └──────────────────┘
-```
-
-- 앞면이 **영어인지 한국어인지와 관계없이** 예문 표시 조건은 같습니다.
-- 본문 단어·뜻의 중앙 위치가 하단 예문 표시 때문에 바뀌지 않도록 별도 영역으로 구성합니다.
-- 예문이 비어 있으면 구분선과 예문 영역을 숨깁니다.
-- 낱말카드 설정에서 **본문 크기(12–60sp)**, **예문 크기(10–36sp)**를 설정합니다.
-- 크기 설정은 `SharedPreferences`에 저장되어 **모든 단어장에 공통 적용**됩니다.
-
-## 데이터베이스
-
-`data/DatabaseHelper.java`에서 SQLite를 관리합니다.
-
-| 테이블 | 역할 |
-| --- | --- |
-| `folders` | 단어장 폴더 |
-| `books` | 단어장 메타데이터 |
-| `words` | 단어, 뜻, 정렬, 암기 상태, 정답·오답 횟수, 예문(수정본) |
-| `quiz_attempts` | 시험 시도 결과 |
-| `quiz_answers` | 개별 시험 답변 |
-
-- 기존 DB 버전: **2**
-- 예문 수정본 DB 버전: **3** (`words.example` 열 추가)
-- 마이그레이션에서 기존 학습 기록을 유지하도록 설계되어 있습니다. 실제 데이터가 있는 단말에서 업그레이드 전 백업을 권장합니다.
-
-## 단어장 갱신 — 현재 확인 필요
-
-갱신은 `ImportActivity.java`의 업데이트 모드에서 `DatabaseHelper.mergeBookWords()`를 호출하여 수행하도록 구현되어 있습니다. 기본 의도는 기존 단어에 대한 학습 기록을 유지하며 가져온 데이터를 병합하는 것입니다.
-
-**현재 단어장 갱신이 정상 동작하지 않는다는 사용자 보고가 있으며, 정확한 재현 조건과 원인은 아직 확정되지 않았습니다.** 따라서 안정화된 기능으로 표시하지 않습니다.
-
-현재 구현에서 확인할 점:
-
-1. 갱신은 전체 교체가 아니라 **병합**이므로 새 파일에서 삭제된 단어가 기존 DB에 남을 수 있습니다.
-2. 예문 수정본의 `mergeBookWords()`에는 가져온 `example` 값으로 기존 값을 갱신하는 로직이 있어, 예문 열이 없는 파일을 병합할 때 기존 예문이 빈 값으로 대체될 수 있습니다.
-3. 갱신 후 UI에 결과가 표시되지 않는 경우 데이터 저장 문제와 화면 새로고침 문제를 분리해서 확인해야 합니다.
-
-관련 파일: `ImportActivity.java`, `data/DatabaseHelper.java`, `parser/DelimitedTextParser.java`, `parser/XlsxParser.java`, `BookDetailActivity.java`.
-
-## 개발 시 유의사항
-
-- 기존 학습 기록(`memorized`, `correct_count`, `incorrect_count`, 시험 기록)을 보존하세요.
-- DB 스키마를 변경하면 버전을 올리고 `onUpgrade()`에 비파괴적 마이그레이션을 추가하세요.
-- 예문이 없는 기존 파일과 새 예문 파일을 **동시에 지원**하세요.
-- 카드 앞면 언어, 시험·맞추기 로직, 기존 조작을 변경하지 마세요.
-- 폰트 설정을 단어장별 설정으로 분리하지 않고 전체에 적용하세요.
-- 테스트 권장 항목: 새 단어장 불러오기, 기존 단어장 갱신, 중복 행, 예문 없음/있음, 영·한 앞면 전환, 화면 길이·폰트 크기, DB 2→3 업그레이드, 학습 기록 유지.
-
-## 프로젝트 상태
-
-이 README는 제공받은 소스와 예문 기능 변경 내용을 설명하는 문서입니다. **프로젝트를 실제 단말에서 빌드·실행하여 모든 기능을 검증했다는 의미는 아닙니다.** 특히 단어장 갱신은 추후 원인 분석 및 수정이 필요한 상태입니다.
+https://github.com/sosomeet/HamHaeVoca
