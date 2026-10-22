@@ -335,7 +335,7 @@ public class MainActivity extends LocalizedActivity {
     }
     private void toggleSelected(long id) {
         if (!selectedIds.add(id)) selectedIds.remove(id);
-        updateSelectionUi(); adapter.notifyDataSetChanged();
+        adapter.setSelection(selectedIds, selectionMode); updateSelectionUi(); adapter.notifyDataSetChanged();
     }
     private void updateSelectionUi() {
         if (actionBar==null) return;
@@ -344,7 +344,7 @@ public class MainActivity extends LocalizedActivity {
         findViewById(R.id.moveSelectedButton).setEnabled(!selectedIds.isEmpty());
     }
     private void leaveSelectionMode() {
-        selectionMode=false; selectedIds.clear(); updateSelectionUi();adapter.notifyDataSetChanged();
+        selectionMode=false; selectedIds.clear(); adapter.setSelection(selectedIds, selectionMode); updateSelectionUi();adapter.notifyDataSetChanged();
     }
     private void moveSelectedBooks() {
         if (selectedIds.isEmpty()) { Toast.makeText(this,t(14),Toast.LENGTH_SHORT).show(); return; }
@@ -511,15 +511,19 @@ public class MainActivity extends LocalizedActivity {
             BookSummary item = getItem(position);
             holder.name.setText(item.getName());
             if (selecting && selected.contains(item.getId())) {
+                // A single mint stroke. Do not stack an additional border around bg_card.
                 convertView.setBackgroundResource(R.drawable.bg_book_selected_glow);
-                convertView.setElevation(dpCard(getContext(), 7));
+                int pad = (int) dpCard(getContext(), 20);
+                convertView.setPadding(pad, pad, pad, pad);
+                if (android.os.Build.VERSION.SDK_INT >= 28) {
+                    convertView.setOutlineAmbientShadowColor(getContext().getResources().getColor(R.color.primary));
+                    convertView.setOutlineSpotShadowColor(getContext().getResources().getColor(R.color.primary));
+                }
+                convertView.setElevation(dpCard(getContext(), 3));
             } else {
                 convertView.setBackgroundResource(R.drawable.bg_card);
                 convertView.setElevation(0f);
             }
-            // Recycled ListView rows must always preserve the original card padding.
-            int pad = (int) dpCard(getContext(), 20);
-            convertView.setPadding(pad, pad, pad, pad);
             convertView.setAlpha(1f);
             String code = getContext().getSharedPreferences("MainActivity",Context.MODE_PRIVATE).getString("ui_language","ko");
             int li=0; for(int j=0;j<LANG_CODES.length;j++) if(LANG_CODES[j].equals(code))li=j;

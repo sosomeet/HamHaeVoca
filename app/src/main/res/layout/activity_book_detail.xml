@@ -8,5 +8,4 @@
     android:divider="@android:color/transparent"
     android:dividerHeight="8dp"
     android:paddingBottom="20dp"
-    android:paddingStart="20dp"
-    android:paddingEnd="20dp" />
+ />
