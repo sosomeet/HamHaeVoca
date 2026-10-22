@@ -4,40 +4,40 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:orientation="vertical"
-    android:paddingStart="0dp"
+    android:paddingStart="20dp"
     android:paddingTop="28dp"
-    android:paddingEnd="0dp"
+    android:paddingEnd="20dp"
     android:paddingBottom="20dp">
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="horizontal" android:gravity="center_vertical">
-        <ImageButton
-            android:id="@+id/folderButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_icon_button"
-            android:contentDescription="@string/ui_cc77666197e1"
-            android:padding="12dp"
-            android:src="@drawable/ic_menu_hamburger"
-            android:tint="@color/text_primary" />
-
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content"
-            android:layout_weight="1" android:text="HamHaeVoca" style="@style/TitleText" />
-    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="HamHaeVoca"
+        style="@style/TitleText" />
 
     <TextView
         android:id="@+id/homeSubtitle"
-        android:layout_marginStart="48dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:text="@string/ui_5fa0aaaa37d7"
         style="@style/BodyText" />
 
+    <ImageButton
+        android:id="@+id/folderButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_icon_button"
+        android:contentDescription="@string/ui_cc77666197e1"
+        android:padding="12dp"
+        android:src="@drawable/ic_menu_hamburger"
+        android:tint="@color/text_primary" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="4dp"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
