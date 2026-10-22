@@ -28,7 +28,7 @@ import java.util.Set;
  * 한 단어에 해당하는 품사를 8품사 중 복수 선택하는 시험 화면.
  * 정답은 뜻 문자열에 포함된 (n), (v), (adj) 등의 태그 집합과 정확히 일치해야 한다.
  */
-public class PosQuizActivity extends Activity {
+public class PosQuizActivity extends LocalizedActivity {
     private final Button[] tagButtons = new Button[8];
     private final String[] tagKeys = new String[]{
             PosTagParser.NOUN,
@@ -59,6 +59,18 @@ public class PosQuizActivity extends Activity {
     private CountDownTimer timer;
     private long questionStartedAt;
     private final Handler handler = new Handler(Looper.getMainLooper());
+
+    private String localizedTagName(String tag) {
+        if (PosTagParser.NOUN.equals(tag)) return getString(R.string.ui_0e17eaa8c0c1);
+        if (PosTagParser.PRONOUN.equals(tag)) return getString(R.string.ui_f52bfb6bbede);
+        if (PosTagParser.VERB.equals(tag)) return getString(R.string.ui_436b2c04f868);
+        if (PosTagParser.ADJECTIVE.equals(tag)) return getString(R.string.ui_b704e5032def);
+        if (PosTagParser.ADVERB.equals(tag)) return getString(R.string.ui_b8c8728cf706);
+        if (PosTagParser.PREPOSITION.equals(tag)) return getString(R.string.ui_357cb8f5e5f2);
+        if (PosTagParser.CONJUNCTION.equals(tag)) return getString(R.string.ui_aa0e5708b6da);
+        if (PosTagParser.INTERJECTION.equals(tag)) return getString(R.string.ui_7ac1490f7476);
+        return tag;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +111,7 @@ public class PosQuizActivity extends Activity {
 
         for (int i = 0; i < tagButtons.length; i++) {
             final int buttonIndex = i;
-            tagButtons[i].setText(PosTagParser.displayName(tagKeys[i]));
+            tagButtons[i].setText(localizedTagName(tagKeys[i]));
             tagButtons[i].setOnClickListener(v -> toggleTag(buttonIndex));
         }
 
@@ -108,9 +120,9 @@ public class PosQuizActivity extends Activity {
 
         if (questions.isEmpty()) {
             new AlertDialog.Builder(this)
-                    .setTitle("품사 문제가 없음")
-                    .setMessage("뜻 앞에 (n), (v), (adj) 같은 지원 품사 태그가 있는 단어가 없습니다.")
-                    .setPositiveButton("확인", (d, w) -> finish())
+                    .setTitle(Lang.text(PosQuizActivity.this, R.string.ui_0ecd62f57903))
+                    .setMessage(Lang.text(PosQuizActivity.this, R.string.ui_7a930986a79d))
+                    .setPositiveButton(Lang.text(PosQuizActivity.this, R.string.ui_468266d639b5), (d, w) -> finish())
                     .setCancelable(false)
                     .show();
             return;
@@ -164,7 +176,7 @@ public class PosQuizActivity extends Activity {
     private void submitAnswer(boolean timedOut) {
         if (answered) return;
         if (!timedOut && selectedTags.isEmpty()) {
-            Toast.makeText(this, "품사를 하나 이상 선택하세요.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, Lang.text(PosQuizActivity.this, R.string.ui_bda9ad971163), Toast.LENGTH_SHORT).show();
             return;
         }
         answered = true;
@@ -215,12 +227,12 @@ public class PosQuizActivity extends Activity {
             @Override
             public void onTick(long millisUntilFinished) {
                 int seconds = (int) Math.ceil(millisUntilFinished / 1000.0);
-                timerText.setText(seconds + "초");
+                timerText.setText(seconds + Lang.text(PosQuizActivity.this, R.string.ui_3845248e2861));
             }
 
             @Override
             public void onFinish() {
-                timerText.setText("0초");
+                timerText.setText(Lang.text(PosQuizActivity.this, R.string.ui_1713026f3458));
                 submitAnswer(true);
             }
         }.start();
@@ -239,10 +251,10 @@ public class PosQuizActivity extends Activity {
 
     private void confirmExit() {
         new AlertDialog.Builder(this)
-                .setTitle("품사 시험 종료")
-                .setMessage("현재 시험 기록은 저장되지 않습니다. 나갈까요?")
-                .setPositiveButton("나가기", (d, w) -> finish())
-                .setNegativeButton("계속", null)
+                .setTitle(Lang.text(PosQuizActivity.this, R.string.ui_eca7aaa457b7))
+                .setMessage(Lang.text(PosQuizActivity.this, R.string.ui_321a5d8a81b7))
+                .setPositiveButton(Lang.text(PosQuizActivity.this, R.string.ui_b37b7b42a11a), (d, w) -> finish())
+                .setNegativeButton(Lang.text(PosQuizActivity.this, R.string.ui_995224fb92dd), null)
                 .show();
     }
 

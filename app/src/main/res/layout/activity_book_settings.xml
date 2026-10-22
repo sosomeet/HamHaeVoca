@@ -25,7 +25,7 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:background="@drawable/bg_icon_button"
-                android:contentDescription="뒤로 가기"
+                android:contentDescription="@string/ui_96dd037a45f9"
                 android:padding="13dp"
                 android:src="@drawable/ic_arrow_back" />
 
@@ -35,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
                 android:layout_weight="1"
-                android:text="단어장 설정" />
+                android:text="@string/ui_a10692c5080e" />
         </LinearLayout>
 
         <TextView
@@ -57,7 +57,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="단어장 관리" />
+            android:text="@string/ui_88a718e29b7e" />
 
         <Button
             android:id="@+id/updateBookButton"
@@ -65,7 +65,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="단어장 갱신" />
+            android:text="@string/ui_fb125709e406" />
 
         <Button
             android:id="@+id/addWordButton"
@@ -73,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="단어 추가" />
+            android:text="@string/ui_3d2957d26b5c" />
 
         <Button
             android:id="@+id/resetMemorizedButton"
@@ -81,7 +81,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="암기 상태 초기화" />
+            android:text="@string/ui_91d1e2b3617f" />
 
         <Button
             android:id="@+id/renameBookButton"
@@ -89,14 +89,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="이름 변경" />
+            android:text="@string/ui_73e5a894f765" />
 
         <TextView
             style="@style/SectionText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp"
-            android:text="최근 시험 기록" />
+            android:text="@string/ui_62e2814bc80d" />
 
         <TextView
             android:id="@+id/recentQuizEmptyText"
@@ -106,7 +106,7 @@
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_card"
             android:padding="16dp"
-            android:text="아직 완료한 시험이 없습니다." />
+            android:text="@string/ui_c6e842e44e3a" />
 
         <LinearLayout
             android:id="@+id/recentQuizContainer"
@@ -121,6 +121,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="단어장 삭제" />
+            android:text="@string/ui_33e270a7d3f6" />
     </LinearLayout>
 </ScrollView>

@@ -15,7 +15,7 @@ import com.example.hamhaevoca.model.VocabItem;
 
 import java.util.List;
 
-public class MatchingSetupActivity extends Activity {
+public class MatchingSetupActivity extends LocalizedActivity {
     private long bookId;
     private EditText maxWordsInput;
     private SeekBar timeSeekBar;
@@ -66,9 +66,9 @@ public class MatchingSetupActivity extends Activity {
 
         if (totalWordCount < 1) {
             new AlertDialog.Builder(this)
-                    .setTitle("맞추기를 시작할 수 없음")
-                    .setMessage("단어가 1개 이상 필요합니다.")
-                    .setPositiveButton("확인", (d, w) -> finish())
+                    .setTitle(Lang.text(MatchingSetupActivity.this, R.string.ui_405bdedda3ab))
+                    .setMessage(Lang.text(MatchingSetupActivity.this, R.string.ui_913abb2ab55e))
+                    .setPositiveButton(Lang.text(MatchingSetupActivity.this, R.string.ui_468266d639b5), (d, w) -> finish())
                     .setCancelable(false)
                     .show();
         }
@@ -93,11 +93,11 @@ public class MatchingSetupActivity extends Activity {
 
     private void updateAvailableCount() {
         int count = eligibleCount();
-        availableCountView.setText("출제 가능: " + count + "개");
+        availableCountView.setText(Lang.text(MatchingSetupActivity.this, R.string.ui_ccfae27393f5) + count + Lang.text(MatchingSetupActivity.this, R.string.ui_11600c9ada77));
     }
 
     private void updateTimeLabel() {
-        timeValue.setText((timeSeekBar.getProgress() + 5) + "초");
+        timeValue.setText((timeSeekBar.getProgress() + 5) + Lang.text(MatchingSetupActivity.this, R.string.ui_3845248e2861));
     }
 
     private int readMaximumWordCount() {
@@ -108,15 +108,15 @@ public class MatchingSetupActivity extends Activity {
         try {
             requested = Integer.parseInt(raw);
         } catch (NumberFormatException e) {
-            maxWordsInput.setError("숫자를 입력하세요.");
+            maxWordsInput.setError(Lang.text(MatchingSetupActivity.this, R.string.ui_8c5c02f2a819));
             return -1;
         }
         if (requested < 1) {
-            maxWordsInput.setError("1개 이상 입력하세요.");
+            maxWordsInput.setError(Lang.text(MatchingSetupActivity.this, R.string.ui_9248737339ea));
             return -1;
         }
         if (requested > available) {
-            maxWordsInput.setError("출제 가능한 " + available + "개 이하로 입력하세요.");
+            maxWordsInput.setError(Lang.text(MatchingSetupActivity.this, R.string.ui_3fcc4d7b89a7) + available + Lang.text(MatchingSetupActivity.this, R.string.ui_7f64b5c1e784));
             return -1;
         }
         return requested;
@@ -125,13 +125,13 @@ public class MatchingSetupActivity extends Activity {
     private void startMatching() {
         int minimum = readMinimumIncorrect();
         if (minimum < 0) {
-            minIncorrectInput.setError("0 이상의 정수를 입력하세요.");
+            minIncorrectInput.setError(Lang.text(MatchingSetupActivity.this, R.string.ui_98f4ac4a1828));
             return;
         }
         if (eligibleCount() < 1) {
-            new AlertDialog.Builder(this).setTitle("맞추기를 시작할 수 없음")
-                    .setMessage("조건에 맞는 단어가 없습니다.")
-                    .setPositiveButton("확인", null).show();
+            new AlertDialog.Builder(this).setTitle(Lang.text(MatchingSetupActivity.this, R.string.ui_405bdedda3ab))
+                    .setMessage(Lang.text(MatchingSetupActivity.this, R.string.ui_df84c6cdff40))
+                    .setPositiveButton(Lang.text(MatchingSetupActivity.this, R.string.ui_468266d639b5), null).show();
             return;
         }
         int maximumWords = readMaximumWordCount();

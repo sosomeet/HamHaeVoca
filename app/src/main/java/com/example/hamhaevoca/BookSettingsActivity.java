@@ -17,7 +17,7 @@ import com.example.hamhaevoca.util.Ui;
 
 import java.util.List;
 
-public class BookSettingsActivity extends Activity {
+public class BookSettingsActivity extends LocalizedActivity {
     private long bookId;
     private DatabaseHelper db;
     private TextView titleView;
@@ -55,16 +55,16 @@ public class BookSettingsActivity extends Activity {
         BookSummary summary = db.getBookSummary(bookId);
         if (summary == null) {
             new AlertDialog.Builder(this)
-                    .setTitle("단어장을 찾을 수 없음")
-                    .setMessage("삭제되었거나 존재하지 않는 단어장입니다.")
-                    .setPositiveButton("확인", (d, w) -> finish())
+                    .setTitle(Lang.text(BookSettingsActivity.this, R.string.ui_cbab1c6fb7b1))
+                    .setMessage(Lang.text(BookSettingsActivity.this, R.string.ui_07522fb549f9))
+                    .setPositiveButton(Lang.text(BookSettingsActivity.this, R.string.ui_468266d639b5), (d, w) -> finish())
                     .setCancelable(false)
                     .show();
             return;
         }
         titleView.setText(summary.getName());
-        statsView.setText("전체 " + summary.getTotalCount() + " · 외움 "
-                + summary.getMemorizedCount() + " · 미암기 " + summary.getUnmemorizedCount());
+        statsView.setText(Lang.text(BookSettingsActivity.this, R.string.ui_57ff445a7f6b) + summary.getTotalCount() + Lang.text(BookSettingsActivity.this, R.string.ui_4354af2c7ee7)
+                + summary.getMemorizedCount() + Lang.text(BookSettingsActivity.this, R.string.ui_d6688e7f48b7) + summary.getUnmemorizedCount());
         renderRecentAttempts();
     }
 
@@ -77,8 +77,8 @@ public class BookSettingsActivity extends Activity {
                     : Math.round(attempt.getCorrectCount() * 100f / attempt.getTotalCount());
             TextView card = new TextView(this);
             card.setText(attempt.getCompletedAt().replace('T', ' ')
-                    + "\n정답 " + attempt.getCorrectCount() + " / " + attempt.getTotalCount()
-                    + " · " + rate + "% · 제한 " + attempt.getTimeLimit() + "초");
+                    + Lang.text(BookSettingsActivity.this, R.string.ui_77d4612bd543) + attempt.getCorrectCount() + " / " + attempt.getTotalCount()
+                    + " · " + rate + Lang.text(BookSettingsActivity.this, R.string.ui_d6fd819f4961) + attempt.getTimeLimit() + Lang.text(BookSettingsActivity.this, R.string.ui_3845248e2861));
             card.setTextColor(getResources().getColor(R.color.text_primary));
             card.setTextSize(15f);
             card.setLineSpacing(0f, 1.2f);
@@ -111,30 +111,30 @@ public class BookSettingsActivity extends Activity {
         EditText termInput = view.findViewById(R.id.dialogTermInput);
         EditText meaningInput = view.findViewById(R.id.dialogMeaningInput);
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("단어 추가")
+                .setTitle(Lang.text(BookSettingsActivity.this, R.string.ui_3d2957d26b5c))
                 .setView(view)
-                .setPositiveButton("저장", null)
-                .setNegativeButton("취소", null)
+                .setPositiveButton(Lang.text(BookSettingsActivity.this, R.string.ui_1f1712acff27), null)
+                .setNegativeButton(Lang.text(BookSettingsActivity.this, R.string.ui_19b2d19bc141), null)
                 .create();
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
                     String term = termInput.getText().toString().trim();
                     String meaning = meaningInput.getText().toString().trim();
                     if (term.isEmpty()) {
-                        termInput.setError("영단어를 입력하세요.");
+                        termInput.setError(Lang.text(BookSettingsActivity.this, R.string.ui_65c711250651));
                         return;
                     }
                     if (meaning.isEmpty()) {
-                        meaningInput.setError("뜻을 입력하세요.");
+                        meaningInput.setError(Lang.text(BookSettingsActivity.this, R.string.ui_7b977760f897));
                         return;
                     }
                     if (db.exactWordExists(bookId, term, meaning, -1)) {
-                        termInput.setError("동일한 단어와 뜻이 이미 있습니다.");
+                        termInput.setError(Lang.text(BookSettingsActivity.this, R.string.ui_f5e4962b71b4));
                         return;
                     }
                     db.addWord(bookId, term, meaning);
                     dialog.dismiss();
-                    Toast.makeText(this, "단어를 추가했습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, Lang.text(BookSettingsActivity.this, R.string.ui_cc6d3bff5ff5), Toast.LENGTH_SHORT).show();
                     reload();
                 }));
         dialog.show();
@@ -142,14 +142,14 @@ public class BookSettingsActivity extends Activity {
 
     private void confirmReset() {
         new AlertDialog.Builder(this)
-                .setTitle("암기 상태 초기화")
-                .setMessage("외움 표시를 모두 초기화할까요? 시험 정답·오답 횟수는 유지됩니다.")
-                .setPositiveButton("초기화", (d, w) -> {
+                .setTitle(Lang.text(BookSettingsActivity.this, R.string.ui_91d1e2b3617f))
+                .setMessage(Lang.text(BookSettingsActivity.this, R.string.ui_44c99b6a55f0))
+                .setPositiveButton(Lang.text(BookSettingsActivity.this, R.string.ui_ff75b4ff2463), (d, w) -> {
                     db.resetMemorized(bookId);
-                    Toast.makeText(this, "초기화했습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, Lang.text(BookSettingsActivity.this, R.string.ui_4b994780f97d), Toast.LENGTH_SHORT).show();
                     reload();
                 })
-                .setNegativeButton("취소", null)
+                .setNegativeButton(Lang.text(BookSettingsActivity.this, R.string.ui_19b2d19bc141), null)
                 .show();
     }
 
@@ -162,16 +162,16 @@ public class BookSettingsActivity extends Activity {
         int padding = getResources().getDimensionPixelSize(R.dimen.dialog_padding);
         input.setPadding(padding, padding / 2, padding, padding / 2);
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("단어장 이름 변경")
+                .setTitle(Lang.text(BookSettingsActivity.this, R.string.ui_e5d232871e57))
                 .setView(input)
-                .setPositiveButton("저장", null)
-                .setNegativeButton("취소", null)
+                .setPositiveButton(Lang.text(BookSettingsActivity.this, R.string.ui_1f1712acff27), null)
+                .setNegativeButton(Lang.text(BookSettingsActivity.this, R.string.ui_19b2d19bc141), null)
                 .create();
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
                     String name = input.getText().toString().trim();
                     if (name.isEmpty()) {
-                        input.setError("이름을 입력하세요.");
+                        input.setError(Lang.text(BookSettingsActivity.this, R.string.ui_43d8a84eec67));
                         return;
                     }
                     db.renameBook(bookId, name);
@@ -183,14 +183,14 @@ public class BookSettingsActivity extends Activity {
 
     private void confirmDeleteBook() {
         new AlertDialog.Builder(this)
-                .setTitle("단어장 삭제")
-                .setMessage("단어와 시험 기록을 모두 삭제합니다. 계속할까요?")
-                .setPositiveButton("삭제", (d, w) -> {
+                .setTitle(Lang.text(BookSettingsActivity.this, R.string.ui_33e270a7d3f6))
+                .setMessage(Lang.text(BookSettingsActivity.this, R.string.ui_01ff88cbb110))
+                .setPositiveButton(Lang.text(BookSettingsActivity.this, R.string.ui_fc81e222b97c), (d, w) -> {
                     db.deleteBook(bookId);
-                    Toast.makeText(this, "단어장을 삭제했습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, Lang.text(BookSettingsActivity.this, R.string.ui_24dbfbfa1dc9), Toast.LENGTH_SHORT).show();
                     finish();
                 })
-                .setNegativeButton("취소", null)
+                .setNegativeButton(Lang.text(BookSettingsActivity.this, R.string.ui_19b2d19bc141), null)
                 .show();
     }
 }

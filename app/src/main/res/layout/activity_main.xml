@@ -16,10 +16,11 @@
         style="@style/TitleText" />
 
     <TextView
+        android:id="@+id/homeSubtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:text="오늘도 가볍게 단어를 익혀보세요"
+        android:text="@string/ui_5fa0aaaa37d7"
         style="@style/BodyText" />
 
     <LinearLayout
@@ -37,26 +38,17 @@
             android:layout_weight="1"
             android:singleLine="true"
             android:ellipsize="end"
-            android:text="내 단어장" />
+            android:text="@string/ui_16803999121e" />
 
-        <ImageButton
-            android:id="@+id/importButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="@drawable/bg_icon_button"
-            android:contentDescription="새 단어장 불러오기"
-            android:padding="12dp"
-            android:src="@drawable/ic_add_book"
-            android:tint="@color/text_primary" />
 
         <ImageButton
             android:id="@+id/folderButton"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="@drawable/bg_icon_button"
-            android:contentDescription="폴더 선택 및 관리"
+            android:contentDescription="@string/ui_cc77666197e1"
             android:padding="12dp"
-            android:src="@drawable/ic_folder_outline"
+            android:src="@drawable/ic_menu_hamburger"
             android:tint="@color/text_primary" />
 
         <ImageButton
@@ -64,7 +56,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="@drawable/bg_icon_button"
-            android:contentDescription="단어장 검색 열기 또는 닫기"
+            android:contentDescription="@string/ui_2f224b6b66fa"
             android:padding="12dp"
             android:src="@android:drawable/ic_menu_search"
             android:tint="@color/text_primary" />
@@ -82,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:hint="단어장 검색"
+            android:hint="@string/ui_90a620d0462a"
             android:inputType="text"
             android:singleLine="true" />
     </LinearLayout>
@@ -95,17 +87,41 @@
         android:background="@drawable/bg_card"
         android:gravity="center"
         android:padding="28dp"
-        android:text="아직 저장된 단어장이 없어요.\nTXT, CSV, TSV 또는 XLSX 파일을 불러와 보세요."
+        android:text="@string/ui_7c5b2aeebf30"
         style="@style/BodyText" />
 
+    <LinearLayout
+        android:id="@+id/selectionBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:visibility="gone">
+        <TextView android:id="@+id/selectionCount" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:text="@string/ui_b62286738cf1" android:textStyle="bold" />
+        <Button android:id="@+id/moveSelectedButton" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="@string/ui_25ef7e23a29a" android:textAllCaps="false" />
+        <Button android:id="@+id/cancelSelectionButton" android:layout_width="wrap_content"
+            android:layout_height="wrap_content" android:text="@string/ui_19b2d19bc141" android:textAllCaps="false" />
+    </LinearLayout>
+
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
     <ListView
         android:id="@+id/bookList"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:layout_marginTop="10dp"
-        android:layout_weight="1"
         android:clipToPadding="false"
         android:divider="@android:color/transparent"
         android:dividerHeight="10dp"
-        android:paddingBottom="12dp" />
+        android:paddingBottom="80dp" />
+
+    <ImageButton android:id="@+id/importButton"
+        android:layout_width="62dp" android:layout_height="62dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="12dp" android:background="@drawable/bg_fab_mint"
+        android:contentDescription="@string/ui_d455c82a86bc" android:padding="17dp"
+        android:src="@drawable/ic_add_book" android:tint="@color/white"
+        android:elevation="6dp" />
+    </FrameLayout>
 </LinearLayout>

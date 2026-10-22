@@ -19,7 +19,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="@drawable/bg_icon_button"
-            android:contentDescription="뒤로 가기"
+            android:contentDescription="@string/ui_96dd037a45f9"
             android:padding="13dp"
             android:src="@drawable/ic_arrow_back" />
 
@@ -38,7 +38,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="@drawable/bg_icon_button"
-            android:contentDescription="단어장 설정"
+            android:contentDescription="@string/ui_a10692c5080e"
             android:padding="13dp"
             android:src="@drawable/ic_settings" />
     </LinearLayout>
@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
             android:layout_weight="1"
-            android:text="낱말카드" />
+            android:text="@string/ui_0c05149c1c40" />
 
         <Button
             android:id="@+id/quizButton"
@@ -73,7 +73,7 @@
             android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp"
             android:layout_weight="1"
-            android:text="시험" />
+            android:text="@string/ui_3fcc7bebc2b4" />
 
         <Button
             android:id="@+id/matchingButton"
@@ -82,7 +82,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:layout_weight="1"
-            android:text="맞추기" />
+            android:text="@string/ui_52f3a8789b84" />
     </LinearLayout>
 
     <EditText
@@ -91,7 +91,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
-        android:hint="단어 또는 뜻 검색"
+        android:hint="@string/ui_bc2fc68c4742"
         android:imeOptions="actionDone"
         android:singleLine="true" />
 
@@ -101,7 +101,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="오답 필터: 전체" />
+        android:text="@string/ui_bbe9bca07617" />
 
     <TextView
         android:id="@+id/filterResultText"

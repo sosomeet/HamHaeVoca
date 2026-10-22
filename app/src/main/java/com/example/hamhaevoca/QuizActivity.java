@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class QuizActivity extends Activity {
+public class QuizActivity extends LocalizedActivity {
     private long bookId;
     private String mode;
     private int timeLimit;
@@ -99,7 +99,7 @@ public class QuizActivity extends Activity {
         QuizQuestion question = questions.get(index);
         progressText.setText((index + 1) + " / " + questions.size());
         progressBar.setProgress(index + 1);
-        directionText.setText("term-to-meaning".equals(question.getDirection()) ? "영단어를 보고 뜻을 고르세요" : "뜻을 보고 영단어를 고르세요");
+        directionText.setText("term-to-meaning".equals(question.getDirection()) ? Lang.text(QuizActivity.this, R.string.ui_41312256fe7d) : Lang.text(QuizActivity.this, R.string.ui_4b266db7e5d2));
         promptText.setText(question.getPrompt());
         for (int i = 0; i < 5; i++) {
             choiceButtons[i].setText((i + 1) + ". " + question.getChoices().get(i));
@@ -118,11 +118,11 @@ public class QuizActivity extends Activity {
             @Override public void onTick(long millisUntilFinished) {
                 remainingMillis = millisUntilFinished;
                 int seconds = (int) Math.ceil(millisUntilFinished / 1000.0);
-                timerText.setText(seconds + "초");
+                timerText.setText(seconds + Lang.text(QuizActivity.this, R.string.ui_3845248e2861));
             }
             @Override public void onFinish() {
                 remainingMillis = 0;
-                timerText.setText("0초");
+                timerText.setText(Lang.text(QuizActivity.this, R.string.ui_1713026f3458));
                 handleAnswer(null, true);
             }
         }.start();
@@ -172,10 +172,10 @@ public class QuizActivity extends Activity {
 
     private void confirmExit() {
         new AlertDialog.Builder(this)
-                .setTitle("시험 종료")
-                .setMessage("현재 시험 기록은 저장되지 않습니다. 나갈까요?")
-                .setPositiveButton("나가기", (d, w) -> finish())
-                .setNegativeButton("계속", null)
+                .setTitle(Lang.text(QuizActivity.this, R.string.ui_5cabff816073))
+                .setMessage(Lang.text(QuizActivity.this, R.string.ui_321a5d8a81b7))
+                .setPositiveButton(Lang.text(QuizActivity.this, R.string.ui_b37b7b42a11a), (d, w) -> finish())
+                .setNegativeButton(Lang.text(QuizActivity.this, R.string.ui_995224fb92dd), null)
                 .show();
     }
 

@@ -27,8 +27,21 @@ import com.example.hamhaevoca.model.BookSummary;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
+import android.view.Gravity;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.CheckBox;
+import android.widget.PopupMenu;
 
-public class MainActivity extends Activity {
+public class MainActivity extends LocalizedActivity {
     private DatabaseHelper db;
     private BookAdapter adapter;
     private final List<BookSummary> books = new ArrayList<BookSummary>();
@@ -39,6 +52,30 @@ public class MainActivity extends Activity {
     private final List<BookSummary> allBooks = new ArrayList<>();
     private String searchQuery = "";
     private Long activeFolderId = null;
+    private final Set<Long> selectedIds = new LinkedHashSet<>();
+    private boolean selectionMode = false;
+    private int sortMode = 0; // 0 latest, 1 oldest, 2 name ascending, 3 name descending
+    private ListView bookList;
+    private View actionBar;
+    private TextView selectionLabel;
+    private String lang = "ko";
+
+    private static final String[] LANG_CODES = {"ko", "en", "fr", "es", "vi", "ja", "zh"};
+    private static final String[][] WORDS = {
+        {"내 단어장", "모든 단어장", "미분류", "새 폴더", "폴더 관리", "정렬", "언어", "이름순 (가나다)", "이름순 (역순)", "최근 수정순", "오래된 수정순", "선택", "폴더로 이동", "선택 취소", "단어장을 선택하세요", "단어장", "이름 변경", "삭제", "저장", "취소", "이미 존재하는 폴더입니다.", "폴더 이름을 입력하세요.", "새 단어장", "단어장 검색", "오늘도 가볍게 단어를 익혀보세요", "전체", "외움", "미암기", "수정", "단어장 열기", "폴더 변경", "삭제됨.", "아직 저장된 단어장이 없어요.", "검색 조건에 맞는 단어장이 없습니다.", "단어장을 선택한 후 이동할 폴더를 선택하세요.", "이동 완료", "폴더를 삭제해도 단어장과 학습 기록은 유지됩니다.", "폴더 삭제", "단어장 이름 변경", "폴더 이름 변경", "설정"},
+        {"My wordbooks", "All wordbooks", "Unfiled", "New folder", "Manage folders", "Sort", "Language", "Name (A–Z)", "Name (Z–A)", "Recently modified", "Oldest modified", "Select", "Move to folder", "Cancel selection", "Select wordbooks", "Wordbook", "Rename", "Delete", "Save", "Cancel", "Folder already exists.", "Enter a folder name.", "New wordbook", "Search wordbooks", "Learn words a little every day", "Total", "Known", "To learn", "Modified", "Open wordbook", "Change folder", "Deleted.", "No saved wordbooks yet.", "No matching wordbooks.", "Select wordbooks and then choose a folder.", "Moved successfully", "Deleting a folder keeps its wordbooks and progress.", "Delete folder", "Rename wordbook", "Rename folder", "Settings"},
+        {"Mes listes", "Toutes les listes", "Sans dossier", "Nouveau dossier", "Gérer les dossiers", "Trier", "Langue", "Nom (A–Z)", "Nom (Z–A)", "Modification récente", "Modification ancienne", "Sélectionner", "Déplacer vers un dossier", "Annuler la sélection", "Sélectionnez des listes", "Liste", "Renommer", "Supprimer", "Enregistrer", "Annuler", "Ce dossier existe déjà.", "Saisissez un nom de dossier.", "Nouvelle liste", "Rechercher", "Apprenez quelques mots chaque jour", "Total", "Acquis", "À apprendre", "Modifié", "Ouvrir", "Changer de dossier", "Supprimé.", "Aucune liste enregistrée.", "Aucun résultat.", "Sélectionnez les listes à déplacer.", "Déplacement terminé", "Supprimer un dossier conserve les listes et leur progression.", "Supprimer le dossier", "Renommer la liste", "Renommer le dossier", "Paramètres"},
+        {"Mis listas", "Todas las listas", "Sin carpeta", "Nueva carpeta", "Administrar carpetas", "Ordenar", "Idioma", "Nombre (A–Z)", "Nombre (Z–A)", "Modificación reciente", "Modificación antigua", "Seleccionar", "Mover a carpeta", "Cancelar selección", "Selecciona listas", "Lista", "Renombrar", "Eliminar", "Guardar", "Cancelar", "La carpeta ya existe.", "Introduce un nombre de carpeta.", "Nueva lista", "Buscar listas", "Aprende palabras cada día", "Total", "Aprendidas", "Pendientes", "Modificado", "Abrir lista", "Cambiar carpeta", "Eliminado.", "No hay listas guardadas.", "No se encontraron listas.", "Selecciona las listas para moverlas.", "Movimiento completado", "Eliminar la carpeta conserva las listas y el progreso.", "Eliminar carpeta", "Renombrar lista", "Renombrar carpeta", "Ajustes"},
+        {"Sổ từ vựng", "Tất cả sổ từ", "Chưa phân loại", "Thư mục mới", "Quản lý thư mục", "Sắp xếp", "Ngôn ngữ", "Tên (A–Z)", "Tên (Z–A)", "Mới sửa gần đây", "Sửa lâu nhất", "Chọn", "Chuyển vào thư mục", "Hủy chọn", "Chọn sổ từ", "Sổ từ", "Đổi tên", "Xóa", "Lưu", "Hủy", "Thư mục đã tồn tại.", "Nhập tên thư mục.", "Sổ từ mới", "Tìm sổ từ", "Học vài từ mỗi ngày", "Tổng", "Đã thuộc", "Chưa thuộc", "Đã sửa", "Mở sổ từ", "Đổi thư mục", "Đã xóa.", "Chưa có sổ từ nào.", "Không có kết quả.", "Chọn sổ từ để di chuyển.", "Đã chuyển", "Xóa thư mục vẫn giữ sổ từ và tiến độ.", "Xóa thư mục", "Đổi tên sổ từ", "Đổi tên thư mục", "Cài đặt"}
+        ,{"単語帳", "すべての単語帳", "未分類", "新しいフォルダー", "フォルダー管理", "並べ替え", "言語", "名前（昇順）", "名前（降順）", "更新日時（新しい順）", "更新日時（古い順）", "選択", "フォルダーに移動", "選択を解除", "単語帳を選択", "単語帳", "名前を変更", "削除", "保存", "キャンセル", "同じ名前のフォルダーがあります。", "フォルダー名を入力してください。", "新しい単語帳", "単語帳を検索", "今日も少しずつ単語を覚えましょう", "合計", "暗記済み", "未暗記", "更新", "単語帳を開く", "フォルダーを変更", "削除しました。", "保存された単語帳はありません。", "一致する単語帳はありません。", "移動する単語帳を選択してください。", "移動しました", "フォルダーを削除しても単語帳と学習履歴は残ります。", "フォルダーを削除", "単語帳名を変更", "フォルダー名を変更", "設定"},
+        {"词汇本", "所有词汇本", "未分类", "新建文件夹", "管理文件夹", "排序", "语言", "名称（升序）", "名称（降序）", "最近修改", "最早修改", "选择", "移至文件夹", "取消选择", "请选择词汇本", "词汇本", "重命名", "删除", "保存", "取消", "文件夹已存在。", "请输入文件夹名称。", "新建词汇本", "搜索词汇本", "每天轻松学几个单词", "总计", "已掌握", "未掌握", "修改于", "打开词汇本", "更改文件夹", "已删除。", "还没有保存的词汇本。", "没有匹配的词汇本。", "请先选择要移动的词汇本。", "移动成功", "删除文件夹不会删除词汇本或学习记录。", "删除文件夹", "重命名词汇本", "重命名文件夹", "设置"}
+    };
+    private String t(int idx) {
+        int n = 0;
+        for (int i=0; i<LANG_CODES.length; i++) if (LANG_CODES[i].equals(lang)) n=i;
+        return WORDS[n][idx];
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,13 +83,24 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         db = DatabaseHelper.getInstance(this);
 
-        ListView listView = findViewById(R.id.bookList);
+        lang = getPreferences(MODE_PRIVATE).getString("ui_language", "ko");
+        sortMode = getPreferences(MODE_PRIVATE).getInt("sort_mode", 0);
+        bookList = findViewById(R.id.bookList);
+        ListView listView = bookList;
         emptyView = findViewById(R.id.emptyView);
         adapter = new BookAdapter(this, books, db);
         listView.setAdapter(adapter);
-        listView.setOnItemClickListener((parent, view, position, id) -> openBook(books.get(position).getId()));
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            BookSummary b = books.get(position);
+            if (selectionMode) toggleSelected(b.getId()); else openBook(b.getId());
+        });
         listView.setOnItemLongClickListener((parent, view, position, id) -> {
-            showBookMenu(books.get(position));
+            if (selectionMode) {
+                showBookMenu(books.get(position));
+            } else {
+                selectionMode = true; selectedIds.clear();
+                toggleSelected(books.get(position).getId());
+            }
             return true;
         });
 
@@ -82,9 +130,14 @@ public class MainActivity extends Activity {
             @Override public void afterTextChanged(Editable e) {}
         });
         bookSectionTitle = findViewById(R.id.bookSectionTitle);
-        findViewById(R.id.folderButton).setOnClickListener(v -> selectFolderFilter());
+        findViewById(R.id.folderButton).setOnClickListener(v -> showSideMenu());
         findViewById(R.id.importButton).setOnClickListener(v ->
                 startActivity(new Intent(MainActivity.this, ImportActivity.class)));
+        actionBar = findViewById(R.id.selectionBar);
+        selectionLabel = findViewById(R.id.selectionCount);
+        findViewById(R.id.moveSelectedButton).setOnClickListener(v -> moveSelectedBooks());
+        findViewById(R.id.cancelSelectionButton).setOnClickListener(v -> leaveSelectionMode());
+        refreshLabels();
     }
 
     @Override
@@ -111,16 +164,23 @@ public class MainActivity extends Activity {
             }
             books.add(book);
         }
+        switch (sortMode) {
+            case 1: Collections.sort(books, (a,b) -> a.getUpdatedAt().compareTo(b.getUpdatedAt())); break;
+            case 2: Collections.sort(books, (a,b) -> a.getName().compareToIgnoreCase(b.getName())); break;
+            case 3: Collections.sort(books, (a,b) -> b.getName().compareToIgnoreCase(a.getName())); break;
+            default: Collections.sort(books, (a,b) -> b.getUpdatedAt().compareTo(a.getUpdatedAt()));
+        }
+        adapter.setSelection(selectedIds, selectionMode);
         adapter.notifyDataSetChanged();
-        emptyView.setText(allBooks.isEmpty() ? "아직 저장된 단어장이 없어요." : "검색 조건에 맞는 단어장이 없습니다.");
+        emptyView.setText(allBooks.isEmpty() ? t(32) : t(33));
         emptyView.setVisibility(books.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void updateFolderTitle() {
         if (activeFolderId == null) {
-            bookSectionTitle.setText("내 단어장");
+            bookSectionTitle.setText(t(0));
         } else if (activeFolderId == -1L) {
-            bookSectionTitle.setText("미분류 단어장");
+            bookSectionTitle.setText(t(2));
         } else {
             String folderName = null;
             for (DatabaseHelper.Folder folder : db.getFolders()) {
@@ -131,42 +191,104 @@ public class MainActivity extends Activity {
             }
             if (folderName == null) {
                 activeFolderId = null;
-                bookSectionTitle.setText("내 단어장");
+                bookSectionTitle.setText(t(0));
             } else {
                 bookSectionTitle.setText(folderName);
             }
         }
     }
 
-    private void selectFolderFilter() {
+    private void showSideMenu() {
         List<DatabaseHelper.Folder> folders = db.getFolders();
-        String[] labels = new String[folders.size() + 3];
-        labels[0] = "전체 단어장";
-        labels[1] = "미분류";
-        for (int i = 0; i < folders.size(); i++) labels[i + 2] = folders.get(i).name;
-        labels[labels.length - 1] = "폴더 관리";
-        new AlertDialog.Builder(this).setTitle("폴더")
-                .setItems(labels, (d, index) -> {
-                    if (index == labels.length - 1) {
-                        manageFolders();
-                        return;
-                    }
-                    activeFolderId = index == 0 ? null : index == 1 ? -1L : folders.get(index - 2).id;
-                    updateFolderTitle();
-                    applyFilters();
-                }).show();
+        LinearLayout menu = new LinearLayout(this);
+        menu.setOrientation(LinearLayout.VERTICAL);
+        menu.setPadding(dp(20),dp(8),dp(20),dp(8));
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("HamHaeVoca").setView(menu).create();
+        addMenuItem(menu, "☰  " + t(1), () -> { activeFolderId=null; reload(); dialog.dismiss(); });
+        addMenuItem(menu, "▱  " + t(2), () -> { activeFolderId=-1L; reload(); dialog.dismiss(); });
+        for (DatabaseHelper.Folder folder : folders) {
+            addMenuItem(menu, "▱  " + folder.name, () -> { activeFolderId=folder.id; reload(); dialog.dismiss(); });
+        }
+        addMenuItem(menu, "＋  " + t(3), () -> { dialog.dismiss(); editFolder(null); });
+        addMenuItem(menu, "⚙  " + t(4), () -> { dialog.dismiss(); manageFolders(); });
+        View line = new View(this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1,dp(1));
+        lp.setMargins(0,dp(10),0,dp(10));
+        line.setLayoutParams(lp); line.setBackgroundColor(0xffdce1e5); menu.addView(line);
+        addMenuItem(menu, "⇅  " + t(5), () -> { dialog.dismiss(); showSortDialog(); });
+        addMenuItem(menu, "◉  " + t(6), () -> { dialog.dismiss(); showLanguageDialog(); });
+        addMenuItem(menu, "☑  " + t(11), () -> { dialog.dismiss(); selectionMode=true; selectedIds.clear(); updateSelectionUi(); });
+        dialog.show();
+    }
+    private int dp(int v) { return (int) (v * getResources().getDisplayMetrics().density + .5f); }
+    private void addMenuItem(LinearLayout parent, String title, Runnable callback) {
+        TextView row = new TextView(this);
+        row.setText(title); row.setTextSize(16); row.setTextColor(0xff111111);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(6),dp(13),dp(6),dp(13));
+        parent.addView(row, new LinearLayout.LayoutParams(-1,-2));
+        row.setOnClickListener(v -> callback.run());
+    }
+    private void showSortDialog() {
+        String[] choices = {t(9), t(10), t(7), t(8)};
+        new AlertDialog.Builder(this).setTitle(t(5)).setSingleChoiceItems(choices,sortMode,(dialog,idx)->{
+            sortMode=idx;getPreferences(MODE_PRIVATE).edit().putInt("sort_mode",idx).apply();
+            applyFilters(); dialog.dismiss();
+        }).setNegativeButton(t(19),null).show();
+    }
+    private void showLanguageDialog() {
+        String[] labels = {"한국어", "English", "Français", "Español", "Tiếng Việt", "日本語", "简体中文（普通话）"};
+        int current = 0; for (int i=0;i<LANG_CODES.length;i++) if (LANG_CODES[i].equals(lang)) current=i;
+        new AlertDialog.Builder(this).setTitle(t(6)).setSingleChoiceItems(labels,current,(dialog,idx)->{
+            lang=LANG_CODES[idx];Lang.saveLanguage(this, lang);
+            dialog.dismiss(); recreate();
+        }).setNegativeButton(t(19),null).show();
+    }
+    private void refreshLabels() {
+        ((TextView)findViewById(R.id.homeSubtitle)).setText(t(24));
+        ((TextView)findViewById(R.id.bookSearchInput)).setHint(t(23));
+        ((TextView)findViewById(R.id.moveSelectedButton)).setText(t(12));
+        ((TextView)findViewById(R.id.cancelSelectionButton)).setText(t(13));
+        findViewById(R.id.importButton).setContentDescription(t(22));
+        findViewById(R.id.folderButton).setContentDescription(t(40));
+        updateSelectionUi();
+    }
+    private void toggleSelected(long id) {
+        if (!selectedIds.add(id)) selectedIds.remove(id);
+        updateSelectionUi(); adapter.notifyDataSetChanged();
+    }
+    private void updateSelectionUi() {
+        if (actionBar==null) return;
+        actionBar.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
+        selectionLabel.setText(t(11)+" ("+selectedIds.size()+")");
+        findViewById(R.id.moveSelectedButton).setEnabled(!selectedIds.isEmpty());
+    }
+    private void leaveSelectionMode() {
+        selectionMode=false; selectedIds.clear(); updateSelectionUi();adapter.notifyDataSetChanged();
+    }
+    private void moveSelectedBooks() {
+        if (selectedIds.isEmpty()) { Toast.makeText(this,t(14),Toast.LENGTH_SHORT).show(); return; }
+        List<DatabaseHelper.Folder> folders = db.getFolders();
+        String[] names = new String[folders.size()+1]; names[0] = t(2);
+        for (int i=0;i<folders.size();i++) names[i+1]=folders.get(i).name;
+        new AlertDialog.Builder(this).setTitle(t(12)).setItems(names,(d,i)->{
+            Long destination=i==0?null:folders.get(i-1).id;
+            for (Long id : selectedIds) db.setBookFolder(id,destination);
+            leaveSelectionMode();reload();
+            Toast.makeText(this,t(35),Toast.LENGTH_SHORT).show();
+        }).setNegativeButton(t(19),null).show();
     }
 
     private void manageFolders() {
         List<DatabaseHelper.Folder> folders = db.getFolders();
         String[] items = new String[folders.size() + 1];
-        items[0] = "+ 새 폴더";
+        items[0] = "+ " + t(3);
         for (int i = 0; i < folders.size(); i++) items[i + 1] = folders.get(i).name;
-        new AlertDialog.Builder(this).setTitle("폴더 관리").setItems(items, (d, index) -> {
+        new AlertDialog.Builder(this).setTitle(t(4)).setItems(items, (d, index) -> {
             if (index == 0) { editFolder(null); return; }
             DatabaseHelper.Folder folder = folders.get(index - 1);
             new AlertDialog.Builder(this).setTitle(folder.name)
-                    .setItems(new String[]{"이름 변경", "삭제"}, (dialog, action) -> {
+                    .setItems(new String[]{t(16), t(17)}, (dialog, action) -> {
                         if (action == 0) editFolder(folder);
                         else confirmDeleteFolder(folder);
                     }).show();
@@ -178,42 +300,42 @@ public class MainActivity extends Activity {
         input.setSingleLine(true);
         if (folder != null) { input.setText(folder.name); input.setSelection(input.length()); }
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(folder == null ? "새 폴더" : "폴더 이름 변경")
-                .setView(input).setPositiveButton("저장", null)
-                .setNegativeButton("취소", null).create();
+                .setTitle(folder == null ? t(3) : t(39))
+                .setView(input).setPositiveButton(t(18), null)
+                .setNegativeButton(t(19), null).create();
         dialog.setOnShowListener(ignored -> dialog.getButton(DialogInterface.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
                     String name = input.getText().toString().trim();
-                    if (name.isEmpty()) { input.setError("폴더 이름을 입력하세요."); return; }
+                    if (name.isEmpty()) { input.setError(t(21)); return; }
                     try {
                         if (folder == null) db.createFolder(name);
                         else db.renameFolder(folder.id, name);
                         dialog.dismiss();
                         reload();
                         updateFolderTitle();
-                    } catch (SQLiteConstraintException e) { input.setError("이미 존재하는 폴더입니다."); }
+                    } catch (SQLiteConstraintException e) { input.setError(t(20)); }
                 }));
         dialog.show();
     }
 
     private void confirmDeleteFolder(DatabaseHelper.Folder folder) {
-        new AlertDialog.Builder(this).setTitle("폴더 삭제")
-                .setMessage("폴더를 삭제해도 단어장과 학습 기록은 유지됩니다. 단어장은 미분류로 이동합니다.")
-                .setPositiveButton("삭제", (d, w) -> {
+        new AlertDialog.Builder(this).setTitle(t(37))
+                .setMessage(t(36))
+                .setPositiveButton(t(17), (d, w) -> {
                     db.deleteFolder(folder.id);
                     if (activeFolderId != null && activeFolderId == folder.id) {
                         activeFolderId = null;
                         updateFolderTitle();
                     }
                     reload();
-                }).setNegativeButton("취소", null).show();
+                }).setNegativeButton(t(19), null).show();
     }
 
     private void changeBookFolder(BookSummary book) {
         List<DatabaseHelper.Folder> folders = db.getFolders();
-        String[] items = new String[folders.size() + 1]; items[0] = "미분류";
+        String[] items = new String[folders.size() + 1]; items[0] = t(2);
         for (int i = 0; i < folders.size(); i++) items[i + 1] = folders.get(i).name;
-        new AlertDialog.Builder(this).setTitle(book.getName() + " · 폴더 변경")
+        new AlertDialog.Builder(this).setTitle(book.getName() + " · " + t(30))
                 .setItems(items, (d, index) -> {
                     db.setBookFolder(book.getId(), index == 0 ? null : folders.get(index - 1).id);
                     reload();
@@ -227,7 +349,7 @@ public class MainActivity extends Activity {
     }
 
     private void showBookMenu(final BookSummary book) {
-        final String[] actions = new String[]{"단어장 열기", "이름 변경", "폴더 변경", "삭제"};
+        final String[] actions = new String[]{t(29), t(16), t(30), t(17)};
         new AlertDialog.Builder(this)
                 .setTitle(book.getName())
                 .setItems(actions, (dialog, which) -> {
@@ -246,10 +368,10 @@ public class MainActivity extends Activity {
         int p = getResources().getDimensionPixelSize(R.dimen.dialog_padding);
         input.setPadding(p, p / 2, p, p / 2);
         final AlertDialog alert = new AlertDialog.Builder(this)
-                .setTitle("단어장 이름 변경")
+                .setTitle(t(38))
                 .setView(input)
-                .setPositiveButton("저장", null)
-                .setNegativeButton("취소", null)
+                .setPositiveButton(t(18), null)
+                .setNegativeButton(t(19), null)
                 .create();
         alert.setOnShowListener(dialog ->
                 alert.getButton(DialogInterface.BUTTON_POSITIVE).setOnClickListener(v -> {
@@ -269,17 +391,24 @@ public class MainActivity extends Activity {
         new AlertDialog.Builder(this)
                 .setTitle("단어장 삭제")
                 .setMessage("'" + book.getName() + "' 단어장과 학습 기록을 모두 삭제할까요?")
-                .setPositiveButton("삭제", (dialog, which) -> {
+                .setPositiveButton(t(17), (dialog, which) -> {
                     db.deleteBook(book.getId());
-                    Toast.makeText(MainActivity.this, "삭제했습니다.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, t(31), Toast.LENGTH_SHORT).show();
                     reload();
                 })
-                .setNegativeButton("취소", null)
+                .setNegativeButton(t(19), null)
                 .show();
+    }
+
+    @Override public void onBackPressed() {
+        if (selectionMode) leaveSelectionMode(); else super.onBackPressed();
     }
 
     private static class BookAdapter extends ArrayAdapter<BookSummary> {
         private final LayoutInflater inflater;
+        private Set<Long> selected = Collections.emptySet();
+        private boolean selecting = false;
+        void setSelection(Set<Long> ids, boolean mode) { selected = ids; selecting = mode; }
 
         BookAdapter(Context context, List<BookSummary> data, DatabaseHelper db) {
             super(context, 0, data);
@@ -300,9 +429,13 @@ public class MainActivity extends Activity {
                 holder = (ViewHolder) convertView.getTag();
             }
             BookSummary item = getItem(position);
-            holder.name.setText(item.getName());
-            holder.stats.setText("전체 " + item.getTotalCount() + " · 외움 " + item.getMemorizedCount() + " · 미암기 " + item.getUnmemorizedCount());
-            holder.date.setText("수정: " + item.getUpdatedAt().replace('T', ' '));
+            holder.name.setText((selecting ? (selected.contains(item.getId()) ? "☑  " : "□  ") : "") + item.getName());
+            convertView.setBackgroundResource(R.drawable.bg_card);
+            convertView.setAlpha(selecting && selected.contains(item.getId()) ? .65f : 1f);
+            String code = getContext().getSharedPreferences("MainActivity",Context.MODE_PRIVATE).getString("ui_language","ko");
+            int li=0; for(int j=0;j<LANG_CODES.length;j++) if(LANG_CODES[j].equals(code))li=j;
+            holder.stats.setText(WORDS[li][25]+" " + item.getTotalCount() + " · " + WORDS[li][26]+" " + item.getMemorizedCount() + " · " + WORDS[li][27]+" " + item.getUnmemorizedCount());
+            holder.date.setText(WORDS[li][28]+": " + item.getUpdatedAt().replace('T', ' '));
             return convertView;
         }
 

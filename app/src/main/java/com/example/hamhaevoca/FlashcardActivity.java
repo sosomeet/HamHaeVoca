@@ -27,7 +27,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-public class FlashcardActivity extends Activity {
+public class FlashcardActivity extends LocalizedActivity {
     private static final String PREFS_NAME = "flashcard_settings";
     private static final String PREF_ORDER = "order";
     private static final String PREF_MEANING_FRONT = "meaning_front";
@@ -137,7 +137,7 @@ public class FlashcardActivity extends Activity {
         mainFontInput.setText(String.valueOf(mainFontSize));
         exampleFontInput.setText(String.valueOf(exampleFontSize));
 
-        String[] orders = new String[]{"단어장 순서", "무작위", "알파벳순"};
+        String[] orders = new String[]{Lang.text(FlashcardActivity.this, R.string.ui_da17dca8e034), Lang.text(FlashcardActivity.this, R.string.ui_f44aa6624b0d), Lang.text(FlashcardActivity.this, R.string.ui_39a8b5d2af6e)};
         orderSpinner.setAdapter(new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_dropdown_item, orders));
         orderSpinner.setSelection(selectedOrder);
@@ -145,10 +145,10 @@ public class FlashcardActivity extends Activity {
         batchInput.setText(String.valueOf(batchSize));
 
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("낱말카드 설정")
+                .setTitle(Lang.text(FlashcardActivity.this, R.string.ui_749b645b4d98))
                 .setView(view)
-                .setPositiveButton("적용", null)
-                .setNegativeButton("취소", null)
+                .setPositiveButton(Lang.text(FlashcardActivity.this, R.string.ui_e01dd02f527f), null)
+                .setNegativeButton(Lang.text(FlashcardActivity.this, R.string.ui_19b2d19bc141), null)
                 .create();
 
         dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
@@ -159,11 +159,11 @@ public class FlashcardActivity extends Activity {
                     try {
                         newBatchSize = Integer.parseInt(batchInput.getText().toString().trim());
                     } catch (NumberFormatException e) {
-                        batchInput.setError("숫자를 입력하세요.");
+                        batchInput.setError(Lang.text(FlashcardActivity.this, R.string.ui_8c5c02f2a819));
                         return;
                     }
                     if (newBatchSize < 1) {
-                        batchInput.setError("1개 이상 입력하세요.");
+                        batchInput.setError(Lang.text(FlashcardActivity.this, R.string.ui_9248737339ea));
                         return;
                     }
 
@@ -173,27 +173,27 @@ public class FlashcardActivity extends Activity {
                         newMainFontSize = Integer.parseInt(mainFontInput.getText().toString().trim());
                         newExampleFontSize = Integer.parseInt(exampleFontInput.getText().toString().trim());
                     } catch (NumberFormatException e) {
-                        mainFontInput.setError("숫자를 입력하세요.");
-                        exampleFontInput.setError("숫자를 입력하세요.");
+                        mainFontInput.setError(Lang.text(FlashcardActivity.this, R.string.ui_8c5c02f2a819));
+                        exampleFontInput.setError(Lang.text(FlashcardActivity.this, R.string.ui_8c5c02f2a819));
                         return;
                     }
                     if (newMainFontSize < 12 || newMainFontSize > 60 || newExampleFontSize < 10 || newExampleFontSize > 36) {
-                        mainFontInput.setError("12~60 사이로 입력하세요.");
-                        exampleFontInput.setError("10~36 사이로 입력하세요.");
+                        mainFontInput.setError(Lang.text(FlashcardActivity.this, R.string.ui_869267ae4def));
+                        exampleFontInput.setError(Lang.text(FlashcardActivity.this, R.string.ui_8d06be4fabb9));
                         return;
                     }
                     boolean sessionSettingChanged = newOrder != selectedOrder
                             || newBatchSize != batchSize;
                     if (sessionSettingChanged) {
                         new AlertDialog.Builder(this)
-                                .setTitle("학습 묶음 다시 시작")
-                                .setMessage("학습 순서나 묶음 크기를 바꾸면 현재 낱말카드 진행 위치가 처음으로 돌아갑니다.")
-                                .setPositiveButton("변경", (confirmDialog, which) -> {
+                                .setTitle(Lang.text(FlashcardActivity.this, R.string.ui_29a0275b7057))
+                                .setMessage(Lang.text(FlashcardActivity.this, R.string.ui_99268c984d35))
+                                .setPositiveButton(Lang.text(FlashcardActivity.this, R.string.ui_ce0109bedc59), (confirmDialog, which) -> {
                                     applyFontSizes(newMainFontSize, newExampleFontSize);
                                     applySettings(newOrder, newMeaningOnFront, newBatchSize, true);
                                     dialog.dismiss();
                                 })
-                                .setNegativeButton("취소", null)
+                                .setNegativeButton(Lang.text(FlashcardActivity.this, R.string.ui_19b2d19bc141), null)
                                 .show();
                     } else {
                         applyFontSizes(newMainFontSize, newExampleFontSize);
@@ -252,9 +252,9 @@ public class FlashcardActivity extends Activity {
 
         if (rawSourceWords.isEmpty()) {
             new AlertDialog.Builder(this)
-                    .setTitle("학습할 단어 없음")
-                    .setMessage("학습할 단어가 없습니다.")
-                    .setPositiveButton("확인", (d, w) -> finish())
+                    .setTitle(Lang.text(FlashcardActivity.this, R.string.ui_3c88a2907378))
+                    .setMessage(Lang.text(FlashcardActivity.this, R.string.ui_68ed4a25b62e))
+                    .setPositiveButton(Lang.text(FlashcardActivity.this, R.string.ui_468266d639b5), (d, w) -> finish())
                     .setCancelable(false)
                     .show();
             return;
@@ -436,7 +436,7 @@ public class FlashcardActivity extends Activity {
 
     private void goToPreviousWord() {
         if (locked || history.isEmpty()) {
-            Toast.makeText(this, "이전 단어가 없습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, Lang.text(FlashcardActivity.this, R.string.ui_902135a7a433), Toast.LENGTH_SHORT).show();
             return;
         }
         Decision decision = history.remove(history.size() - 1);
@@ -465,14 +465,14 @@ public class FlashcardActivity extends Activity {
         if (!notLearned.isEmpty()) {
             final int remaining = notLearned.size();
             AlertDialog dialog = new AlertDialog.Builder(this)
-                    .setTitle("회차 완료")
-                    .setMessage("아직 못 외운 단어 " + remaining
-                            + "개로 다음 회차를 시작합니다.")
-                    .setPositiveButton("계속", (d, w) -> {
+                    .setTitle(Lang.text(FlashcardActivity.this, R.string.ui_f582aa50a7cb))
+                    .setMessage(Lang.text(FlashcardActivity.this, R.string.ui_7215496f65a5) + remaining
+                            + Lang.text(FlashcardActivity.this, R.string.ui_2271a22517e3))
+                    .setPositiveButton(Lang.text(FlashcardActivity.this, R.string.ui_995224fb92dd), (d, w) -> {
                         roundNumber++;
                         setRound(new ArrayList<VocabItem>(notLearned));
                     })
-                    .setNeutralButton("이전 단어", (d, w) -> goToPreviousWord())
+                    .setNeutralButton(Lang.text(FlashcardActivity.this, R.string.ui_82f639b9917f), (d, w) -> goToPreviousWord())
                     .setCancelable(false)
                     .create();
             dialog.show();
@@ -489,14 +489,14 @@ public class FlashcardActivity extends Activity {
         }
         int nextCount = Math.min(batchSize, sourceWords.size() - completedEnd);
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("이번 묶음 완료")
-                .setMessage("전체 " + sourceWords.size() + "개 중 " + completedEnd
-                        + "개까지 학습했습니다.\n다음 " + nextCount + "개를 이어서 학습할 수 있습니다.")
-                .setPositiveButton("다음 " + nextCount + "개", (d, w) -> {
+                .setTitle(Lang.text(FlashcardActivity.this, R.string.ui_f9609c333c08))
+                .setMessage(Lang.text(FlashcardActivity.this, R.string.ui_57ff445a7f6b) + sourceWords.size() + Lang.text(FlashcardActivity.this, R.string.ui_bfee04c75c70) + completedEnd
+                        + Lang.text(FlashcardActivity.this, R.string.ui_08d3e3ea66f7) + nextCount + Lang.text(FlashcardActivity.this, R.string.ui_774e51945005))
+                .setPositiveButton(Lang.text(FlashcardActivity.this, R.string.ui_80258af91e08) + nextCount + Lang.text(FlashcardActivity.this, R.string.ui_11600c9ada77), (d, w) -> {
                     batchStartIndex = completedEnd;
                     startBatch();
                 })
-                .setNegativeButton("나중에 계속", (d, w) -> {
+                .setNegativeButton(Lang.text(FlashcardActivity.this, R.string.ui_ecbcedd66ec0), (d, w) -> {
                     batchStartIndex = completedEnd;
                     roundWords.clear();
                     batchWords.clear();
@@ -506,7 +506,7 @@ public class FlashcardActivity extends Activity {
                     saveSession();
                     finish();
                 })
-                .setNeutralButton("이전 단어", (d, w) -> goToPreviousWord())
+                .setNeutralButton(Lang.text(FlashcardActivity.this, R.string.ui_82f639b9917f), (d, w) -> goToPreviousWord())
                 .setCancelable(false)
                 .create();
         dialog.show();
@@ -514,17 +514,17 @@ public class FlashcardActivity extends Activity {
 
     private void showAllCompleted() {
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("학습 완료")
-                .setMessage("전체 " + sourceWords.size() + "개 단어 학습을 완료했습니다.")
-                .setPositiveButton("처음부터 다시", (d, w) -> {
+                .setTitle(Lang.text(FlashcardActivity.this, R.string.ui_994c3cd972db))
+                .setMessage(Lang.text(FlashcardActivity.this, R.string.ui_57ff445a7f6b) + sourceWords.size() + Lang.text(FlashcardActivity.this, R.string.ui_0c63a0c68313))
+                .setPositiveButton(Lang.text(FlashcardActivity.this, R.string.ui_d54c7410e96c), (d, w) -> {
                     clearSavedSession();
                     startNewSession();
                 })
-                .setNegativeButton("단어장으로", (d, w) -> {
+                .setNegativeButton(Lang.text(FlashcardActivity.this, R.string.ui_e34a53c95b0c), (d, w) -> {
                     clearSavedSession();
                     finish();
                 })
-                .setNeutralButton("이전 단어", (d, w) -> goToPreviousWord())
+                .setNeutralButton(Lang.text(FlashcardActivity.this, R.string.ui_82f639b9917f), (d, w) -> goToPreviousWord())
                 .setCancelable(false)
                 .create();
         dialog.show();
@@ -556,11 +556,11 @@ public class FlashcardActivity extends Activity {
 
         int totalBatches = (int) Math.ceil(sourceWords.size() / (double) batchSize);
         int currentBatch = Math.min(totalBatches, batchStartIndex / batchSize + 1);
-        batchInfoView.setText("묶음 " + currentBatch + " / " + totalBatches);
-        roundInfoView.setText("회차 " + roundNumber);
+        batchInfoView.setText(Lang.text(FlashcardActivity.this, R.string.ui_999e4d77039f) + currentBatch + " / " + totalBatches);
+        roundInfoView.setText(Lang.text(FlashcardActivity.this, R.string.ui_c54e76624613) + roundNumber);
         wordInfoView.setText((index + 1) + " / " + roundWords.size());
-        notLearnedCountView.setText("못 외움 " + notLearnedCount);
-        learnedCountView.setText("외움 " + learnedCount);
+        notLearnedCountView.setText(Lang.text(FlashcardActivity.this, R.string.ui_8aa58b6c42a8) + notLearnedCount);
+        learnedCountView.setText(Lang.text(FlashcardActivity.this, R.string.ui_0aa87f7acd40) + learnedCount);
     }
 
     private boolean restoreSession() {

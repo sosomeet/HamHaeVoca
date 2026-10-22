@@ -18,14 +18,14 @@
             style="@style/TitleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="시험 설정" />
+            android:text="@string/ui_09d11a0c9196" />
 
         <TextView
             style="@style/BodyText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="출제 방식, 문제 수와 문제당 시간을 선택하세요." />
+            android:text="@string/ui_e5f3d849eec7" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -39,7 +39,7 @@
                 style="@style/SectionText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="출제 방식" />
+                android:text="@string/ui_40da86ecbf95" />
 
             <RadioGroup
                 android:id="@+id/quizModeGroup"
@@ -53,7 +53,7 @@
                     android:layout_height="48dp"
                     android:buttonTint="@color/primary"
                     android:checked="true"
-                    android:text="영단어 → 뜻"
+                    android:text="@string/ui_cce98be1e917"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
 
@@ -62,7 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:buttonTint="@color/primary"
-                    android:text="뜻 → 영단어"
+                    android:text="@string/ui_e1e31b10a2ec"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
 
@@ -71,7 +71,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:buttonTint="@color/primary"
-                    android:text="두 방식 혼합"
+                    android:text="@string/ui_38be15747699"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
 
@@ -80,7 +80,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="48dp"
                     android:buttonTint="@color/primary"
-                    android:text="품사 태그 · 복수 선택"
+                    android:text="@string/ui_bb81ec045a02"
                     android:textColor="@color/text_primary"
                     android:textSize="16sp" />
             </RadioGroup>
@@ -109,7 +109,7 @@
                         style="@style/SectionText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="최소 오답 횟수" />
+                        android:text="@string/ui_1eb1e01b64eb" />
                     <EditText
                         android:id="@+id/quizMinIncorrectInput"
                         style="@style/InputField"
@@ -130,7 +130,7 @@
                         style="@style/SectionText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="최대 문제 수" />
+                        android:text="@string/ui_db5a5beec66d" />
                     <EditText
                         android:id="@+id/quizMaxWordsInput"
                         style="@style/InputField"
@@ -161,7 +161,7 @@
                 style="@style/SectionText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="문제당 제한시간" />
+                android:text="@string/ui_05f6e6c6fd63" />
 
             <TextView
                 android:id="@+id/quizTimeValue"
@@ -191,13 +191,13 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="5초" />
+                    android:text="@string/ui_afb66ad05415" />
 
                 <TextView
                     style="@style/CaptionText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="20초" />
+                    android:text="@string/ui_8f77b659bdb5" />
             </LinearLayout>
         </LinearLayout>
 
@@ -207,6 +207,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:text="시험 시작" />
+            android:text="@string/ui_b7bdf921a81a" />
     </LinearLayout>
 </ScrollView>

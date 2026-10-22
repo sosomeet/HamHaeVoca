@@ -12,7 +12,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="시험 결과"
+        android:text="@string/ui_5010135bbf88"
         style="@style/TitleText" />
 
     <TextView
@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
-        android:text="틀린 단어" />
+        android:text="@string/ui_af3eeb83da7d" />
 
     <TextView
         android:id="@+id/noWrongText"
@@ -40,7 +40,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:text="모든 문제를 맞혔습니다."
+        android:text="@string/ui_2f73b7f6c0d7"
         style="@style/BodyText" />
 
     <ListView
@@ -57,7 +57,7 @@
         style="@style/PrimaryButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="틀린 단어 낱말카드 복습" />
+        android:text="@string/ui_120e807a90b9" />
 
     <Button
         android:id="@+id/retryQuizButton"
@@ -65,7 +65,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="다시 시험" />
+        android:text="@string/ui_cfe4308040b2" />
 
     <Button
         android:id="@+id/backToBookButton"
@@ -73,5 +73,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="단어장으로 돌아가기" />
+        android:text="@string/ui_e96ff6a98f53" />
 </LinearLayout>

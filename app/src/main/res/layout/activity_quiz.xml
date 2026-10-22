@@ -21,7 +21,7 @@
             android:layout_height="48dp"
             android:layout_marginEnd="12dp"
             android:background="@drawable/bg_icon_button"
-            android:contentDescription="시험 중단 및 뒤로 가기"
+            android:contentDescription="@string/ui_e20545641816"
             android:padding="13dp"
             android:src="@drawable/ic_arrow_back" />
 

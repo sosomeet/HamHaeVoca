@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="학습 순서"
+        android:text="@string/ui_da0ebacbc18d"
         android:textColor="@color/text_primary"
         android:textSize="14sp"
         android:textStyle="bold" />
@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="한 번에 학습할 단어 수"
+        android:text="@string/ui_a7179e55dfc7"
         android:textColor="@color/text_primary"
         android:textSize="14sp"
         android:textStyle="bold" />
@@ -41,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:hint="기본 30개"
+        android:hint="@string/ui_56ca0f9a4169"
         android:inputType="number"
         android:maxLines="1" />
 
@@ -50,13 +50,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:text="학습 진행 위치는 단어를 넘길 때마다 자동 저장됩니다." />
+        android:text="@string/ui_fbbcb7fa081d" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="단어·뜻 글자 크기 (sp)"
+        android:text="@string/ui_bda03d0435ea"
         android:textColor="@color/text_primary" />
 
     <EditText
@@ -65,13 +65,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="number"
-        android:hint="기본 32" />
+        android:hint="@string/ui_0f0086c0e6ff" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:text="예문 글자 크기 (sp)"
+        android:text="@string/ui_f3aeb1634564"
         android:textColor="@color/text_primary" />
 
     <EditText
@@ -80,7 +80,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="number"
-        android:hint="기본 18" />
+        android:hint="@string/ui_1afb3d6e914a" />
 
     <Switch
         android:id="@+id/dialogFrontSideSwitch"
@@ -88,7 +88,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
         android:minHeight="48dp"
-        android:text="앞면을 한글 뜻으로 표시"
+        android:text="@string/ui_6d48b5ca4bbc"
         android:textColor="@color/text_primary"
         android:textSize="15sp" />
 </LinearLayout>

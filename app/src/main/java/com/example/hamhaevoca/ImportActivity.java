@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class ImportActivity extends Activity {
+public class ImportActivity extends LocalizedActivity {
     private static final int REQUEST_FILE = 101;
     private static final int MAX_BYTES = 10 * 1024 * 1024;
 
@@ -82,7 +82,7 @@ public class ImportActivity extends Activity {
         useDayColumnSwitch = findViewById(R.id.useDayColumnSwitch);
         daySelectionText = findViewById(R.id.daySelectionText);
 
-        String[] delimiters = new String[]{"자동", "탭", "쉼표", "세미콜론", "파이프"};
+        String[] delimiters = new String[]{Lang.text(ImportActivity.this, R.string.ui_b09fd898779e), Lang.text(ImportActivity.this, R.string.ui_2e873b9bf7ae), Lang.text(ImportActivity.this, R.string.ui_841b816e1e86), Lang.text(ImportActivity.this, R.string.ui_0b4b295c4347), Lang.text(ImportActivity.this, R.string.ui_24eec6df66e2)};
         delimiterSpinner.setAdapter(new ArrayAdapter<String>(this,
                 android.R.layout.simple_spinner_dropdown_item, delimiters));
 
@@ -108,19 +108,19 @@ public class ImportActivity extends Activity {
         BookSummary summary = DatabaseHelper.getInstance(this).getBookSummary(updateBookId);
         if (summary == null) {
             new AlertDialog.Builder(this)
-                    .setTitle("단어장을 찾을 수 없음")
-                    .setMessage("갱신하려는 단어장이 삭제되었거나 존재하지 않습니다.")
-                    .setPositiveButton("확인", (d, w) -> finish())
+                    .setTitle(Lang.text(ImportActivity.this, R.string.ui_cbab1c6fb7b1))
+                    .setMessage(Lang.text(ImportActivity.this, R.string.ui_1be4244e7061))
+                    .setPositiveButton(Lang.text(ImportActivity.this, R.string.ui_468266d639b5), (d, w) -> finish())
                     .setCancelable(false)
                     .show();
             return;
         }
-        titleText.setText("단어장 갱신");
-        descriptionText.setText("같은 단어의 암기·정답·오답 기록은 유지합니다. "
-                + "새 단어는 추가하고, 파일에 없는 기존 단어는 삭제하지 않습니다.");
+        titleText.setText(Lang.text(ImportActivity.this, R.string.ui_fb125709e406));
+        descriptionText.setText(Lang.text(ImportActivity.this, R.string.ui_4317a678b4c6)
+                + Lang.text(ImportActivity.this, R.string.ui_af8de48791d7));
         bookNameInput.setText(summary.getName());
         bookNameInput.setEnabled(false);
-        saveButton.setText("기록을 유지하고 갱신");
+        saveButton.setText(Lang.text(ImportActivity.this, R.string.ui_74b4b36c7b69));
     }
 
     private void chooseFile() {
@@ -140,9 +140,9 @@ public class ImportActivity extends Activity {
                 || data == null || data.getData() == null) return;
         selectedUri = data.getData();
         selectedFileName = queryDisplayName(selectedUri);
-        selectedFileText.setText("선택 파일: " + selectedFileName);
+        selectedFileText.setText(Lang.text(ImportActivity.this, R.string.ui_0c46f732956b) + selectedFileName);
         if (!updateMode && bookNameInput.getText().toString().trim().isEmpty()) {
-            String base = selectedFileName == null ? "새 단어장"
+            String base = selectedFileName == null ? Lang.text(ImportActivity.this, R.string.ui_d455c82a86bc)
                     : selectedFileName.replaceFirst("\\.[^.]+$", "");
             bookNameInput.setText(base);
         }
@@ -159,7 +159,7 @@ public class ImportActivity extends Activity {
                 cursor.close();
             }
         }
-        return uri.getLastPathSegment() == null ? "선택한 파일" : uri.getLastPathSegment();
+        return uri.getLastPathSegment() == null ? Lang.text(ImportActivity.this, R.string.ui_7fb5dc26bfee) : uri.getLastPathSegment();
     }
 
     private void parseCurrentInput() {
@@ -169,7 +169,7 @@ public class ImportActivity extends Activity {
                         : selectedFileName.toLowerCase(Locale.US);
                 if (lower.endsWith(".xlsx")) {
                     InputStream input = getContentResolver().openInputStream(selectedUri);
-                    if (input == null) throw new IllegalArgumentException("파일을 열 수 없습니다.");
+                    if (input == null) throw new IllegalArgumentException(Lang.text(ImportActivity.this, R.string.ui_bbba049b6423));
                     try {
                         currentResult = XlsxParser.parseFirstSheet(input);
                     } finally {
@@ -177,30 +177,30 @@ public class ImportActivity extends Activity {
                     }
                 } else if (lower.endsWith(".xls")) {
                     throw new IllegalArgumentException(
-                            "이 버전은 .xls를 지원하지 않습니다. Excel에서 .xlsx로 저장해 주세요.");
+                            Lang.text(ImportActivity.this, R.string.ui_c7ed66e49813));
                 } else if (lower.endsWith(".csv") || lower.endsWith(".tsv")
                         || lower.endsWith(".txt")) {
                     byte[] bytes = readBytes(selectedUri);
                     String text = new String(bytes, Charset.forName("UTF-8"));
                     currentResult = DelimitedTextParser.parse(text,
-                            delimiterSpinner.getSelectedItem().toString());
+                            selectedDelimiterKey());
                 } else {
                     throw new IllegalArgumentException(
-                            "지원하지 않는 파일 형식입니다. .xlsx, .csv, .tsv, .txt 파일을 선택하세요.");
+                            Lang.text(ImportActivity.this, R.string.ui_265b91ab8712));
                 }
             } else {
                 String text = textInput.getText().toString();
                 if (text.trim().isEmpty()) {
-                    throw new IllegalArgumentException("내용을 붙여넣거나 파일을 선택하세요.");
+                    throw new IllegalArgumentException(Lang.text(ImportActivity.this, R.string.ui_d3ff56ebc113));
                 }
                 currentResult = DelimitedTextParser.parse(text,
-                        delimiterSpinner.getSelectedItem().toString());
+                        selectedDelimiterKey());
             }
             showResult();
         } catch (Exception e) {
             currentResult = null;
             previewContainer.removeAllViews();
-            summaryText.setText("불러오기 실패: " + safeMessage(e));
+            summaryText.setText(Lang.text(ImportActivity.this, R.string.ui_b1272002cee0) + localizedParseError(safeMessage(e)));
             availableDays.clear();
             selectedDays.clear();
             updateDaySelectionControls();
@@ -208,9 +208,20 @@ public class ImportActivity extends Activity {
         }
     }
 
+    // Parser tokens stay stable even when the visible delimiter labels are localized.
+    private String selectedDelimiterKey() {
+        switch (delimiterSpinner.getSelectedItemPosition()) {
+            case 1: return "탭";
+            case 2: return "쉼표";
+            case 3: return "세미콜론";
+            case 4: return "파이프";
+            default: return "자동";
+        }
+    }
+
     private byte[] readBytes(Uri uri) throws Exception {
         InputStream input = getContentResolver().openInputStream(uri);
-        if (input == null) throw new IllegalArgumentException("파일을 열 수 없습니다.");
+        if (input == null) throw new IllegalArgumentException(Lang.text(ImportActivity.this, R.string.ui_bbba049b6423));
         try {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             byte[] buffer = new byte[8192];
@@ -219,7 +230,7 @@ public class ImportActivity extends Activity {
             while ((read = input.read(buffer)) != -1) {
                 total += read;
                 if (total > MAX_BYTES) {
-                    throw new IllegalArgumentException("파일 크기는 10MB 이하여야 합니다.");
+                    throw new IllegalArgumentException(Lang.text(ImportActivity.this, R.string.ui_28c11c30d6be));
                 }
                 output.write(buffer, 0, read);
             }
@@ -246,25 +257,27 @@ public class ImportActivity extends Activity {
 
     private void renderPreviewAndSummary() {
         previewContainer.removeAllViews();
+        // Display a contiguous, 1-based preview index, not the source Excel row number.
+        int previewIndex = 1;
         for (ParsedRow row : currentResult.getRows()) {
             View rowView = LayoutInflater.from(this).inflate(
                     R.layout.row_preview, previewContainer, false);
             ((TextView) rowView.findViewById(R.id.previewRowNumber))
-                    .setText(String.valueOf(row.getRowNumber()));
+                    .setText(String.valueOf(previewIndex++));
             ((TextView) rowView.findViewById(R.id.previewTerm)).setText(row.getTerm());
             ((TextView) rowView.findViewById(R.id.previewMeaning)).setText(row.getMeaning());
             TextView dayView = rowView.findViewById(R.id.previewDay);
-            dayView.setText(row.getDay().isEmpty() ? "Day 정보 없음" : "Day " + row.getDay());
+            dayView.setText(row.getDay().isEmpty() ? Lang.text(ImportActivity.this, R.string.ui_2f6183a4a2f5) : "Day " + row.getDay());
 
             TextView status = rowView.findViewById(R.id.previewStatus);
             if (!row.isValid()) {
-                status.setText("오류: " + row.getError());
+                status.setText(Lang.text(ImportActivity.this, R.string.ui_8c7db7e963b9) + localizedParseError(row.getError()));
             } else if (row.isDuplicate()) {
-                status.setText("중복 제외");
+                status.setText(Lang.text(ImportActivity.this, R.string.ui_fd0931151952));
             } else if (!isRowSelectedByDay(row)) {
-                status.setText("선택한 Day에 포함되지 않아 제외");
+                status.setText(Lang.text(ImportActivity.this, R.string.ui_37ae72b4911c));
             } else {
-                status.setText("저장 가능");
+                status.setText(Lang.text(ImportActivity.this, R.string.ui_38ce0adcf53e));
             }
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -275,11 +288,23 @@ public class ImportActivity extends Activity {
         }
 
         int selectedCount = currentResult.countValidRowsForDays(selectedDaysForFiltering());
-        summaryText.setText("전체 " + currentResult.getTotalRows()
-                + "행 · 선택 저장 " + selectedCount
-                + "행 · 오류 " + currentResult.getInvalidRows()
-                + "행 · 중복 " + currentResult.getDuplicateRows() + "행");
+        summaryText.setText(Lang.text(ImportActivity.this, R.string.ui_57ff445a7f6b) + currentResult.getTotalRows()
+                + Lang.text(ImportActivity.this, R.string.ui_97870453ac08) + selectedCount
+                + Lang.text(ImportActivity.this, R.string.ui_9911597136a1) + currentResult.getInvalidRows()
+                + Lang.text(ImportActivity.this, R.string.ui_e78e608baae9) + currentResult.getDuplicateRows() + Lang.text(ImportActivity.this, R.string.ui_91c4aeab21f8));
         saveButton.setEnabled(selectedCount > 0);
+    }
+
+    private String localizedParseError(String message) {
+        if ("단어 또는 뜻이 비어 있습니다.".equals(message))
+            return getString(R.string.ui_2f39f3f804c0);
+        if ("중복 항목입니다.".equals(message))
+            return getString(R.string.ui_bbb01346d71c);
+        if ("Excel 시트를 찾을 수 없습니다.".equals(message))
+            return getString(R.string.error_no_excel_sheet);
+        if ("Excel 시트 데이터가 없습니다.".equals(message))
+            return getString(R.string.error_excel_empty);
+        return message == null ? "" : message;
     }
 
     private boolean isRowSelectedByDay(ParsedRow row) {
@@ -297,28 +322,28 @@ public class ImportActivity extends Activity {
     private void updateDaySelectionControls() {
         if (!useDayColumnSwitch.isChecked()) {
             dayFilterButton.setEnabled(false);
-            dayFilterButton.setText("Day 선택 사용 안 함");
-            daySelectionText.setText("세 번째 열을 Day로 해석하지 않고 모든 단어를 저장합니다.");
+            dayFilterButton.setText(Lang.text(ImportActivity.this, R.string.ui_d10eb6b36e51));
+            daySelectionText.setText(Lang.text(ImportActivity.this, R.string.ui_e418368bc7dc));
             return;
         }
         if (availableDays.isEmpty()) {
             dayFilterButton.setEnabled(false);
-            dayFilterButton.setText("Day 정보 없음");
-            daySelectionText.setText("세 번째 열에 Day 정보가 없어 모든 단어를 저장합니다.");
+            dayFilterButton.setText(Lang.text(ImportActivity.this, R.string.ui_2f6183a4a2f5));
+            daySelectionText.setText(Lang.text(ImportActivity.this, R.string.ui_86fcef5275e5));
             return;
         }
         dayFilterButton.setEnabled(true);
         if (selectedDays.size() == availableDays.size()) {
-            dayFilterButton.setText("Day 선택: 전체");
-            daySelectionText.setText("세 번째 열의 Day를 선택할 수 있습니다. 현재는 모든 Day를 저장합니다.");
+            dayFilterButton.setText(Lang.text(ImportActivity.this, R.string.ui_65a4ffcb1f65));
+            daySelectionText.setText(Lang.text(ImportActivity.this, R.string.ui_718ab5ddb7fd));
         } else {
             StringBuilder label = new StringBuilder();
             for (String day : selectedDays) {
                 if (label.length() > 0) label.append(", ");
                 label.append(day);
             }
-            dayFilterButton.setText("Day 선택: " + label);
-            daySelectionText.setText("Day " + label + "에 해당하는 단어만 저장합니다.");
+            dayFilterButton.setText(Lang.text(ImportActivity.this, R.string.ui_db1f92e4c563) + label);
+            daySelectionText.setText("Day " + label + Lang.text(ImportActivity.this, R.string.ui_862edc0d53af));
         }
     }
 
@@ -333,25 +358,25 @@ public class ImportActivity extends Activity {
         }
 
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("저장할 Day 선택")
+                .setTitle(Lang.text(ImportActivity.this, R.string.ui_79852cd300bf))
                 .setMultiChoiceItems(labels, checked, (d, which, isChecked) -> {
                     String day = availableDays.get(which);
                     if (isChecked) pending.add(day);
                     else pending.remove(day);
                 })
-                .setPositiveButton("적용", null)
-                .setNeutralButton("전체", (d, w) -> {
+                .setPositiveButton(Lang.text(ImportActivity.this, R.string.ui_e01dd02f527f), null)
+                .setNeutralButton(Lang.text(ImportActivity.this, R.string.ui_934dd25ec5f7), (d, w) -> {
                     selectedDays.clear();
                     selectedDays.addAll(availableDays);
                     updateDaySelectionControls();
                     renderPreviewAndSummary();
                 })
-                .setNegativeButton("취소", null)
+                .setNegativeButton(Lang.text(ImportActivity.this, R.string.ui_19b2d19bc141), null)
                 .create();
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(v -> {
                     if (pending.isEmpty()) {
-                        Toast.makeText(this, "하나 이상의 Day를 선택하세요.",
+                        Toast.makeText(this, Lang.text(ImportActivity.this, R.string.ui_ed67f1e0b572),
                                 Toast.LENGTH_SHORT).show();
                         return;
                     }
@@ -367,11 +392,11 @@ public class ImportActivity extends Activity {
     private void saveBook() {
         String name = bookNameInput.getText().toString().trim();
         if (name.isEmpty()) {
-            bookNameInput.setError("단어장 이름을 입력하세요.");
+            bookNameInput.setError(Lang.text(ImportActivity.this, R.string.ui_8718a80eddfb));
             return;
         }
         if (currentResult == null || currentResult.countValidRowsForDays(selectedDaysForFiltering()) == 0) {
-            Toast.makeText(this, "저장할 유효한 단어가 없습니다.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, Lang.text(ImportActivity.this, R.string.ui_7a9a46dcce0b), Toast.LENGTH_SHORT).show();
             return;
         }
         saveButton.setEnabled(false);
@@ -381,7 +406,7 @@ public class ImportActivity extends Activity {
             if (updateMode) {
                 MergeResult result = db.mergeBookWords(updateBookId, source,
                         currentResult.toVocabItems(selectedDaysForFiltering()));
-                Toast.makeText(this, result.toUserMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.merge_summary, result.getAddedCount(), result.getUpdatedCount(), result.getMatchedCount(), result.getKeptOldCount()), Toast.LENGTH_LONG).show();
                 setResult(RESULT_OK);
                 finish();
             } else {
@@ -394,7 +419,7 @@ public class ImportActivity extends Activity {
             }
         } catch (Exception e) {
             saveButton.setEnabled(true);
-            Toast.makeText(this, "저장하지 못했습니다: " + safeMessage(e),
+            Toast.makeText(this, Lang.text(ImportActivity.this, R.string.ui_1c93b1b04454) + safeMessage(e),
                     Toast.LENGTH_LONG).show();
         }
     }
@@ -412,24 +437,24 @@ public class ImportActivity extends Activity {
             return;
         }
         new AlertDialog.Builder(this)
-                .setTitle("입력 초기화")
-                .setMessage("현재 입력과 미리보기를 모두 지울까요?")
-                .setPositiveButton("초기화", (dialog, which) -> clearAll())
-                .setNegativeButton("취소", null)
+                .setTitle(Lang.text(ImportActivity.this, R.string.ui_4fe6aa6df821))
+                .setMessage(Lang.text(ImportActivity.this, R.string.ui_31764b461a4f))
+                .setPositiveButton(Lang.text(ImportActivity.this, R.string.ui_ff75b4ff2463), (dialog, which) -> clearAll())
+                .setNegativeButton(Lang.text(ImportActivity.this, R.string.ui_19b2d19bc141), null)
                 .show();
     }
 
     private void clearAll() {
         selectedUri = null;
         selectedFileName = null;
-        selectedFileText.setText("선택한 파일 없음");
+        selectedFileText.setText(Lang.text(ImportActivity.this, R.string.ui_17eba712d3e6));
         textInput.setText("");
         currentResult = null;
         availableDays.clear();
         selectedDays.clear();
         updateDaySelectionControls();
         previewContainer.removeAllViews();
-        summaryText.setText("미리보기를 생성하세요.");
+        summaryText.setText(Lang.text(ImportActivity.this, R.string.ui_6072a8450289));
         saveButton.setEnabled(false);
     }
 

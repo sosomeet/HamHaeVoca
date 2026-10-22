@@ -10,7 +10,7 @@
         style="@style/InputField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="영단어"
+        android:hint="@string/ui_954799c39b8d"
         android:singleLine="true" />
 
     <EditText
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:hint="뜻"
+        android:hint="@string/ui_375263d4d0f0"
         android:inputType="textMultiLine"
         android:minLines="2" />
 </LinearLayout>

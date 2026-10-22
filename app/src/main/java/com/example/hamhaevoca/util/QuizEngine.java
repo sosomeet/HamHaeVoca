@@ -164,7 +164,7 @@ public final class QuizEngine {
         String displayPrompt = rawPrompt;
         if (validAnswersForPrompt.size() > 1) {
             String hint = shortestUniquePrefix(correct, validAnswersForPrompt);
-            String label = termToMeaning ? "뜻 힌트" : "영단어 힌트";
+            String label = localizedQuizHint(termToMeaning);
             displayPrompt = rawPrompt + "\n(" + label + ": " + hint + ")";
         }
 
@@ -176,6 +176,31 @@ public final class QuizEngine {
      * 같은 질문에 연결된 다른 정답과 구분되는 가장 짧은 접두사를 반환한다.
      * 같은 답이 완전히 중복된 경우에는 전체 답 대신 "동일 항목"을 표시한다.
      */
+    private static String localizedQuizHint(boolean meaningHint) {
+        String code = java.util.Locale.getDefault().getLanguage();
+        switch (code) {
+            case "en": return meaningHint ? "Meaning hint" : "English word hint";
+            case "fr": return meaningHint ? "Indice de sens" : "Indice du mot anglais";
+            case "es": return meaningHint ? "Pista del significado" : "Pista de la palabra inglesa";
+            case "vi": return meaningHint ? "Gợi ý nghĩa" : "Gợi ý từ tiếng Anh";
+            case "ja": return meaningHint ? "意味のヒント" : "英単語のヒント";
+            case "zh": return meaningHint ? "释义提示" : "英语单词提示";
+            default: return meaningHint ? "뜻 힌트" : "영단어 힌트";
+        }
+    }
+
+    private static String localizedDuplicate() {
+        switch (java.util.Locale.getDefault().getLanguage()) {
+            case "en": return "Same entry";
+            case "fr": return "Même entrée";
+            case "es": return "Misma entrada";
+            case "vi": return "Mục giống nhau";
+            case "ja": return "同じ項目";
+            case "zh": return "相同条目";
+            default: return "동일 항목";
+        }
+    }
+
     private static String shortestUniquePrefix(String correct,
                                                Map<String, String> validAnswersForPrompt) {
         String value = safe(correct);
@@ -184,7 +209,7 @@ public final class QuizEngine {
         for (String key : validAnswersForPrompt.keySet()) {
             if (key.equals(correctKey)) sameCount++;
         }
-        if (sameCount > 1) return "동일 항목";
+        if (sameCount > 1) return localizedDuplicate();
 
         int codePointCount = value.codePointCount(0, value.length());
         for (int length = 1; length <= codePointCount; length++) {

@@ -128,7 +128,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             bookValues.put("updated_at", timestamp);
             long bookId = db.insertOrThrow("books", null, bookValues);
 
-            int order = 0;
+            int order = 1;
             for (VocabItem item : items) {
                 ContentValues values = new ContentValues();
                 values.put("book_id", bookId);
@@ -389,7 +389,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public long addWord(long bookId, String term, String meaning) {
         SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.rawQuery("SELECT COALESCE(MAX(sort_order), -1) + 1 FROM words WHERE book_id = ?",
+        Cursor cursor = db.rawQuery("SELECT COALESCE(MAX(sort_order), 0) + 1 FROM words WHERE book_id = ?",
                 new String[]{String.valueOf(bookId)});
         int order = 0;
         try {

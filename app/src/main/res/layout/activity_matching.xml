@@ -12,7 +12,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="카드 맞추기"
+        android:text="@string/ui_433a5a8e3bba"
         style="@style/TitleText" />
 
     <LinearLayout

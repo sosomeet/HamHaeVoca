@@ -13,7 +13,7 @@
         style="@style/TitleText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="맞추기 결과" />
+        android:text="@string/ui_4ded4b7a218e" />
 
     <TextView
         android:id="@+id/matchingResultSummary"
@@ -34,14 +34,14 @@
         android:layout_marginTop="18dp"
         android:layout_weight="1"
         android:gravity="top|center_horizontal"
-        android:text="설정한 단어의 카드 맞추기를 완료했습니다." />
+        android:text="@string/ui_2d63eda549a3" />
 
     <Button
         android:id="@+id/retryMatchingButton"
         style="@style/PrimaryButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="다시 맞추기" />
+        android:text="@string/ui_c516243d0d42" />
 
     <Button
         android:id="@+id/matchingBackToBookButton"
@@ -49,5 +49,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="단어장으로 돌아가기" />
+        android:text="@string/ui_e96ff6a98f53" />
 </LinearLayout>

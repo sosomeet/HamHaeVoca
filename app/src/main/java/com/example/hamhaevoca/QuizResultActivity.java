@@ -21,7 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public class QuizResultActivity extends Activity {
+public class QuizResultActivity extends LocalizedActivity {
     private long bookId;
     private long attemptId;
     private List<QuizAnswerData> answers;
@@ -37,7 +37,7 @@ public class QuizResultActivity extends Activity {
         QuizAttemptSummary attempt = db.getQuizAttempt(attemptId);
         answers = db.getQuizAnswers(attemptId);
         if (attempt == null) {
-            Toast.makeText(this, "시험 결과를 찾을 수 없습니다.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, Lang.text(QuizResultActivity.this, R.string.ui_471d6bd6f90e), Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -45,9 +45,9 @@ public class QuizResultActivity extends Activity {
         int rate = attempt.getTotalCount() == 0 ? 0
                 : Math.round(attempt.getCorrectCount() * 100f / attempt.getTotalCount());
         TextView summary = findViewById(R.id.resultSummaryText);
-        summary.setText("전체 " + attempt.getTotalCount() + "\n정답 " + attempt.getCorrectCount()
-                + " · 오답 " + attempt.getIncorrectCount() + " · 시간 초과 "
-                + attempt.getTimedOutCount() + "\n정답률 " + rate + "%");
+        summary.setText(Lang.text(QuizResultActivity.this, R.string.ui_57ff445a7f6b) + attempt.getTotalCount() + Lang.text(QuizResultActivity.this, R.string.ui_77d4612bd543) + attempt.getCorrectCount()
+                + Lang.text(QuizResultActivity.this, R.string.ui_a05539858e31) + attempt.getIncorrectCount() + Lang.text(QuizResultActivity.this, R.string.ui_6b0fa13084d8)
+                + attempt.getTimedOutCount() + Lang.text(QuizResultActivity.this, R.string.ui_31caa7fb9e05) + rate + "%");
 
         wrongAnswers.clear();
         for (QuizAnswerData answer : answers) {
@@ -126,12 +126,12 @@ public class QuizResultActivity extends Activity {
             QuizAnswerData answer = getItem(position);
             holder.term.setText(answer.getTerm());
             holder.meaning.setText(answer.getMeaning());
-            holder.question.setText("문제  " + answer.getPrompt());
+            holder.question.setText(Lang.text(QuizResultActivity.this, R.string.ui_6ba889e1849a) + answer.getPrompt());
             String selectedAnswer = answer.getSelectedAnswer() == null
-                    ? "선택 없음" : answer.getSelectedAnswer();
-            holder.selected.setText("내 답  " + selectedAnswer);
-            holder.correct.setText("정답  " + answer.getCorrectAnswer());
-            holder.badge.setText(answer.isTimedOut() ? "시간 초과" : "오답");
+                    ? Lang.text(QuizResultActivity.this, R.string.ui_6f5e091d530c) : answer.getSelectedAnswer();
+            holder.selected.setText(Lang.text(QuizResultActivity.this, R.string.ui_abd56a192ec7) + selectedAnswer);
+            holder.correct.setText(Lang.text(QuizResultActivity.this, R.string.ui_4ca35d924fdf) + answer.getCorrectAnswer());
+            holder.badge.setText(answer.isTimedOut() ? Lang.text(QuizResultActivity.this, R.string.ui_0ad9a1ce7a33) : Lang.text(QuizResultActivity.this, R.string.ui_152478d5e15e));
             return convertView;
         }
     }

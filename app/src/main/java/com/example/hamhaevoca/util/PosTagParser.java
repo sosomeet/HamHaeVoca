@@ -80,19 +80,35 @@ public final class PosTagParser {
     }
 
     public static String displayName(String tag) {
-        if (NOUN.equals(tag)) return "명사 (n)";
-        if (PRONOUN.equals(tag)) return "대명사 (pron)";
-        if (VERB.equals(tag)) return "동사 (v)";
-        if (ADJECTIVE.equals(tag)) return "형용사 (adj)";
-        if (ADVERB.equals(tag)) return "부사 (adv)";
-        if (PREPOSITION.equals(tag)) return "전치사 (prep)";
-        if (CONJUNCTION.equals(tag)) return "접속사 (conj)";
-        if (INTERJECTION.equals(tag)) return "감탄사 (interj)";
+        String language = java.util.Locale.getDefault().getLanguage();
+        String[] labels;
+        switch (language) {
+            case "en": labels = new String[]{"Noun", "Pronoun", "Verb", "Adjective", "Adverb", "Preposition", "Conjunction", "Interjection"}; break;
+            case "fr": labels = new String[]{"Nom", "Pronom", "Verbe", "Adjectif", "Adverbe", "Préposition", "Conjonction", "Interjection"}; break;
+            case "es": labels = new String[]{"Sustantivo", "Pronombre", "Verbo", "Adjetivo", "Adverbio", "Preposición", "Conjunción", "Interjección"}; break;
+            case "vi": labels = new String[]{"Danh từ", "Đại từ", "Động từ", "Tính từ", "Trạng từ", "Giới từ", "Liên từ", "Thán từ"}; break;
+            case "ja": labels = new String[]{"名詞", "代名詞", "動詞", "形容詞", "副詞", "前置詞", "接続詞", "間投詞"}; break;
+            case "zh": labels = new String[]{"名词", "代词", "动词", "形容词", "副词", "介词", "连词", "感叹词"}; break;
+            default: labels = new String[]{"명사", "대명사", "동사", "형용사", "부사", "전치사", "접속사", "감탄사"};
+        }
+        for (int i = 0; i < ORDER.length; i++) {
+            if (ORDER[i].equals(tag)) return labels[i] + " (" + tag + ")";
+        }
         return tag;
     }
 
     public static String compactLabel(Set<String> tags) {
-        if (tags == null || tags.isEmpty()) return "선택 없음";
+        if (tags == null || tags.isEmpty()) {
+            switch (java.util.Locale.getDefault().getLanguage()) {
+                case "en": return "No selection";
+                case "fr": return "Aucune sélection";
+                case "es": return "Sin selección";
+                case "vi": return "Chưa chọn";
+                case "ja": return "未選択";
+                case "zh": return "未选择";
+                default: return "선택 없음";
+            }
+        }
         StringBuilder builder = new StringBuilder();
         for (String tag : ORDER) {
             if (!tags.contains(tag)) continue;

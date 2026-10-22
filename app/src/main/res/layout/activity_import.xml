@@ -19,7 +19,7 @@
             style="@style/TitleText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="단어장 불러오기" />
+            android:text="@string/ui_c0673beaa4fd" />
 
         <TextView
             android:id="@+id/importDescription"
@@ -27,7 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="파일을 선택하거나 내용을 직접 붙여넣어 주세요." />
+            android:text="@string/ui_1a2d58dc2995" />
 
         <EditText
             android:id="@+id/bookNameInput"
@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
-            android:hint="단어장 이름"
+            android:hint="@string/ui_0d7b33c6fd8a"
             android:singleLine="true" />
 
         <Button
@@ -44,7 +44,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="TXT / CSV / TSV / XLSX 파일 선택" />
+            android:text="@string/ui_f78880e03b3a" />
 
         <TextView
             android:id="@+id/selectedFileText"
@@ -52,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="선택한 파일 없음" />
+            android:text="@string/ui_17eba712d3e6" />
 
         <EditText
             android:id="@+id/importTextInput"
@@ -61,7 +61,7 @@
             android:layout_height="160dp"
             android:layout_marginTop="12dp"
             android:gravity="top|start"
-            android:hint="또는 내용을 직접 붙여넣으세요.\n예: apple[TAB]사과[TAB]2"
+            android:hint="@string/ui_ca2d839b99ff"
             android:inputType="textMultiLine"
             android:scrollbars="vertical" />
 
@@ -80,7 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:checked="true"
-            android:text="세 번째 열을 Day로 사용"
+            android:text="@string/ui_a1f70d1fecd3"
             android:textColor="@color/text_primary"
             android:textSize="15sp" />
 
@@ -91,7 +91,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:enabled="false"
-            android:text="Day 선택: 전체" />
+            android:text="@string/ui_65a4ffcb1f65" />
 
         <TextView
             android:id="@+id/daySelectionText"
@@ -99,7 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="세 번째 열의 Day 정보를 불러오면 선택할 수 있습니다." />
+            android:text="@string/ui_9d72c91ea0ad" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -114,7 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="6dp"
                 android:layout_weight="1"
-                android:text="미리보기" />
+                android:text="@string/ui_2f1c9d7bd87a" />
 
             <Button
                 android:id="@+id/clearImportButton"
@@ -123,7 +123,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
                 android:layout_weight="1"
-                android:text="초기화" />
+                android:text="@string/ui_ff75b4ff2463" />
         </LinearLayout>
 
         <Button
@@ -132,7 +132,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="단어장 저장" />
+            android:text="@string/ui_a8d1cf734a34" />
 
         <TextView
             android:id="@+id/importSummary"
@@ -142,7 +142,7 @@
             android:layout_marginTop="14dp"
             android:background="@drawable/bg_card"
             android:padding="14dp"
-            android:text="미리보기를 생성하세요." />
+            android:text="@string/ui_6072a8450289" />
 
         <LinearLayout
             android:id="@+id/previewContainer"

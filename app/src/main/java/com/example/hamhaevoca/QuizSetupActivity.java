@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class QuizSetupActivity extends Activity {
+public class QuizSetupActivity extends LocalizedActivity {
     private long bookId;
     private RadioGroup modeGroup;
     private SeekBar timeSeekBar;
@@ -65,7 +65,7 @@ public class QuizSetupActivity extends Activity {
     }
 
     private void updateTimeLabel() {
-        timeValue.setText((timeSeekBar.getProgress() + 5) + "초");
+        timeValue.setText((timeSeekBar.getProgress() + 5) + Lang.text(QuizSetupActivity.this, R.string.ui_3845248e2861));
     }
 
     private String selectedMode() {
@@ -107,7 +107,7 @@ public class QuizSetupActivity extends Activity {
     private void updateAvailableCount() {
         if (minimumIncorrectCount() < 0) {
             availableQuestionCount = 0;
-            availableCountView.setText("0 이상의 숫자를 입력하세요.");
+            availableCountView.setText(Lang.text(QuizSetupActivity.this, R.string.ui_381be7ceea62));
             return;
         }
         String mode = selectedMode();
@@ -116,7 +116,7 @@ public class QuizSetupActivity extends Activity {
         } else {
             availableQuestionCount = eligibleQuestions(mode, new Random(0)).size();
         }
-        availableCountView.setText("출제 가능: " + availableQuestionCount + "개");
+        availableCountView.setText(Lang.text(QuizSetupActivity.this, R.string.ui_ccfae27393f5) + availableQuestionCount + Lang.text(QuizSetupActivity.this, R.string.ui_11600c9ada77));
     }
 
     private int readMaximumQuestionCount() {
@@ -126,15 +126,15 @@ public class QuizSetupActivity extends Activity {
         try {
             requested = Integer.parseInt(raw);
         } catch (NumberFormatException e) {
-            maxWordsInput.setError("숫자를 입력하세요.");
+            maxWordsInput.setError(Lang.text(QuizSetupActivity.this, R.string.ui_8c5c02f2a819));
             return -1;
         }
         if (requested < 1) {
-            maxWordsInput.setError("1개 이상 입력하세요.");
+            maxWordsInput.setError(Lang.text(QuizSetupActivity.this, R.string.ui_9248737339ea));
             return -1;
         }
         if (requested > availableQuestionCount) {
-            maxWordsInput.setError("출제 가능한 " + availableQuestionCount + "개 이하로 입력하세요.");
+            maxWordsInput.setError(Lang.text(QuizSetupActivity.this, R.string.ui_3fcc4d7b89a7) + availableQuestionCount + Lang.text(QuizSetupActivity.this, R.string.ui_7f64b5c1e784));
             return -1;
         }
         return requested;
@@ -142,7 +142,7 @@ public class QuizSetupActivity extends Activity {
 
     private void startQuiz() {
         if (minimumIncorrectCount() < 0) {
-            minIncorrectInput.setError("0 이상의 정수를 입력하세요.");
+            minIncorrectInput.setError(Lang.text(QuizSetupActivity.this, R.string.ui_98f4ac4a1828));
             return;
         }
         String mode = selectedMode();
@@ -150,9 +150,9 @@ public class QuizSetupActivity extends Activity {
             availableQuestionCount = PosTagParser.filterTaggedItems(eligibleWords()).size();
             if (availableQuestionCount == 0) {
                 new AlertDialog.Builder(this)
-                        .setTitle("품사 시험을 시작할 수 없음")
-                        .setMessage("뜻 앞에 (n), (v), (adj) 같은 지원 품사 태그가 필요합니다.")
-                        .setPositiveButton("확인", null)
+                        .setTitle(Lang.text(QuizSetupActivity.this, R.string.ui_c9cc22f3f11b))
+                        .setMessage(Lang.text(QuizSetupActivity.this, R.string.ui_725462b061e6))
+                        .setPositiveButton(Lang.text(QuizSetupActivity.this, R.string.ui_468266d639b5), null)
                         .show();
                 return;
             }
@@ -172,10 +172,10 @@ public class QuizSetupActivity extends Activity {
         availableQuestionCount = questions.size();
         if (questions.isEmpty()) {
             new AlertDialog.Builder(this)
-                    .setTitle("시험을 시작할 수 없음")
-                    .setMessage("문제마다 정답을 포함한 5개의 서로 다른 보기가 필요합니다. "
-                            + "현재 단어장에서는 보기를 만들 수 없습니다.")
-                    .setPositiveButton("확인", null)
+                    .setTitle(Lang.text(QuizSetupActivity.this, R.string.ui_f227db66881f))
+                    .setMessage(Lang.text(QuizSetupActivity.this, R.string.ui_bc66d19591a8)
+                            + Lang.text(QuizSetupActivity.this, R.string.ui_4b8a9b0116a0))
+                    .setPositiveButton(Lang.text(QuizSetupActivity.this, R.string.ui_468266d639b5), null)
                     .show();
             return;
         }

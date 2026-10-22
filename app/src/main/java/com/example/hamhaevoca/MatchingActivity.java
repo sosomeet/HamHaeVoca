@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class MatchingActivity extends Activity {
+public class MatchingActivity extends LocalizedActivity {
     private long bookId;
     private int maximumWords;
     private int timeLimitSeconds = 5;
@@ -87,9 +87,9 @@ public class MatchingActivity extends Activity {
 
         if (totalSelectedCount < 1) {
             new AlertDialog.Builder(this)
-                    .setTitle("게임을 시작할 수 없음")
-                    .setMessage("학습할 단어가 없습니다.")
-                    .setPositiveButton("확인", (d, w) -> finish())
+                    .setTitle(Lang.text(MatchingActivity.this, R.string.ui_170be1c16631))
+                    .setMessage(Lang.text(MatchingActivity.this, R.string.ui_68ed4a25b62e))
+                    .setPositiveButton(Lang.text(MatchingActivity.this, R.string.ui_468266d639b5), (d, w) -> finish())
                     .setCancelable(false)
                     .show();
             return;
@@ -187,7 +187,7 @@ public class MatchingActivity extends Activity {
             }, 250);
         } else {
             wrongCount++;
-            matchingFeedback.setText("남은 시간 1초 차감");
+            matchingFeedback.setText(Lang.text(MatchingActivity.this, R.string.ui_74f90ef498a1));
             selectedLeft.setBackgroundResource(R.drawable.bg_choice_wrong);
             selectedRight.setBackgroundResource(R.drawable.bg_choice_wrong);
             long reduced = Math.max(0, remainingMillis - 1000);
@@ -221,7 +221,7 @@ public class MatchingActivity extends Activity {
         if (roundIndex + 1 >= plannedRounds.size()) {
             showCompletion();
         } else {
-            matchingFeedback.setText("라운드 완료");
+            matchingFeedback.setText(Lang.text(MatchingActivity.this, R.string.ui_854a83e71e5d));
             handler.postDelayed(this::startNextRound, 400);
         }
     }
@@ -236,12 +236,12 @@ public class MatchingActivity extends Activity {
         timer = new CountDownTimer(duration, 100) {
             @Override public void onTick(long millisUntilFinished) {
                 remainingMillis = millisUntilFinished;
-                matchingTimer.setText((int) Math.ceil(millisUntilFinished / 1000.0) + "초");
+                matchingTimer.setText((int) Math.ceil(millisUntilFinished / 1000.0) + Lang.text(MatchingActivity.this, R.string.ui_3845248e2861));
             }
 
             @Override public void onFinish() {
                 remainingMillis = 0;
-                matchingTimer.setText("0초");
+                matchingTimer.setText(Lang.text(MatchingActivity.this, R.string.ui_1713026f3458));
                 onTimeOut();
             }
         }.start();
@@ -252,11 +252,11 @@ public class MatchingActivity extends Activity {
         inputLocked = true;
         failedRounds++;
         new AlertDialog.Builder(this)
-                .setTitle("시간 초과")
-                .setMessage("현재 남은 " + remainingRoundItems.size()
-                        + "쌍을 다시 섞어서 시작합니다.")
-                .setPositiveButton("다시 시작", (d, w) -> renderRound())
-                .setNegativeButton("단어장으로", (d, w) -> finish())
+                .setTitle(Lang.text(MatchingActivity.this, R.string.ui_0ad9a1ce7a33))
+                .setMessage(Lang.text(MatchingActivity.this, R.string.ui_6e88aca88646) + remainingRoundItems.size()
+                        + Lang.text(MatchingActivity.this, R.string.ui_4363ac3e54af))
+                .setPositiveButton(Lang.text(MatchingActivity.this, R.string.ui_e2184bdfd4c0), (d, w) -> renderRound())
+                .setNegativeButton(Lang.text(MatchingActivity.this, R.string.ui_e34a53c95b0c), (d, w) -> finish())
                 .setCancelable(false)
                 .show();
     }
@@ -289,9 +289,9 @@ public class MatchingActivity extends Activity {
     }
 
     private void updateHeader() {
-        roundText.setText("라운드 " + (roundIndex + 1) + " / " + plannedRounds.size());
-        matchingStats.setText("완료 " + completedCount + " / " + totalSelectedCount
-                + " · 정답 " + correctCount + " · 오답 " + wrongCount);
+        roundText.setText(Lang.text(MatchingActivity.this, R.string.ui_32af12b22823) + (roundIndex + 1) + " / " + plannedRounds.size());
+        matchingStats.setText(Lang.text(MatchingActivity.this, R.string.ui_e2560481789c) + completedCount + " / " + totalSelectedCount
+                + Lang.text(MatchingActivity.this, R.string.ui_c82f330cb23e) + correctCount + Lang.text(MatchingActivity.this, R.string.ui_a05539858e31) + wrongCount);
     }
 
     private void cancelTimer() {
