@@ -59,6 +59,7 @@ public class FlashcardActivity extends LocalizedActivity {
     private TextView notLearnedCountView;
     private TextView learnedCountView;
     private TextView cardView;
+    private View cardMotionView;
     private TextView exampleTextView;
     private View exampleSection;
     private int mainFontSize = 32;
@@ -112,6 +113,7 @@ public class FlashcardActivity extends LocalizedActivity {
         notLearnedCountView = findViewById(R.id.flashNotLearnedCount);
         learnedCountView = findViewById(R.id.flashLearnedCount);
         cardView = findViewById(R.id.flashCard);
+        cardMotionView = findViewById(R.id.flashCardMotion);
         exampleTextView = findViewById(R.id.flashExampleText);
         exampleSection = findViewById(R.id.flashExampleSection);
         swipeBackground = findViewById(R.id.flashSwipeBackground);
@@ -119,6 +121,7 @@ public class FlashcardActivity extends LocalizedActivity {
 
         findViewById(R.id.flashBackButton).setOnClickListener(v -> finish());
         findViewById(R.id.flashSettingsButton).setOnClickListener(v -> showSettingsDialog());
+        cardMotionView.setOnTouchListener((v, event) -> handleCardTouch(event));
         cardView.setOnTouchListener((v, event) -> handleCardTouch(event));
         previousButton.setOnClickListener(v -> goToPreviousWord());
         findViewById(R.id.notLearnedButton).setOnClickListener(v -> judge(false));
@@ -340,9 +343,9 @@ public class FlashcardActivity extends LocalizedActivity {
         }
         if (event.getAction() == MotionEvent.ACTION_MOVE) {
             float dx = event.getRawX() - downX;
-            cardView.setTranslationX(dx);
+            cardMotionView.setTranslationX(dx);
             float rotation = Math.max(-11f, Math.min(11f, dx / 32f));
-            cardView.setRotation(rotation);
+            cardMotionView.setRotation(rotation);
             showSwipeFeedback(dx);
             return true;
         }
@@ -353,7 +356,7 @@ public class FlashcardActivity extends LocalizedActivity {
             if (Math.abs(dx) > 120) {
                 animateJudge(dx > 0);
             } else {
-                cardView.animate().translationX(0f).rotation(0f)
+                cardMotionView.animate().translationX(0f).rotation(0f)
                         .setDuration(140)
                         .withEndAction(this::resetSwipeFeedback)
                         .start();
@@ -371,7 +374,7 @@ public class FlashcardActivity extends LocalizedActivity {
         }
         swipeBackground.setBackgroundResource(dx < 0
                 ? R.drawable.bg_swipe_wrong : R.drawable.bg_swipe_learned);
-        float width = Math.max(1f, cardView.getWidth());
+        float width = Math.max(1f, cardMotionView.getWidth());
         float alpha = Math.min(0.9f, Math.abs(dx) / (width * 0.42f));
         swipeBackground.setAlpha(alpha);
     }
@@ -381,10 +384,10 @@ public class FlashcardActivity extends LocalizedActivity {
     }
 
     private void resetSwipeVisuals() {
-        cardView.animate().cancel();
-        cardView.setTranslationX(0f);
-        cardView.setRotation(0f);
-        cardView.setAlpha(1f);
+        cardMotionView.animate().cancel();
+        cardMotionView.setTranslationX(0f);
+        cardMotionView.setRotation(0f);
+        cardMotionView.setAlpha(1f);
         resetSwipeFeedback();
     }
 
@@ -394,10 +397,10 @@ public class FlashcardActivity extends LocalizedActivity {
         swipeBackground.setBackgroundResource(learned
                 ? R.drawable.bg_swipe_learned : R.drawable.bg_swipe_wrong);
         swipeBackground.setAlpha(0.75f);
-        float width = Math.max(cardView.getWidth(),
+        float width = Math.max(cardMotionView.getWidth(),
                 getResources().getDisplayMetrics().widthPixels);
         float target = learned ? width * 1.1f : -width * 1.1f;
-        cardView.animate().translationX(target).rotation(learned ? 12f : -12f)
+        cardMotionView.animate().translationX(target).rotation(learned ? 12f : -12f)
                 .alpha(0f).setDuration(180).withEndAction(() -> {
                     processJudge(learned);
                     resetSwipeVisuals();
@@ -533,9 +536,9 @@ public class FlashcardActivity extends LocalizedActivity {
     private void flipCard() {
         if (index >= roundWords.size()) return;
         showingFront = !showingFront;
-        cardView.animate().alpha(0f).setDuration(80).withEndAction(() -> {
+        cardMotionView.animate().alpha(0f).setDuration(80).withEndAction(() -> {
             renderCard();
-            cardView.animate().alpha(1f).setDuration(80).start();
+            cardMotionView.animate().alpha(1f).setDuration(80).start();
         }).start();
     }
 
