@@ -7,7 +7,7 @@
     <string name="ui_cce98be1e917">英语单词 → 释义</string>
     <string name="ui_e1e31b10a2ec">释义 → 英语单词</string>
     <string name="ui_38be15747699">两种方向混合</string>
-    <string name="ui_bb81ec045a02">词性标签 · 可多选</string>
+    <string name="ui_bb81ec045a02">选择词性</string>
     <string name="ui_1eb1e01b64eb">最少错误次数</string>
     <string name="ui_db5a5beec66d">最多题数</string>
     <string name="ui_05f6e6c6fd63">每题时限</string>
@@ -59,7 +59,7 @@
     <string name="ui_954799c39b8d">英语单词</string>
     <string name="ui_375263d4d0f0">释义</string>
     <string name="ui_3ed2dca49b95">配对设置</string>
-    <string name="ui_a1cdbbfb9690">请选择单词数量和每题限时。</string>
+    <string name="ui_a1cdbbfb9690">请选择单词数量和限定时间。</string>
     <string name="ui_a8cf1d1b3328">开始配对</string>
     <string name="ui_da0ebacbc18d">学习顺序</string>
     <string name="ui_a7179e55dfc7">每轮单词数</string>
@@ -268,4 +268,5 @@
     <string name="merge_summary">新增单词：%1$d · 更新内容：%2$d · 保留学习记录：%3$d · 保留旧词：%4$d</string>
     <string name="error_no_excel_sheet">未找到Excel工作表。</string>
     <string name="error_excel_empty">Excel工作表没有数据。</string>
+    <string name="ui_action_delete_selected">删除所选词汇本</string>
 </resources>

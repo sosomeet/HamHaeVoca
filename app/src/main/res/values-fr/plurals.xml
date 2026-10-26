@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="ui_confirm_delete_books">
+        <item quantity="one">Supprimer %d listes sélectionnées et leur historique ?</item>
+        <item quantity="other">Supprimer %d listes sélectionnées et leur historique ?</item>
+    </plurals>
+</resources>

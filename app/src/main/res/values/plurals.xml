@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="ui_confirm_delete_books">
+        <item quantity="one">선택한 단어장 %d개와 학습 기록을 모두 삭제할까요?</item>
+        <item quantity="other">선택한 단어장 %d개와 학습 기록을 모두 삭제할까요?</item>
+    </plurals>
+</resources>

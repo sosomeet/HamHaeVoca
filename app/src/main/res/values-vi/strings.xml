@@ -7,7 +7,7 @@
     <string name="ui_cce98be1e917">Từ tiếng Anh → nghĩa</string>
     <string name="ui_e1e31b10a2ec">Nghĩa → từ tiếng Anh</string>
     <string name="ui_38be15747699">Kết hợp cả hai</string>
-    <string name="ui_bb81ec045a02">Từ loại · chọn nhiều mục</string>
+    <string name="ui_bb81ec045a02">Chọn từ loại</string>
     <string name="ui_1eb1e01b64eb">Số lần sai tối thiểu</string>
     <string name="ui_db5a5beec66d">Số câu hỏi tối đa</string>
     <string name="ui_05f6e6c6fd63">Thời gian mỗi câu</string>
@@ -59,7 +59,7 @@
     <string name="ui_954799c39b8d">Từ tiếng Anh</string>
     <string name="ui_375263d4d0f0">Nghĩa</string>
     <string name="ui_3ed2dca49b95">Cài đặt ghép đôi</string>
-    <string name="ui_a1cdbbfb9690">Chọn số từ và thời gian cho mỗi câu.</string>
+    <string name="ui_a1cdbbfb9690">Chọn số từ và thời gian được cấp.</string>
     <string name="ui_a8cf1d1b3328">Bắt đầu ghép đôi</string>
     <string name="ui_da0ebacbc18d">Thứ tự học</string>
     <string name="ui_a7179e55dfc7">Số từ mỗi lượt</string>
@@ -268,4 +268,5 @@
     <string name="merge_summary">Từ mới: %1$d · Đã cập nhật: %2$d · Giữ tiến độ: %3$d · Giữ từ cũ: %4$d</string>
     <string name="error_no_excel_sheet">Không tìm thấy trang tính Excel.</string>
     <string name="error_excel_empty">Trang tính Excel không có dữ liệu.</string>
+    <string name="ui_action_delete_selected">Xóa sổ từ đã chọn</string>
 </resources>

@@ -7,7 +7,7 @@
     <string name="ui_cce98be1e917">English word → meaning</string>
     <string name="ui_e1e31b10a2ec">Meaning → English word</string>
     <string name="ui_38be15747699">Both directions mixed</string>
-    <string name="ui_bb81ec045a02">Parts of speech · multiple selection</string>
+    <string name="ui_bb81ec045a02">Select part of speech</string>
     <string name="ui_1eb1e01b64eb">Minimum incorrect attempts</string>
     <string name="ui_db5a5beec66d">Maximum questions</string>
     <string name="ui_05f6e6c6fd63">Time per question</string>
@@ -59,7 +59,7 @@
     <string name="ui_954799c39b8d">English word</string>
     <string name="ui_375263d4d0f0">Meaning</string>
     <string name="ui_3ed2dca49b95">Matching settings</string>
-    <string name="ui_a1cdbbfb9690">Choose the number of words and time per question.</string>
+    <string name="ui_a1cdbbfb9690">Choose the number of words and the allotted time.</string>
     <string name="ui_a8cf1d1b3328">Start matching</string>
     <string name="ui_da0ebacbc18d">Study order</string>
     <string name="ui_a7179e55dfc7">Words per session</string>
@@ -268,4 +268,5 @@
     <string name="merge_summary">New words %1$d · Updated %2$d · Progress kept %3$d · Existing kept %4$d</string>
     <string name="error_no_excel_sheet">No Excel sheet was found.</string>
     <string name="error_excel_empty">The Excel sheet has no data.</string>
+    <string name="ui_action_delete_selected">Delete selected wordbooks</string>
 </resources>

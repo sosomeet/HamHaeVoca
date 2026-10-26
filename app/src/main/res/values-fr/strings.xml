@@ -7,7 +7,7 @@
     <string name="ui_cce98be1e917">Mot anglais → sens</string>
     <string name="ui_e1e31b10a2ec">Sens → mot anglais</string>
     <string name="ui_38be15747699">Les deux directions</string>
-    <string name="ui_bb81ec045a02">Catégories grammaticales · choix multiple</string>
+    <string name="ui_bb81ec045a02">Choisir les catégories grammaticales</string>
     <string name="ui_1eb1e01b64eb">Nombre minimal d’erreurs</string>
     <string name="ui_db5a5beec66d">Nombre maximal de questions</string>
     <string name="ui_05f6e6c6fd63">Temps par question</string>
@@ -59,7 +59,7 @@
     <string name="ui_954799c39b8d">Mot anglais</string>
     <string name="ui_375263d4d0f0">Signification</string>
     <string name="ui_3ed2dca49b95">Paramètres d’association</string>
-    <string name="ui_a1cdbbfb9690">Choisissez le nombre de mots et le temps par question.</string>
+    <string name="ui_a1cdbbfb9690">Choisissez le nombre de mots et le temps imparti.</string>
     <string name="ui_a8cf1d1b3328">Démarrer l’association</string>
     <string name="ui_da0ebacbc18d">Ordre d’apprentissage</string>
     <string name="ui_a7179e55dfc7">Mots par séance</string>
@@ -268,4 +268,5 @@
     <string name="merge_summary">Nouveaux mots : %1$d · Mis à jour : %2$d · Progression conservée : %3$d · Anciens conservés : %4$d</string>
     <string name="error_no_excel_sheet">Aucune feuille Excel trouvée.</string>
     <string name="error_excel_empty">La feuille Excel est vide.</string>
+    <string name="ui_action_delete_selected">Supprimer les listes sélectionnées</string>
 </resources>

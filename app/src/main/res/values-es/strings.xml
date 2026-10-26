@@ -7,7 +7,7 @@
     <string name="ui_cce98be1e917">Palabra inglesa → significado</string>
     <string name="ui_e1e31b10a2ec">Significado → palabra inglesa</string>
     <string name="ui_38be15747699">Ambas direcciones</string>
-    <string name="ui_bb81ec045a02">Categorías gramaticales · selección múltiple</string>
+    <string name="ui_bb81ec045a02">Seleccionar categorías gramaticales</string>
     <string name="ui_1eb1e01b64eb">Errores mínimos</string>
     <string name="ui_db5a5beec66d">Número máximo de preguntas</string>
     <string name="ui_05f6e6c6fd63">Tiempo por pregunta</string>
@@ -59,7 +59,7 @@
     <string name="ui_954799c39b8d">Palabra inglesa</string>
     <string name="ui_375263d4d0f0">Significado</string>
     <string name="ui_3ed2dca49b95">Ajustes de emparejamiento</string>
-    <string name="ui_a1cdbbfb9690">Elige la cantidad de palabras y el tiempo por pregunta.</string>
+    <string name="ui_a1cdbbfb9690">Elige la cantidad de palabras y el tiempo disponible.</string>
     <string name="ui_a8cf1d1b3328">Comenzar emparejamiento</string>
     <string name="ui_da0ebacbc18d">Orden de estudio</string>
     <string name="ui_a7179e55dfc7">Palabras por sesión</string>
@@ -268,4 +268,5 @@
     <string name="merge_summary">Palabras nuevas: %1$d · Actualizadas: %2$d · Progreso conservado: %3$d · Anteriores conservadas: %4$d</string>
     <string name="error_no_excel_sheet">No se encontró ninguna hoja de Excel.</string>
     <string name="error_excel_empty">La hoja de Excel no contiene datos.</string>
+    <string name="ui_action_delete_selected">Eliminar listas seleccionadas</string>
 </resources>

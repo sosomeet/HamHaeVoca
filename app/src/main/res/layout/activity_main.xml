@@ -100,12 +100,36 @@
         android:visibility="gone">
         <TextView android:id="@+id/selectionCount" android:layout_width="0dp" android:layout_weight="1"
             android:layout_height="wrap_content" android:text="@string/ui_b62286738cf1" android:textStyle="bold" />
-        <Button
-            style="@style/SecondaryButton" android:id="@+id/moveSelectedButton" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="@string/ui_25ef7e23a29a" android:textAllCaps="false" />
-        <Button
-            style="@style/SecondaryButton" android:id="@+id/cancelSelectionButton" android:layout_width="wrap_content"
-            android:layout_height="wrap_content" android:text="@string/ui_19b2d19bc141" android:textAllCaps="false" />
+        <ImageButton
+            android:id="@+id/moveSelectedButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_icon_button"
+            android:contentDescription="@string/ui_25ef7e23a29a"
+            android:padding="12dp"
+            android:src="@drawable/ic_action_move"
+            android:tint="@color/text_primary" />
+        <ImageButton
+            android:id="@+id/deleteSelectedButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_icon_button"
+            android:contentDescription="@string/ui_action_delete_selected"
+            android:padding="12dp"
+            android:src="@drawable/ic_action_delete"
+            android:tint="@color/text_primary" />
+        <ImageButton
+            android:id="@+id/cancelSelectionButton"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="4dp"
+            android:background="@drawable/bg_icon_button"
+            android:contentDescription="@string/ui_19b2d19bc141"
+            android:padding="12dp"
+            android:src="@drawable/ic_action_close"
+            android:tint="@color/text_primary" />
     </LinearLayout>
 
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">

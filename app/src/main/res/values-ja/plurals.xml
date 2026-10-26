@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="ui_confirm_delete_books">
+        <item quantity="one">選択した単語帳%d冊と学習履歴を削除しますか？</item>
+        <item quantity="other">選択した単語帳%d冊と学習履歴を削除しますか？</item>
+    </plurals>
+</resources>

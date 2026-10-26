@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="ui_confirm_delete_books">
+        <item quantity="one">Xóa %d sổ từ đã chọn cùng lịch sử học?</item>
+        <item quantity="other">Xóa %d sổ từ đã chọn cùng lịch sử học?</item>
+    </plurals>
+</resources>

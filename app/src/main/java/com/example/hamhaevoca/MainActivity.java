@@ -65,7 +65,7 @@ public class MainActivity extends LocalizedActivity {
 
     private static final String[] LANG_CODES = {"ko", "en", "fr", "es", "vi", "ja", "zh"};
     private static final String[][] WORDS = {
-        {"내 단어장", "모든 단어장", "기본", "새 폴더", "폴더 관리", "정렬", "언어", "이름순 (가나다)", "이름순 (역순)", "최근 수정순", "오래된 수정순", "선택", "폴더로 이동", "선택 취소", "단어장을 선택하세요", "단어장", "이름 변경", "삭제", "저장", "취소", "이미 존재하는 폴더입니다.", "폴더 이름을 입력하세요.", "새 단어장", "단어장 검색", "오늘도 가볍게 단어를 익혀보세요", "전체", "외움", "미암기", "수정", "단어장 열기", "폴더 변경", "삭제됨.", "아직 저장된 단어장이 없어요.", "검색 조건에 맞는 단어장이 없습니다.", "단어장을 선택한 후 이동할 폴더를 선택하세요.", "이동 완료", "폴더를 삭제해도 단어장과 학습 기록은 유지됩니다.", "폴더 삭제", "단어장 이름 변경", "폴더 이름 변경", "설정"},
+        {"내 단어장", "모든 단어장", "기본", "새 폴더", "폴더 관리", "정렬", "언어", "이름순 (가나다)", "이름순 (역순)", "최근 수정순", "오래된 수정순", "선택", "폴더로 이동", "선택 취소", "단어장을 선택하세요", "단어장", "이름 변경", "삭제", "저장", "취소", "이미 존재하는 폴더입니다.", "폴더 이름을 입력하세요.", "새 단어장", "단어장 검색", "오늘도 가볍게 단어를 익혀보세요", "전체", "암기", "미암기", "수정", "단어장 열기", "폴더 변경", "삭제됨.", "아직 저장된 단어장이 없어요.", "검색 조건에 맞는 단어장이 없습니다.", "단어장을 선택한 후 이동할 폴더를 선택하세요.", "이동 완료", "폴더를 삭제해도 단어장과 학습 기록은 유지됩니다.", "폴더 삭제", "단어장 이름 변경", "폴더 이름 변경", "설정"},
         {"My wordbooks", "All wordbooks", "Default", "New folder", "Manage folders", "Sort", "Language", "Name (A–Z)", "Name (Z–A)", "Recently modified", "Oldest modified", "Select", "Move to folder", "Cancel selection", "Select wordbooks", "Wordbook", "Rename", "Delete", "Save", "Cancel", "Folder already exists.", "Enter a folder name.", "New wordbook", "Search wordbooks", "Learn words a little every day", "Total", "Known", "To learn", "Modified", "Open wordbook", "Change folder", "Deleted.", "No saved wordbooks yet.", "No matching wordbooks.", "Select wordbooks and then choose a folder.", "Moved successfully", "Deleting a folder keeps its wordbooks and progress.", "Delete folder", "Rename wordbook", "Rename folder", "Settings"},
         {"Mes listes", "Toutes les listes", "Par défaut", "Nouveau dossier", "Gérer les dossiers", "Trier", "Langue", "Nom (A–Z)", "Nom (Z–A)", "Modification récente", "Modification ancienne", "Sélectionner", "Déplacer vers un dossier", "Annuler la sélection", "Sélectionnez des listes", "Liste", "Renommer", "Supprimer", "Enregistrer", "Annuler", "Ce dossier existe déjà.", "Saisissez un nom de dossier.", "Nouvelle liste", "Rechercher", "Apprenez quelques mots chaque jour", "Total", "Acquis", "À apprendre", "Modifié", "Ouvrir", "Changer de dossier", "Supprimé.", "Aucune liste enregistrée.", "Aucun résultat.", "Sélectionnez les listes à déplacer.", "Déplacement terminé", "Supprimer un dossier conserve les listes et leur progression.", "Supprimer le dossier", "Renommer la liste", "Renommer le dossier", "Paramètres"},
         {"Mis listas", "Todas las listas", "Predeterminado", "Nueva carpeta", "Administrar carpetas", "Ordenar", "Idioma", "Nombre (A–Z)", "Nombre (Z–A)", "Modificación reciente", "Modificación antigua", "Seleccionar", "Mover a carpeta", "Cancelar selección", "Selecciona listas", "Lista", "Renombrar", "Eliminar", "Guardar", "Cancelar", "La carpeta ya existe.", "Introduce un nombre de carpeta.", "Nueva lista", "Buscar listas", "Aprende palabras cada día", "Total", "Aprendidas", "Pendientes", "Modificado", "Abrir lista", "Cambiar carpeta", "Eliminado.", "No hay listas guardadas.", "No se encontraron listas.", "Selecciona las listas para moverlas.", "Movimiento completado", "Eliminar la carpeta conserva las listas y el progreso.", "Eliminar carpeta", "Renombrar lista", "Renombrar carpeta", "Ajustes"},
@@ -138,6 +138,7 @@ public class MainActivity extends LocalizedActivity {
         actionBar = findViewById(R.id.selectionBar);
         selectionLabel = findViewById(R.id.selectionCount);
         findViewById(R.id.moveSelectedButton).setOnClickListener(v -> moveSelectedBooks());
+        findViewById(R.id.deleteSelectedButton).setOnClickListener(v -> confirmDeleteSelectedBooks());
         findViewById(R.id.cancelSelectionButton).setOnClickListener(v -> leaveSelectionMode());
         refreshLabels();
         if (savedInstanceState != null && savedInstanceState.getBoolean("drawer_open", false)) {
@@ -327,8 +328,9 @@ public class MainActivity extends LocalizedActivity {
     private void refreshLabels() {
         ((TextView)findViewById(R.id.homeSubtitle)).setText(t(24));
         ((TextView)findViewById(R.id.bookSearchInput)).setHint(t(23));
-        ((TextView)findViewById(R.id.moveSelectedButton)).setText(t(12));
-        ((TextView)findViewById(R.id.cancelSelectionButton)).setText(t(13));
+        findViewById(R.id.moveSelectedButton).setContentDescription(t(12));
+        findViewById(R.id.deleteSelectedButton).setContentDescription(getString(R.string.ui_action_delete_selected));
+        findViewById(R.id.cancelSelectionButton).setContentDescription(t(13));
         findViewById(R.id.importButton).setContentDescription(t(22));
         findViewById(R.id.folderButton).setContentDescription(t(40));
         updateSelectionUi();
@@ -342,6 +344,7 @@ public class MainActivity extends LocalizedActivity {
         actionBar.setVisibility(selectionMode ? View.VISIBLE : View.GONE);
         selectionLabel.setText(t(11)+" ("+selectedIds.size()+")");
         findViewById(R.id.moveSelectedButton).setEnabled(!selectedIds.isEmpty());
+        findViewById(R.id.deleteSelectedButton).setEnabled(!selectedIds.isEmpty());
     }
     private void leaveSelectionMode() {
         selectionMode=false; selectedIds.clear(); adapter.setSelection(selectedIds, selectionMode); updateSelectionUi();adapter.notifyDataSetChanged();
@@ -357,6 +360,24 @@ public class MainActivity extends LocalizedActivity {
             leaveSelectionMode();reload();
             Toast.makeText(this,t(35),Toast.LENGTH_SHORT).show();
         }).setNegativeButton(t(19),null).show();
+    }
+
+    private void confirmDeleteSelectedBooks() {
+        if (selectedIds.isEmpty()) return;
+        final ArrayList<Long> idsToDelete = new ArrayList<>(selectedIds);
+        new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.ui_action_delete_selected))
+                .setMessage(getResources().getQuantityString(
+                        R.plurals.ui_confirm_delete_books, idsToDelete.size(), idsToDelete.size()))
+                .setPositiveButton(t(17), (dialog, which) -> {
+                    // Reuse the existing deleteBook method, which cascades to per-book study records.
+                    for (Long id : idsToDelete) db.deleteBook(id);
+                    leaveSelectionMode();
+                    reload();
+                    Toast.makeText(this, t(31), Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton(t(19), null)
+                .show();
     }
 
     private void manageFolders() {

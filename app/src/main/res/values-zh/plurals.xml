@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="ui_confirm_delete_books">
+        <item quantity="one">确定删除所选的%d本词汇本及其学习记录吗？</item>
+        <item quantity="other">确定删除所选的%d本词汇本及其学习记录吗？</item>
+    </plurals>
+</resources>

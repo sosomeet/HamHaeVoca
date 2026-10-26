@@ -7,7 +7,7 @@
     <string name="ui_cce98be1e917">英単語 → 意味</string>
     <string name="ui_e1e31b10a2ec">意味 → 英単語</string>
     <string name="ui_38be15747699">両方を混合</string>
-    <string name="ui_bb81ec045a02">品詞タグ・複数選択</string>
+    <string name="ui_bb81ec045a02">品詞を選択</string>
     <string name="ui_1eb1e01b64eb">最小誤答回数</string>
     <string name="ui_db5a5beec66d">最大問題数</string>
     <string name="ui_05f6e6c6fd63">問題ごとの制限時間</string>
@@ -59,7 +59,7 @@
     <string name="ui_954799c39b8d">英単語</string>
     <string name="ui_375263d4d0f0">意味</string>
     <string name="ui_3ed2dca49b95">マッチング設定</string>
-    <string name="ui_a1cdbbfb9690">単語数と問題ごとの制限時間を選択してください。</string>
+    <string name="ui_a1cdbbfb9690">使用する単語数と制限時間を選択してください。</string>
     <string name="ui_a8cf1d1b3328">マッチング開始</string>
     <string name="ui_da0ebacbc18d">学習順序</string>
     <string name="ui_a7179e55dfc7">1回の単語数</string>
@@ -268,4 +268,5 @@
     <string name="merge_summary">新しい単語：%1$d · 更新：%2$d · 学習履歴保持：%3$d · 既存保持：%4$d</string>
     <string name="error_no_excel_sheet">Excelシートが見つかりません。</string>
     <string name="error_excel_empty">Excelシートにデータがありません。</string>
+    <string name="ui_action_delete_selected">選択した単語帳を削除</string>
 </resources>

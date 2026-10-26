@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="ui_confirm_delete_books">
+        <item quantity="one">Delete %d selected wordbooks and their study history?</item>
+        <item quantity="other">Delete %d selected wordbooks and their study history?</item>
+    </plurals>
+</resources>

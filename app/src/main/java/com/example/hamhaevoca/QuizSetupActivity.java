@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
-import android.widget.RadioGroup;
+import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -23,7 +23,8 @@ import java.util.Random;
 
 public class QuizSetupActivity extends LocalizedActivity {
     private long bookId;
-    private RadioGroup modeGroup;
+    private RadioButton[] modeButtons;
+    private int selectedModeId = R.id.modeTermToMeaning;
     private SeekBar timeSeekBar;
     private TextView timeValue;
     private TextView availableCountView;
@@ -37,7 +38,21 @@ public class QuizSetupActivity extends LocalizedActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz_setup);
         bookId = getIntent().getLongExtra("book_id", -1);
-        modeGroup = findViewById(R.id.quizModeGroup);
+        modeButtons = new RadioButton[]{
+                findViewById(R.id.modeTermToMeaning),
+                findViewById(R.id.modeMeaningToTerm),
+                findViewById(R.id.modeMixed),
+                findViewById(R.id.modePartOfSpeech)
+        };
+        for (RadioButton button : modeButtons) {
+            button.setOnClickListener(v -> {
+                selectedModeId = v.getId();
+                for (RadioButton item : modeButtons) item.setChecked(item.getId() == selectedModeId);
+                updateAvailableCount();
+            });
+        }
+        modeButtons[0].setChecked(true);
+        findViewById(R.id.quizSetupBackButton).setOnClickListener(v -> finish());
         timeSeekBar = findViewById(R.id.quizTimeSeekBar);
         timeValue = findViewById(R.id.quizTimeValue);
         availableCountView = findViewById(R.id.quizAvailableCount);
@@ -59,7 +74,6 @@ public class QuizSetupActivity extends LocalizedActivity {
             @Override public void onStopTrackingTouch(SeekBar seekBar) { }
         });
 
-        modeGroup.setOnCheckedChangeListener((group, checkedId) -> updateAvailableCount());
         findViewById(R.id.startQuizButton).setOnClickListener(v -> startQuiz());
         updateAvailableCount();
     }
@@ -69,7 +83,7 @@ public class QuizSetupActivity extends LocalizedActivity {
     }
 
     private String selectedMode() {
-        int checked = modeGroup.getCheckedRadioButtonId();
+        int checked = selectedModeId;
         if (checked == R.id.modeMeaningToTerm) return QuizEngine.MEANING_TO_TERM;
         if (checked == R.id.modeMixed) return QuizEngine.MIXED;
         if (checked == R.id.modePartOfSpeech) return QuizEngine.PART_OF_SPEECH;
