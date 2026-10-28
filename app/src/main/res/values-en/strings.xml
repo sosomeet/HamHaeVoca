@@ -269,4 +269,6 @@
     <string name="error_no_excel_sheet">No Excel sheet was found.</string>
     <string name="error_excel_empty">The Excel sheet has no data.</string>
     <string name="ui_action_delete_selected">Delete selected wordbooks</string>
+    <string name="verb_past">Past tense</string>
+    <string name="verb_participle">Past participle</string>
 </resources>

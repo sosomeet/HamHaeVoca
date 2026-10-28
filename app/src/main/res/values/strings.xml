@@ -269,4 +269,6 @@
     <string name="error_no_excel_sheet">Excel 시트를 찾을 수 없습니다.</string>
     <string name="error_excel_empty">Excel 시트 데이터가 없습니다.</string>
     <string name="ui_action_delete_selected">선택한 단어장 삭제</string>
+    <string name="verb_past">과거형</string>
+    <string name="verb_participle">과거분사</string>
 </resources>

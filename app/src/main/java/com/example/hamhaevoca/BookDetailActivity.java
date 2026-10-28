@@ -279,9 +279,16 @@ public class BookDetailActivity extends LocalizedActivity {
         View view = getLayoutInflater().inflate(R.layout.dialog_word, null);
         EditText termInput = view.findViewById(R.id.dialogTermInput);
         EditText meaningInput = view.findViewById(R.id.dialogMeaningInput);
+        EditText pastInput = view.findViewById(R.id.dialogPastInput);
+        EditText participleInput = view.findViewById(R.id.dialogParticipleInput);
+        boolean verbBook = db.isVerbBook(bookId) || (existing != null && existing.isVerb());
+        pastInput.setVisibility(verbBook ? View.VISIBLE : View.GONE);
+        participleInput.setVisibility(verbBook ? View.VISIBLE : View.GONE);
         if (existing != null) {
             termInput.setText(existing.getTerm());
             meaningInput.setText(existing.getMeaning());
+            pastInput.setText(existing.getPast());
+            participleInput.setText(existing.getPastParticiple());
         }
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setTitle(existing == null ? Lang.text(BookDetailActivity.this, R.string.ui_3d2957d26b5c) : Lang.text(BookDetailActivity.this, R.string.ui_114618fc79bd))
@@ -292,6 +299,8 @@ public class BookDetailActivity extends LocalizedActivity {
         dialog.setOnShowListener(d -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
             String term = termInput.getText().toString().trim();
             String meaning = meaningInput.getText().toString().trim();
+            String past = pastInput.getText().toString().trim();
+            String participle = participleInput.getText().toString().trim();
             if (term.isEmpty()) {
                 termInput.setError(Lang.text(BookDetailActivity.this, R.string.ui_65c711250651));
                 return;
@@ -305,7 +314,12 @@ public class BookDetailActivity extends LocalizedActivity {
                 termInput.setError(Lang.text(BookDetailActivity.this, R.string.ui_f5e4962b71b4));
                 return;
             }
-            if (existing == null) db.addWord(bookId, term, meaning);
+            if (verbBook && past.isEmpty()) { pastInput.setError("과거형을 입력하세요"); return; }
+            if (verbBook && participle.isEmpty()) { participleInput.setError("과거분사형을 입력하세요"); return; }
+            if (existing == null) {
+                long id = db.addWord(bookId, term, meaning);
+                if (verbBook) db.updateVerbWord(id, bookId, term, past, participle, meaning);
+            } else if (verbBook) db.updateVerbWord(existing.getId(), bookId, term, past, participle, meaning);
             else db.updateWord(existing.getId(), bookId, term, meaning);
             dialog.dismiss();
             reload();

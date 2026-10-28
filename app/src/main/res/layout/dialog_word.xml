@@ -14,6 +14,26 @@
         android:singleLine="true" />
 
     <EditText
+        android:id="@+id/dialogPastInput"
+        style="@style/InputField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="@string/verb_past"
+        android:singleLine="true"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/dialogParticipleInput"
+        style="@style/InputField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:hint="@string/verb_participle"
+        android:singleLine="true"
+        android:visibility="gone" />
+
+    <EditText
         android:id="@+id/dialogMeaningInput"
         style="@style/InputField"
         android:layout_width="match_parent"

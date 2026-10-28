@@ -269,4 +269,6 @@
     <string name="error_no_excel_sheet">Aucune feuille Excel trouvée.</string>
     <string name="error_excel_empty">La feuille Excel est vide.</string>
     <string name="ui_action_delete_selected">Supprimer les listes sélectionnées</string>
+    <string name="verb_past">Prétérit</string>
+    <string name="verb_participle">Participe passé</string>
 </resources>

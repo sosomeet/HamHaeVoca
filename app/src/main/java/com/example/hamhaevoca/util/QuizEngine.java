@@ -36,6 +36,21 @@ public final class QuizEngine {
         if (source == null || source.isEmpty()) return result;
         if (random == null) random = new Random();
 
+        // Verb books: choose present/past/participle individually, then build the
+        // answer pool from the selected inflection, preserving original word IDs.
+        ArrayList<VocabItem> projected = new ArrayList<VocabItem>();
+        Map<Long, Integer> chosenStage = new HashMap<Long, Integer>();
+        for (VocabItem original : source) {
+            VocabItem copy = new VocabItem(original.getId(), original.getBookId(),
+                    original.getTerm(), original.getMeaning(), original.getSortOrder(),
+                    original.isMemorized(), original.getCorrectCount(), original.getIncorrectCount());
+            int stage = original.isVerb() ? random.nextInt(3) : 0;
+            if (stage == 1) copy.setTerm(original.getPast());
+            else if (stage == 2) copy.setTerm(original.getPastParticiple());
+            chosenStage.put(original.getId(), stage);
+            projected.add(copy);
+        }
+        source = projected;
         Map<String, Integer> termCounts = countValues(source, true);
         Map<String, Integer> meaningCounts = countValues(source, false);
         ArrayList<VocabItem> shuffled = new ArrayList<VocabItem>(source);
@@ -49,7 +64,16 @@ public final class QuizEngine {
                 question = buildQuestion(item, source, direction, random);
                 if (question != null) break;
             }
-            if (question != null) result.add(question);
+            if (question != null) {
+                int stage = chosenStage.get(item.getId());
+                if (stage > 0) {
+                    String label = stage == 1 ? "[2 · past] " : "[3 · past participle] ";
+                    question = new QuizQuestion(question.getItemId(), question.getDirection(),
+                            label + question.getPrompt(), question.getChoices(),
+                            question.getCorrectAnswer(), question.getTerm(), question.getMeaning());
+                }
+                result.add(question);
+            }
         }
         return result;
     }

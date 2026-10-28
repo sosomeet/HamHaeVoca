@@ -447,6 +447,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         touchBook(db, bookId);
     }
 
+    public void updateVerbWord(long wordId, long bookId, String term, String past, String participle, String meaning) {
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("term", term);
+        values.put("past", past);
+        values.put("past_participle", participle);
+        values.put("meaning", meaning);
+        values.put("updated_at", now());
+        db.update("words", values, "id = ? AND book_id = ?",
+                new String[]{String.valueOf(wordId), String.valueOf(bookId)});
+        touchBook(db, bookId);
+    }
+
     public void deleteWord(long wordId, long bookId) {
         SQLiteDatabase db = getWritableDatabase();
         db.delete("words", "id = ? AND book_id = ?",

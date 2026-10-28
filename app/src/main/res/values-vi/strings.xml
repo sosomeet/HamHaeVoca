@@ -269,4 +269,6 @@
     <string name="error_no_excel_sheet">Không tìm thấy trang tính Excel.</string>
     <string name="error_excel_empty">Trang tính Excel không có dữ liệu.</string>
     <string name="ui_action_delete_selected">Xóa sổ từ đã chọn</string>
+    <string name="verb_past">Quá khứ</string>
+    <string name="verb_participle">Quá khứ phân từ</string>
 </resources>

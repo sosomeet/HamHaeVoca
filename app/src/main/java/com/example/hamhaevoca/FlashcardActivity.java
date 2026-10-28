@@ -564,11 +564,16 @@ public class FlashcardActivity extends LocalizedActivity {
         } else {
             cardView.setText(showMeaning ? item.getMeaning() : item.getTerm());
         }
-        boolean showExample = (item.isVerb() ? verbFlipStage == 3 : !showingFront) && !item.getExample().trim().isEmpty();
+        boolean showExample = (item.isVerb() ? verbFlipStage <= 3 : !showingFront) && !item.getExample().trim().isEmpty();
         exampleSection.setVisibility(showExample ? View.VISIBLE : View.GONE);
         if (showExample) {
             exampleTextView.setTextSize(exampleFontSize);
-            exampleTextView.setText(item.getExample());
+            if (item.isVerb()) {
+                String stageLabel = verbFlipStage == 0 ? "1" : verbFlipStage == 1 ? "2" : verbFlipStage == 2 ? "3" : "";
+                exampleTextView.setText(stageLabel.isEmpty() ? item.getExample() : stageLabel + ". " + item.getExample());
+            } else {
+                exampleTextView.setText(item.getExample());
+            }
         }
 
         int totalBatches = (int) Math.ceil(sourceWords.size() / (double) batchSize);

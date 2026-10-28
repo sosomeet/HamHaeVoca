@@ -269,4 +269,6 @@
     <string name="error_no_excel_sheet">未找到Excel工作表。</string>
     <string name="error_excel_empty">Excel工作表没有数据。</string>
     <string name="ui_action_delete_selected">删除所选词汇本</string>
+    <string name="verb_past">过去式</string>
+    <string name="verb_participle">过去分词</string>
 </resources>

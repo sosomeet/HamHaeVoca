@@ -269,4 +269,6 @@
     <string name="error_no_excel_sheet">Excelシートが見つかりません。</string>
     <string name="error_excel_empty">Excelシートにデータがありません。</string>
     <string name="ui_action_delete_selected">選択した単語帳を削除</string>
+    <string name="verb_past">過去形</string>
+    <string name="verb_participle">過去分詞</string>
 </resources>

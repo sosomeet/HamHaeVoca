@@ -269,4 +269,6 @@
     <string name="error_no_excel_sheet">No se encontró ninguna hoja de Excel.</string>
     <string name="error_excel_empty">La hoja de Excel no contiene datos.</string>
     <string name="ui_action_delete_selected">Eliminar listas seleccionadas</string>
+    <string name="verb_past">Pasado</string>
+    <string name="verb_participle">Participio pasado</string>
 </resources>
