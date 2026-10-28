@@ -39,7 +39,6 @@ public final class QuizEngine {
         // Verb books: choose present/past/participle individually, then build the
         // answer pool from the selected inflection, preserving original word IDs.
         ArrayList<VocabItem> projected = new ArrayList<VocabItem>();
-        Map<Long, Integer> chosenStage = new HashMap<Long, Integer>();
         for (VocabItem original : source) {
             VocabItem copy = new VocabItem(original.getId(), original.getBookId(),
                     original.getTerm(), original.getMeaning(), original.getSortOrder(),
@@ -47,7 +46,6 @@ public final class QuizEngine {
             int stage = original.isVerb() ? random.nextInt(3) : 0;
             if (stage == 1) copy.setTerm(original.getPast());
             else if (stage == 2) copy.setTerm(original.getPastParticiple());
-            chosenStage.put(original.getId(), stage);
             projected.add(copy);
         }
         source = projected;
@@ -64,16 +62,7 @@ public final class QuizEngine {
                 question = buildQuestion(item, source, direction, random);
                 if (question != null) break;
             }
-            if (question != null) {
-                int stage = chosenStage.get(item.getId());
-                if (stage > 0) {
-                    String label = stage == 1 ? "[2 · past] " : "[3 · past participle] ";
-                    question = new QuizQuestion(question.getItemId(), question.getDirection(),
-                            label + question.getPrompt(), question.getChoices(),
-                            question.getCorrectAnswer(), question.getTerm(), question.getMeaning());
-                }
-                result.add(question);
-            }
+            if (question != null) result.add(question);
         }
         return result;
     }
@@ -185,14 +174,8 @@ public final class QuizEngine {
         }
         Collections.shuffle(choices, random);
 
-        String displayPrompt = rawPrompt;
-        if (validAnswersForPrompt.size() > 1) {
-            String hint = shortestUniquePrefix(correct, validAnswersForPrompt);
-            String label = localizedQuizHint(termToMeaning);
-            displayPrompt = rawPrompt + "\n(" + label + ": " + hint + ")";
-        }
-
-        return new QuizQuestion(item.getId(), direction, displayPrompt, choices, correct,
+        // Do not show meaning/word hints or verb-form indices in the quiz.
+        return new QuizQuestion(item.getId(), direction, rawPrompt, choices, correct,
                 safe(item.getTerm()), safe(item.getMeaning()));
     }
 

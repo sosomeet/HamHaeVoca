@@ -564,15 +564,22 @@ public class FlashcardActivity extends LocalizedActivity {
         } else {
             cardView.setText(showMeaning ? item.getMeaning() : item.getTerm());
         }
-        boolean showExample = (item.isVerb() ? verbFlipStage <= 3 : !showingFront) && !item.getExample().trim().isEmpty();
+        // Verb cards show the 1/2/3 stage index in the example area even
+        // when the imported workbook does not contain an Example column.
+        // The final meaning stage has no index.
+        String example = item.getExample() == null ? "" : item.getExample().trim();
+        boolean showExample = item.isVerb()
+                ? verbFlipStage < 3 || !example.isEmpty()
+                : !showingFront && !example.isEmpty();
         exampleSection.setVisibility(showExample ? View.VISIBLE : View.GONE);
         if (showExample) {
             exampleTextView.setTextSize(exampleFontSize);
-            if (item.isVerb()) {
-                String stageLabel = verbFlipStage == 0 ? "1" : verbFlipStage == 1 ? "2" : verbFlipStage == 2 ? "3" : "";
-                exampleTextView.setText(stageLabel.isEmpty() ? item.getExample() : stageLabel + ". " + item.getExample());
+            if (item.isVerb() && verbFlipStage < 3) {
+                String stageIndex = String.valueOf(verbFlipStage + 1);
+                exampleTextView.setText(example.isEmpty()
+                        ? stageIndex : stageIndex + ". " + example);
             } else {
-                exampleTextView.setText(item.getExample());
+                exampleTextView.setText(example);
             }
         }
 
