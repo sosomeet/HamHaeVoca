@@ -8,6 +8,8 @@ public class VocabItem implements Serializable {
     private String term;
     private String meaning;
     private String example = "";
+    private String past = "";
+    private String pastParticiple = "";
     private int sortOrder;
     private boolean memorized;
     private int correctCount;
@@ -42,6 +44,11 @@ public class VocabItem implements Serializable {
     public void setMeaning(String meaning) { this.meaning = meaning; }
     public String getExample() { return example == null ? "" : example; }
     public void setExample(String example) { this.example = example == null ? "" : example; }
+    public String getPast() { return past == null ? "" : past; }
+    public void setPast(String value) { past = value == null ? "" : value; }
+    public String getPastParticiple() { return pastParticiple == null ? "" : pastParticiple; }
+    public void setPastParticiple(String value) { pastParticiple = value == null ? "" : value; }
+    public boolean isVerb() { return !getPast().isEmpty() && !getPastParticiple().isEmpty(); }
     public int getSortOrder() { return sortOrder; }
     public void setSortOrder(int sortOrder) { this.sortOrder = sortOrder; }
     public boolean isMemorized() { return memorized; }

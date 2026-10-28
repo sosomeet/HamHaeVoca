@@ -29,6 +29,11 @@ public class ParseResult {
     public int getInvalidRows() { return invalidRows; }
     public int getDuplicateRows() { return duplicateRows; }
 
+    public boolean isVerbFormat() {
+        for (ParsedRow row : rows) if (row.isValid() && !row.getPast().isEmpty() && !row.getPastParticiple().isEmpty()) return true;
+        return false;
+    }
+
     public List<String> getAvailableDays() {
         Set<String> unique = new LinkedHashSet<String>();
         for (ParsedRow row : rows) {
@@ -74,6 +79,8 @@ public class ParseResult {
             if (shouldInclude(row, selectedDays) && seen.add(wordKey(row))) {
                 VocabItem item = new VocabItem(row.getTerm(), row.getMeaning());
                 item.setExample(row.getExample());
+                item.setPast(row.getPast());
+                item.setPastParticiple(row.getPastParticiple());
                 items.add(item);
             }
         }

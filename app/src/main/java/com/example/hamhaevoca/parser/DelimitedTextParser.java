@@ -107,6 +107,7 @@ public final class DelimitedTextParser {
         int total = 0;
         boolean firstDataRowSkipped = false;
         int exampleIndex = -1;
+        boolean verbFormat = false;
 
         for (int i = 0; i < table.size(); i++) {
             List<String> cells = table.get(i);
@@ -120,6 +121,11 @@ public final class DelimitedTextParser {
             if (allEmpty) continue;
             if (!firstDataRowSkipped) {
                 firstDataRowSkipped = true;
+                verbFormat = cells.size() >= 6
+                        && "vocabulary".equalsIgnoreCase(cells.get(0).trim())
+                        && "vocabulary".equalsIgnoreCase(cells.get(1).trim())
+                        && "vocabulary".equalsIgnoreCase(cells.get(2).trim())
+                        && "mean".equalsIgnoreCase(cells.get(3).trim());
                 for (int col = 0; col < cells.size(); col++) {
                     if ("example".equalsIgnoreCase(cells.get(col).trim()) || "예문".equals(cells.get(col).trim())) {
                         exampleIndex = col;
@@ -131,25 +137,27 @@ public final class DelimitedTextParser {
             total++;
 
             String term = cells.size() > 0 ? normalizeText(cells.get(0)) : "";
-            String meaning = cells.size() > 1 ? normalizeText(cells.get(1)) : "";
-            String day = cells.size() > 2 ? normalizeDay(cells.get(2)) : "";
+            String past = verbFormat && cells.size() > 1 ? normalizeText(cells.get(1)) : "";
+            String participle = verbFormat && cells.size() > 2 ? normalizeText(cells.get(2)) : "";
+            String meaning = cells.size() > (verbFormat ? 3 : 1) ? normalizeText(cells.get(verbFormat ? 3 : 1)) : "";
+            String day = cells.size() > (verbFormat ? 4 : 2) ? normalizeDay(cells.get(verbFormat ? 4 : 2)) : "";
             String example = exampleIndex >= 0 && cells.size() > exampleIndex ? normalizeText(cells.get(exampleIndex)) : "";
 
-            if (term.length() == 0 || meaning.length() == 0) {
+            if (term.length() == 0 || meaning.length() == 0 || (verbFormat && (past.isEmpty() || participle.isEmpty()))) {
                 invalid++;
-                rows.add(new ParsedRow(i + 1, term, meaning, day, example, false, false, "단어 또는 뜻이 비어 있습니다."));
+                rows.add(new ParsedRow(i + 1, term, meaning, day, example, past, participle, false, false, "단어 또는 뜻이 비어 있습니다."));
                 continue;
             }
 
             String key = term.toLowerCase(Locale.US) + "\u0000" + meaning + "\u0000" + day;
             if (seen.contains(key)) {
                 duplicate++;
-                rows.add(new ParsedRow(i + 1, term, meaning, day, example, true, true, "중복 항목입니다."));
+                rows.add(new ParsedRow(i + 1, term, meaning, day, example, past, participle, true, true, "중복 항목입니다."));
                 continue;
             }
             seen.add(key);
             valid++;
-            rows.add(new ParsedRow(i + 1, term, meaning, day, example, true, false, ""));
+            rows.add(new ParsedRow(i + 1, term, meaning, day, example, past, participle, true, false, ""));
         }
         return new ParseResult(rows, total, valid, invalid, duplicate);
     }

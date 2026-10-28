@@ -264,7 +264,7 @@ public class ImportActivity extends LocalizedActivity {
                     R.layout.row_preview, previewContainer, false);
             ((TextView) rowView.findViewById(R.id.previewRowNumber))
                     .setText(String.valueOf(previewIndex++));
-            ((TextView) rowView.findViewById(R.id.previewTerm)).setText(row.getTerm());
+            ((TextView) rowView.findViewById(R.id.previewTerm)).setText(row.getPast().isEmpty() ? row.getTerm() : row.getTerm() + " → " + row.getPast() + " → " + row.getPastParticiple());
             ((TextView) rowView.findViewById(R.id.previewMeaning)).setText(row.getMeaning());
             TextView exampleView = rowView.findViewById(R.id.previewExample);
             if (row.getExample() != null && !row.getExample().trim().isEmpty()) {
@@ -408,7 +408,7 @@ public class ImportActivity extends LocalizedActivity {
         }
         saveButton.setEnabled(false);
         try {
-            String source = selectedUri == null ? "text" : sourceType(selectedFileName);
+            String source = currentResult.isVerbFormat() ? "verb" : (selectedUri == null ? "text" : sourceType(selectedFileName));
             DatabaseHelper db = DatabaseHelper.getInstance(this);
             if (updateMode) {
                 MergeResult result = db.mergeBookWords(updateBookId, source,

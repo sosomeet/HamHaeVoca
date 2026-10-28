@@ -84,6 +84,7 @@ public class FlashcardActivity extends LocalizedActivity {
     private int notLearnedCount = 0;
     private int roundNumber = 1;
     private boolean showingFront = true;
+    private int verbFlipStage = 0;
     private boolean locked = false;
     private float downX;
     private float downY;
@@ -227,6 +228,7 @@ public class FlashcardActivity extends LocalizedActivity {
                 .putInt(PREF_BATCH_SIZE, batchSize)
                 .apply();
         showingFront = true;
+        verbFlipStage = 0;
         if (restartSession) {
             clearSavedSession();
             startNewSession();
@@ -306,6 +308,7 @@ public class FlashcardActivity extends LocalizedActivity {
         learnedCount = 0;
         notLearnedCount = 0;
         showingFront = true;
+        verbFlipStage = 0;
         locked = false;
         resetSwipeVisuals();
         saveSession();
@@ -428,6 +431,7 @@ public class FlashcardActivity extends LocalizedActivity {
         }
         index++;
         showingFront = true;
+        verbFlipStage = 0;
         locked = false;
         saveSession();
         if (index >= roundWords.size()) {
@@ -458,6 +462,7 @@ public class FlashcardActivity extends LocalizedActivity {
             removeLastById(notLearned, decision.itemId);
         }
         showingFront = true;
+        verbFlipStage = 0;
         locked = false;
         resetSwipeVisuals();
         saveSession();
@@ -535,7 +540,11 @@ public class FlashcardActivity extends LocalizedActivity {
 
     private void flipCard() {
         if (index >= roundWords.size()) return;
-        showingFront = !showingFront;
+        if (roundWords.get(index).isVerb()) {
+            verbFlipStage = (verbFlipStage + 1) % 4;
+        } else {
+            showingFront = !showingFront;
+        }
         cardMotionView.animate().alpha(0f).setDuration(80).withEndAction(() -> {
             renderCard();
             cardMotionView.animate().alpha(1f).setDuration(80).start();
@@ -549,8 +558,13 @@ public class FlashcardActivity extends LocalizedActivity {
         VocabItem item = roundWords.get(index);
         boolean showMeaning = showingFront ? meaningOnFront : !meaningOnFront;
         cardView.setTextSize(mainFontSize);
-        cardView.setText(showMeaning ? item.getMeaning() : item.getTerm());
-        boolean showExample = !showingFront && !item.getExample().trim().isEmpty();
+        if (item.isVerb()) {
+            String[] stages = {item.getTerm(), item.getPast(), item.getPastParticiple(), item.getMeaning()};
+            cardView.setText(stages[verbFlipStage]);
+        } else {
+            cardView.setText(showMeaning ? item.getMeaning() : item.getTerm());
+        }
+        boolean showExample = (item.isVerb() ? verbFlipStage == 3 : !showingFront) && !item.getExample().trim().isEmpty();
         exampleSection.setVisibility(showExample ? View.VISIBLE : View.GONE);
         if (showExample) {
             exampleTextView.setTextSize(exampleFontSize);
@@ -630,6 +644,7 @@ public class FlashcardActivity extends LocalizedActivity {
             while (history.size() > index) history.remove(history.size() - 1);
         }
         showingFront = true;
+        verbFlipStage = 0;
         locked = false;
         resetSwipeVisuals();
         saveSession();

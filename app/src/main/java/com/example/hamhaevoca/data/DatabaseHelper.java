@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "hamhaevoca.db";
-    private static final int DB_VERSION = 3;
+    private static final int DB_VERSION = 4;
 
     private static DatabaseHelper instance;
 
@@ -62,6 +62,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "term TEXT NOT NULL," +
                 "meaning TEXT NOT NULL," +
                 "example TEXT NOT NULL DEFAULT ''," +
+                "past TEXT NOT NULL DEFAULT ''," +
+                "past_participle TEXT NOT NULL DEFAULT ''," +
                 "sort_order INTEGER NOT NULL," +
                 "memorized INTEGER NOT NULL DEFAULT 0," +
                 "correct_count INTEGER NOT NULL DEFAULT 0," +
@@ -110,6 +112,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 3) {
             db.execSQL("ALTER TABLE words ADD COLUMN example TEXT NOT NULL DEFAULT ''");
         }
+        if (oldVersion < 4) {
+            db.execSQL("ALTER TABLE words ADD COLUMN past TEXT NOT NULL DEFAULT ''");
+            db.execSQL("ALTER TABLE words ADD COLUMN past_participle TEXT NOT NULL DEFAULT ''");
+        }
+    }
+
+    public boolean isVerbBook(long bookId) {
+        Cursor cursor = getReadableDatabase().rawQuery("SELECT 1 FROM words WHERE book_id = ? AND past != '' AND past_participle != '' LIMIT 1", new String[]{String.valueOf(bookId)});
+        try { return cursor.moveToFirst(); } finally { cursor.close(); }
     }
 
     private String now() {
@@ -135,6 +146,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 values.put("term", item.getTerm());
                 values.put("meaning", item.getMeaning());
                 values.put("example", item.getExample());
+                values.put("past", item.getPast());
+                values.put("past_participle", item.getPastParticiple());
                 values.put("sort_order", order++);
                 values.put("memorized", 0);
                 values.put("correct_count", 0);
@@ -204,6 +217,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     values.put("term", imported.getTerm());
                     values.put("meaning", imported.getMeaning());
                 values.put("example", imported.getExample());
+                values.put("past", imported.getPast());
+                values.put("past_participle", imported.getPastParticiple());
                     values.put("sort_order", order++);
                     values.put("memorized", 0);
                     values.put("correct_count", 0);
@@ -218,11 +233,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 usedIds.add(match.getId());
                 boolean contentChanged = !match.getTerm().equals(imported.getTerm())
                         || !match.getMeaning().equals(imported.getMeaning())
-                        || !match.getExample().equals(imported.getExample());
+                        || !match.getExample().equals(imported.getExample())
+                        || !match.getPast().equals(imported.getPast())
+                        || !match.getPastParticiple().equals(imported.getPastParticiple());
                 ContentValues values = new ContentValues();
                 values.put("term", imported.getTerm());
                 values.put("meaning", imported.getMeaning());
                 values.put("example", imported.getExample());
+                values.put("past", imported.getPast());
+                values.put("past_participle", imported.getPastParticiple());
                 values.put("sort_order", order++);
                 if (contentChanged) values.put("updated_at", timestamp);
                 db.update("words", values, "id = ? AND book_id = ?",
@@ -258,7 +277,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<VocabItem> result = new ArrayList<VocabItem>();
         Cursor cursor = db.query("words",
                 new String[]{"id", "book_id", "term", "meaning", "sort_order",
-                        "memorized", "correct_count", "incorrect_count", "example"},
+                        "memorized", "correct_count", "incorrect_count", "example", "past", "past_participle"},
                 "book_id = ?", new String[]{String.valueOf(bookId)}, null, null,
                 "sort_order ASC");
         try {
@@ -345,7 +364,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<VocabItem> result = new ArrayList<VocabItem>();
         SQLiteDatabase db = getReadableDatabase();
         Cursor cursor = db.query("words",
-                new String[]{"id", "book_id", "term", "meaning", "sort_order", "memorized", "correct_count", "incorrect_count", "example"},
+                new String[]{"id", "book_id", "term", "meaning", "sort_order", "memorized", "correct_count", "incorrect_count", "example", "past", "past_participle"},
                 "book_id = ?", new String[]{String.valueOf(bookId)}, null, null, "sort_order ASC");
         try {
             while (cursor.moveToNext()) {
@@ -368,7 +387,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             args[i + 1] = String.valueOf(ids.get(i));
         }
         Cursor cursor = getReadableDatabase().rawQuery(
-                "SELECT id, book_id, term, meaning, sort_order, memorized, correct_count, incorrect_count, example " +
+                "SELECT id, book_id, term, meaning, sort_order, memorized, correct_count, incorrect_count, example, past, past_participle " +
                         "FROM words WHERE book_id = ? AND id IN (" + placeholders + ") ORDER BY sort_order", args);
         List<VocabItem> result = new ArrayList<VocabItem>();
         try {
@@ -384,6 +403,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 cursor.getString(3), cursor.getInt(4), cursor.getInt(5) == 1,
                 cursor.getInt(6), cursor.getInt(7));
         item.setExample(cursor.getString(8));
+        int pastIndex = cursor.getColumnIndex("past");
+        int participleIndex = cursor.getColumnIndex("past_participle");
+        if (pastIndex >= 0) item.setPast(cursor.getString(pastIndex));
+        if (participleIndex >= 0) item.setPastParticiple(cursor.getString(participleIndex));
         return item;
     }
 
