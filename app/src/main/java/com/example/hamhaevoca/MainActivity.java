@@ -56,6 +56,8 @@ public class MainActivity extends LocalizedActivity {
     private Long activeFolderId = null;
     private final Set<Long> selectedIds = new LinkedHashSet<>();
     private boolean selectionMode = false;
+    private int folderSortMode = 0; // 0 name ascending, 1 descending, 2 oldest created, 3 newest created
+    private LinearLayout drawerMenu;
     private int sortMode = 0; // 0 latest, 1 oldest, 2 name ascending, 3 name descending
     private ListView bookList;
     private View actionBar;
@@ -88,6 +90,7 @@ public class MainActivity extends LocalizedActivity {
 
         lang = getPreferences(MODE_PRIVATE).getString("ui_language", "ko");
         sortMode = getPreferences(MODE_PRIVATE).getInt("sort_mode", 0);
+        folderSortMode = getPreferences(MODE_PRIVATE).getInt("folder_sort_mode", 0);
         bookList = findViewById(R.id.bookList);
         ListView listView = bookList;
         emptyView = findViewById(R.id.emptyView);
@@ -238,6 +241,13 @@ public class MainActivity extends LocalizedActivity {
         menu.setOrientation(LinearLayout.VERTICAL);
         menu.setPadding(dp(18), dp(32), dp(18), dp(20));
         scroll.addView(menu);
+        drawerMenu = menu;
+        populateDrawer(menu);
+        scroll.setTranslationX(-width);
+        scroll.animate().translationX(0).setDuration(220).start();
+    }
+    private void populateDrawer(LinearLayout menu) {
+        menu.removeAllViews();
         TextView header = new TextView(this);
         header.setText("HamHaeVoca");
         header.setTextSize(22);
@@ -247,8 +257,8 @@ public class MainActivity extends LocalizedActivity {
         menu.addView(header);
         addMenuItem(menu, t(1), String.valueOf(allBooks.size()), activeFolderId == null, () -> { activeFolderId=null; reload(); closeSideMenu(); });
         addMenuItem(menu, t(2), String.valueOf(countBooksInFolder(null)), Long.valueOf(-1).equals(activeFolderId), () -> { activeFolderId=-1L; reload(); closeSideMenu(); });
-        for (DatabaseHelper.Folder folder : db.getFolders()) {
-            addMenuItem(menu, folder.name, String.valueOf(countBooksInFolder(folder.id)), Long.valueOf(folder.id).equals(activeFolderId), () -> {
+        for (DatabaseHelper.Folder folder : sortedFolders()) {
+            addFolderMenuItem(menu, folder, String.valueOf(countBooksInFolder(folder.id)), Long.valueOf(folder.id).equals(activeFolderId), () -> {
                 activeFolderId=folder.id; reload(); closeSideMenu();
             });
         }
@@ -261,15 +271,15 @@ public class MainActivity extends LocalizedActivity {
         String[] languages = {"한국어", "English", "Français", "Español", "Tiếng Việt", "日本語", "简体中文"};
         int languageIndex=0;
         for(int i=0;i<LANG_CODES.length;i++) if (LANG_CODES[i].equals(lang)) languageIndex=i;
-        addMenuItem(menu, t(5), sorted[Math.max(0, Math.min(sortMode, 3))], false, () -> showSortDialog());
+        addMenuItem(menu, getString(R.string.ui_book_sort), sorted[Math.max(0, Math.min(sortMode, 3))], false, () -> showSortDialog());
+        addMenuItem(menu, getString(R.string.ui_folder_sort), folderSortChoices()[folderSortMode], false, () -> showFolderSortDialog());
         addMenuItem(menu, t(6), languages[languageIndex], false, () -> showLanguageDialog());
-        scroll.setTranslationX(-width);
-        scroll.animate().translationX(0).setDuration(220).start();
     }
     private void closeSideMenu() {
         if (drawerLayer == null) return;
         View layer = drawerLayer;
         drawerLayer = null;
+        drawerMenu = null;
         layer.animate().alpha(0f).setDuration(150).withEndAction(() -> {
             if (layer.getParent() instanceof ViewGroup) ((ViewGroup)layer.getParent()).removeView(layer);
         }).start();
@@ -291,7 +301,8 @@ public class MainActivity extends LocalizedActivity {
         row.addView(label, new LinearLayout.LayoutParams(0, -2, 1));
         if (value != null) {
             TextView detail = new TextView(this);
-            if (title.equals(t(5))) detail.setTag("drawer_sort_value");
+            if (title.equals(getString(R.string.ui_book_sort))) detail.setTag("drawer_sort_value");
+            if (title.equals(getString(R.string.ui_folder_sort))) detail.setTag("drawer_folder_sort_value");
             if (title.equals(t(6))) detail.setTag("drawer_language_value");
             detail.setText(value); detail.setTextSize(13); detail.setTextColor(getResources().getColor(R.color.text_secondary));
             detail.setGravity(Gravity.END);
@@ -307,15 +318,49 @@ public class MainActivity extends LocalizedActivity {
             String[] choices = {t(9), t(10), t(7), t(8)};
             sortValue.setText(choices[Math.max(0, Math.min(sortMode, 3))]);
         }
+        TextView folderValue = drawerLayer.findViewWithTag("drawer_folder_sort_value");
+        if (folderValue != null) folderValue.setText(folderSortChoices()[folderSortMode]);
     }
 
     private void showSortDialog() {
         String[] choices = {t(9), t(10), t(7), t(8)};
-        new AlertDialog.Builder(this).setTitle(t(5)).setSingleChoiceItems(choices,sortMode,(dialog,idx)->{
+        new AlertDialog.Builder(this).setTitle(R.string.ui_book_sort).setSingleChoiceItems(choices,sortMode,(dialog,idx)->{
             sortMode=idx;getPreferences(MODE_PRIVATE).edit().putInt("sort_mode",idx).apply();
             applyFilters(); dialog.dismiss();
             refreshDrawerSettings();
         }).setNegativeButton(t(19),null).show();
+    }
+    private String[] folderSortChoices() {
+        return getResources().getStringArray(R.array.ui_folder_sort_choices);
+    }
+    private List<DatabaseHelper.Folder> sortedFolders() {
+        List<DatabaseHelper.Folder> folders = new ArrayList<>(db.getFolders());
+        switch (folderSortMode) {
+            case 1: Collections.sort(folders, (a,b) -> b.name.compareToIgnoreCase(a.name)); break;
+            case 2: Collections.sort(folders, (a,b) -> Long.compare(a.id, b.id)); break;
+            case 3: Collections.sort(folders, (a,b) -> Long.compare(b.id, a.id)); break;
+            default: Collections.sort(folders, (a,b) -> a.name.compareToIgnoreCase(b.name));
+        }
+        return folders;
+    }
+    private void showFolderSortDialog() {
+        new AlertDialog.Builder(this).setTitle(R.string.ui_folder_sort)
+                .setSingleChoiceItems(folderSortChoices(), folderSortMode, (dialog, index) -> {
+                    folderSortMode = index;
+                    getPreferences(MODE_PRIVATE).edit().putInt("folder_sort_mode", index).apply();
+                    dialog.dismiss();
+                    refreshDrawerContents();
+                }).setNegativeButton(t(19), null).show();
+    }
+    private void refreshDrawerContents() {
+        if (drawerMenu != null) populateDrawer(drawerMenu);
+    }
+    private void addFolderMenuItem(LinearLayout menu, DatabaseHelper.Folder folder,
+                                   String count, boolean active, Runnable onClick) {
+        final int before = menu.getChildCount();
+        addMenuItem(menu, folder.name, count, active, onClick);
+        View row = menu.getChildAt(before);
+        row.setOnLongClickListener(v -> { editFolder(folder); return true; });
     }
     private void showLanguageDialog() {
         String[] labels = {"한국어", "English", "Français", "Español", "Tiếng Việt", "日本語", "简体中文（普通话）"};
@@ -351,7 +396,7 @@ public class MainActivity extends LocalizedActivity {
     }
     private void moveSelectedBooks() {
         if (selectedIds.isEmpty()) { Toast.makeText(this,t(14),Toast.LENGTH_SHORT).show(); return; }
-        List<DatabaseHelper.Folder> folders = db.getFolders();
+        List<DatabaseHelper.Folder> folders = sortedFolders();
         String[] names = new String[folders.size()+1]; names[0] = t(2);
         for (int i=0;i<folders.size();i++) names[i+1]=folders.get(i).name;
         new AlertDialog.Builder(this).setTitle(t(12)).setItems(names,(d,i)->{
@@ -381,7 +426,7 @@ public class MainActivity extends LocalizedActivity {
     }
 
     private void manageFolders() {
-        List<DatabaseHelper.Folder> folders = db.getFolders();
+        List<DatabaseHelper.Folder> folders = sortedFolders();
         String[] items = new String[folders.size() + 1];
         items[0] = "+ " + t(3);
         for (int i = 0; i < folders.size(); i++) items[i + 1] = folders.get(i).name;
@@ -414,6 +459,7 @@ public class MainActivity extends LocalizedActivity {
                         dialog.dismiss();
                         reload();
                         updateFolderTitle();
+                        refreshDrawerContents();
                     } catch (SQLiteConstraintException e) { input.setError(t(20)); }
                 }));
         dialog.show();
@@ -429,11 +475,12 @@ public class MainActivity extends LocalizedActivity {
                         updateFolderTitle();
                     }
                     reload();
+                    refreshDrawerContents();
                 }).setNegativeButton(t(19), null).show();
     }
 
     private void changeBookFolder(BookSummary book) {
-        List<DatabaseHelper.Folder> folders = db.getFolders();
+        List<DatabaseHelper.Folder> folders = sortedFolders();
         String[] items = new String[folders.size() + 1]; items[0] = t(2);
         for (int i = 0; i < folders.size(); i++) items[i + 1] = folders.get(i).name;
         new AlertDialog.Builder(this).setTitle(book.getName() + " · " + t(30))

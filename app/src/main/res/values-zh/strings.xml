@@ -77,7 +77,7 @@
     <string name="ui_cfe4308040b2">重新测验</string>
     <string name="ui_433a5a8e3bba">卡片配对</string>
     <string name="ui_c0673beaa4fd">导入词汇本</string>
-    <string name="ui_1a2d58dc2995">请选择文件或直接粘贴文本。</string>
+    <string name="ui_1a2d58dc2995">请选择文件。</string>
     <string name="ui_0d7b33c6fd8a">词汇本名称</string>
     <string name="ui_f78880e03b3a">选择 TXT / CSV / TSV / XLSX 文件</string>
     <string name="ui_17eba712d3e6">未选择文件</string>
@@ -271,4 +271,14 @@
     <string name="ui_action_delete_selected">删除所选词汇本</string>
     <string name="verb_past">过去式</string>
     <string name="verb_participle">过去分词</string>
+    <string name="ui_book_sort">词汇本排序</string>
+    <string name="ui_folder_sort">文件夹排序</string>
+    <string-array name="ui_folder_sort_choices">
+        <item>名称（升序）</item>
+        <item>名称（降序）</item>
+        <item>创建时间（最早）</item>
+        <item>创建时间（最新）</item>
+    </string-array>
+    <string name="ui_wrong_rate">错误率 %1$d%%</string>
+    <string name="ui_choose_file_first">请先选择文件。</string>
 </resources>

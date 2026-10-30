@@ -407,10 +407,9 @@ public class BookDetailActivity extends LocalizedActivity {
             int wrongRate = totalAnswers == 0 ? 0
                     : Math.round(item.getIncorrectCount() * 100f / totalAnswers);
             TextView state = convertView.findViewById(R.id.wordState);
-            state.setText((item.isMemorized() ? Lang.text(getContext(), R.string.ui_65d54abc78ca) : Lang.text(getContext(), R.string.ui_7e37bbef9b45))
-                    + Lang.text(getContext(), R.string.ui_e5e13b993918) + totalAnswers + Lang.text(getContext(), R.string.ui_e006fd405e7a) + wrongRate + "%");
+            state.setVisibility(View.GONE);
             TextView wrongCount = convertView.findViewById(R.id.wordWrongCount);
-            wrongCount.setText(Lang.text(getContext(), R.string.ui_bbd4d442b4fd) + item.getIncorrectCount() + Lang.text(getContext(), R.string.ui_2fc05c02be34));
+            wrongCount.setText(getContext().getString(R.string.ui_wrong_rate, wrongRate));
             return convertView;
         }
     }

@@ -41,8 +41,6 @@ public class ImportActivity extends LocalizedActivity {
     private static final int MAX_BYTES = 10 * 1024 * 1024;
 
     private EditText bookNameInput;
-    private EditText textInput;
-    private Spinner delimiterSpinner;
     private TextView selectedFileText;
     private TextView summaryText;
     private TextView titleText;
@@ -73,8 +71,6 @@ public class ImportActivity extends LocalizedActivity {
         titleText = findViewById(R.id.importTitle);
         descriptionText = findViewById(R.id.importDescription);
         bookNameInput = findViewById(R.id.bookNameInput);
-        textInput = findViewById(R.id.importTextInput);
-        delimiterSpinner = findViewById(R.id.delimiterSpinner);
         selectedFileText = findViewById(R.id.selectedFileText);
         summaryText = findViewById(R.id.importSummary);
         saveButton = findViewById(R.id.saveImportButton);
@@ -82,15 +78,10 @@ public class ImportActivity extends LocalizedActivity {
         useDayColumnSwitch = findViewById(R.id.useDayColumnSwitch);
         daySelectionText = findViewById(R.id.daySelectionText);
 
-        String[] delimiters = new String[]{Lang.text(ImportActivity.this, R.string.ui_b09fd898779e), Lang.text(ImportActivity.this, R.string.ui_2e873b9bf7ae), Lang.text(ImportActivity.this, R.string.ui_841b816e1e86), Lang.text(ImportActivity.this, R.string.ui_0b4b295c4347), Lang.text(ImportActivity.this, R.string.ui_24eec6df66e2)};
-        delimiterSpinner.setAdapter(new ArrayAdapter<String>(this,
-                android.R.layout.simple_spinner_dropdown_item, delimiters));
 
         previewContainer = findViewById(R.id.previewContainer);
 
         findViewById(R.id.chooseFileButton).setOnClickListener(v -> chooseFile());
-        findViewById(R.id.parseButton).setOnClickListener(v -> parseCurrentInput());
-        findViewById(R.id.clearImportButton).setOnClickListener(v -> confirmClear());
         dayFilterButton.setOnClickListener(v -> showDaySelectionDialog());
         useDayColumnSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             updateDaySelectionControls();
@@ -183,18 +174,13 @@ public class ImportActivity extends LocalizedActivity {
                     byte[] bytes = readBytes(selectedUri);
                     String text = new String(bytes, Charset.forName("UTF-8"));
                     currentResult = DelimitedTextParser.parse(text,
-                            selectedDelimiterKey());
+                            "자동");
                 } else {
                     throw new IllegalArgumentException(
                             Lang.text(ImportActivity.this, R.string.ui_265b91ab8712));
                 }
             } else {
-                String text = textInput.getText().toString();
-                if (text.trim().isEmpty()) {
-                    throw new IllegalArgumentException(Lang.text(ImportActivity.this, R.string.ui_d3ff56ebc113));
-                }
-                currentResult = DelimitedTextParser.parse(text,
-                        selectedDelimiterKey());
+                throw new IllegalArgumentException(getString(R.string.ui_choose_file_first));
             }
             showResult();
         } catch (Exception e) {
@@ -205,17 +191,6 @@ public class ImportActivity extends LocalizedActivity {
             selectedDays.clear();
             updateDaySelectionControls();
             saveButton.setEnabled(false);
-        }
-    }
-
-    // Parser tokens stay stable even when the visible delimiter labels are localized.
-    private String selectedDelimiterKey() {
-        switch (delimiterSpinner.getSelectedItemPosition()) {
-            case 1: return "탭";
-            case 2: return "쉼표";
-            case 3: return "세미콜론";
-            case 4: return "파이프";
-            default: return "자동";
         }
     }
 
@@ -435,34 +410,6 @@ public class ImportActivity extends LocalizedActivity {
         if (fileName == null) return "file";
         int dot = fileName.lastIndexOf('.');
         return dot >= 0 ? fileName.substring(dot + 1).toLowerCase(Locale.US) : "file";
-    }
-
-    private void confirmClear() {
-        if (textInput.getText().toString().trim().isEmpty()
-                && selectedUri == null && currentResult == null) {
-            clearAll();
-            return;
-        }
-        new AlertDialog.Builder(this)
-                .setTitle(Lang.text(ImportActivity.this, R.string.ui_4fe6aa6df821))
-                .setMessage(Lang.text(ImportActivity.this, R.string.ui_31764b461a4f))
-                .setPositiveButton(Lang.text(ImportActivity.this, R.string.ui_ff75b4ff2463), (dialog, which) -> clearAll())
-                .setNegativeButton(Lang.text(ImportActivity.this, R.string.ui_19b2d19bc141), null)
-                .show();
-    }
-
-    private void clearAll() {
-        selectedUri = null;
-        selectedFileName = null;
-        selectedFileText.setText(Lang.text(ImportActivity.this, R.string.ui_17eba712d3e6));
-        textInput.setText("");
-        currentResult = null;
-        availableDays.clear();
-        selectedDays.clear();
-        updateDaySelectionControls();
-        previewContainer.removeAllViews();
-        summaryText.setText(Lang.text(ImportActivity.this, R.string.ui_6072a8450289));
-        saveButton.setEnabled(false);
     }
 
 }

@@ -77,7 +77,7 @@
     <string name="ui_cfe4308040b2">Refaire le quiz</string>
     <string name="ui_433a5a8e3bba">Association de cartes</string>
     <string name="ui_c0673beaa4fd">Importer une liste</string>
-    <string name="ui_1a2d58dc2995">Choisissez un fichier ou collez du texte.</string>
+    <string name="ui_1a2d58dc2995">Sélectionnez un fichier.</string>
     <string name="ui_0d7b33c6fd8a">Nom de la liste</string>
     <string name="ui_f78880e03b3a">Choisir un fichier TXT / CSV / TSV / XLSX</string>
     <string name="ui_17eba712d3e6">Aucun fichier sélectionné</string>
@@ -271,4 +271,14 @@
     <string name="ui_action_delete_selected">Supprimer les listes sélectionnées</string>
     <string name="verb_past">Prétérit</string>
     <string name="verb_participle">Participe passé</string>
+    <string name="ui_book_sort">Tri des listes</string>
+    <string name="ui_folder_sort">Tri des dossiers</string>
+    <string-array name="ui_folder_sort_choices">
+        <item>Nom (A–Z)</item>
+        <item>Nom (Z–A)</item>
+        <item>Création ancienne</item>
+        <item>Création récente</item>
+    </string-array>
+    <string name="ui_wrong_rate">Taux d’erreur %1$d%%</string>
+    <string name="ui_choose_file_first">Sélectionnez un fichier.</string>
 </resources>
