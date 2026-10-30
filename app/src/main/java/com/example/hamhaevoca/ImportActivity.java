@@ -303,11 +303,13 @@ public class ImportActivity extends LocalizedActivity {
 
     private void updateDaySelectionControls() {
         if (!useDayColumnSwitch.isChecked()) {
+            daySelectionText.setVisibility(View.GONE);
             dayFilterButton.setEnabled(false);
             dayFilterButton.setText(Lang.text(ImportActivity.this, R.string.ui_d10eb6b36e51));
             daySelectionText.setText(Lang.text(ImportActivity.this, R.string.ui_e418368bc7dc));
             return;
         }
+        daySelectionText.setVisibility(View.VISIBLE);
         if (availableDays.isEmpty()) {
             dayFilterButton.setEnabled(false);
             dayFilterButton.setText(Lang.text(ImportActivity.this, R.string.ui_2f6183a4a2f5));

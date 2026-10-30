@@ -406,8 +406,6 @@ public class BookDetailActivity extends LocalizedActivity {
             int totalAnswers = item.getCorrectCount() + item.getIncorrectCount();
             int wrongRate = totalAnswers == 0 ? 0
                     : Math.round(item.getIncorrectCount() * 100f / totalAnswers);
-            TextView state = convertView.findViewById(R.id.wordState);
-            state.setVisibility(View.GONE);
             TextView wrongCount = convertView.findViewById(R.id.wordWrongCount);
             wrongCount.setText(getContext().getString(R.string.ui_wrong_rate, wrongRate));
             return convertView;
