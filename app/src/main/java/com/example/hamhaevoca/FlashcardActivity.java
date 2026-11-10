@@ -422,6 +422,7 @@ public class FlashcardActivity extends LocalizedActivity {
         db.setMemorized(item.getId(), bookId, learned);
         item.setMemorized(learned);
         if (learned) {
+            db.incrementCorrectCount(item.getId(), bookId);
             learnedCount++;
         } else {
             // 낱말카드의 "못 외움"도 해당 단어의 누적 오답 횟수에 포함한다.
@@ -454,6 +455,7 @@ public class FlashcardActivity extends LocalizedActivity {
             item.setMemorized(decision.previousMemorized);
         }
         if (decision.learned) {
+            db.decrementCorrectCount(decision.itemId, bookId);
             learnedCount = Math.max(0, learnedCount - 1);
         } else {
             // 이전 단어로 돌아가 직전 "못 외움" 판정을 취소하면 오답 횟수도 함께 복구한다.

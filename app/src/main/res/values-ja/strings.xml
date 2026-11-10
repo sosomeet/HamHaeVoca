@@ -281,4 +281,7 @@
     </string-array>
     <string name="ui_wrong_rate">誤答率 %1$d%%</string>
     <string name="ui_choose_file_first">ファイルを選択してください。</string>
+    <string name="ui_favorites">お気に入り</string>
+    <string name="ui_favorite_toggle">お気に入り切り替え</string>
+    <string name="ui_pin_toggle">先頭に固定</string>
 </resources>

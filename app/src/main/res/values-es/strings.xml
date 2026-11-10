@@ -281,4 +281,7 @@
     </string-array>
     <string name="ui_wrong_rate">Tasa de error %1$d%%</string>
     <string name="ui_choose_file_first">Selecciona un archivo primero.</string>
+    <string name="ui_favorites">Favoritos</string>
+    <string name="ui_favorite_toggle">Alternar favorito</string>
+    <string name="ui_pin_toggle">Fijar arriba</string>
 </resources>

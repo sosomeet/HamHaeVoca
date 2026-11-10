@@ -281,4 +281,7 @@
     </string-array>
     <string name="ui_wrong_rate">错误率 %1$d%%</string>
     <string name="ui_choose_file_first">请先选择文件。</string>
+    <string name="ui_favorites">收藏</string>
+    <string name="ui_favorite_toggle">切换收藏</string>
+    <string name="ui_pin_toggle">置顶切换</string>
 </resources>

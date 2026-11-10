@@ -281,4 +281,7 @@
     </string-array>
     <string name="ui_wrong_rate">오답률 %1$d%%</string>
     <string name="ui_choose_file_first">먼저 파일을 선택하세요.</string>
+    <string name="ui_favorites">즐겨찾기</string>
+    <string name="ui_favorite_toggle">즐겨찾기 전환</string>
+    <string name="ui_pin_toggle">상단 고정 전환</string>
 </resources>

@@ -24,7 +24,7 @@ import java.util.Set;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "hamhaevoca.db";
-    private static final int DB_VERSION = 4;
+    private static final int DB_VERSION = 5;
 
     private static DatabaseHelper instance;
 
@@ -54,7 +54,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "source_type TEXT NOT NULL," +
                 "created_at TEXT NOT NULL," +
                 "updated_at TEXT NOT NULL," +
-                "folder_id INTEGER REFERENCES folders(id) ON DELETE SET NULL)");
+                "folder_id INTEGER REFERENCES folders(id) ON DELETE SET NULL," +
+                "favorite INTEGER NOT NULL DEFAULT 0," +
+                "pin_order INTEGER NOT NULL DEFAULT 0)");
 
         db.execSQL("CREATE TABLE words (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -116,6 +118,67 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE words ADD COLUMN past TEXT NOT NULL DEFAULT ''");
             db.execSQL("ALTER TABLE words ADD COLUMN past_participle TEXT NOT NULL DEFAULT ''");
         }
+        if (oldVersion < 5) {
+            db.execSQL("ALTER TABLE books ADD COLUMN favorite INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE books ADD COLUMN pin_order INTEGER NOT NULL DEFAULT 0");
+        }
+    }
+
+    /** Favorites are virtual: a book retains its original folder. */
+    public Map<Long, long[]> getBookFlags() {
+        Map<Long, long[]> result = new HashMap<>();
+        Cursor cursor = getReadableDatabase().rawQuery(
+                "SELECT id, favorite, pin_order FROM books", null);
+        try {
+            while (cursor.moveToNext()) {
+                result.put(cursor.getLong(0), new long[]{cursor.getLong(1), cursor.getLong(2)});
+            }
+        } finally { cursor.close(); }
+        return result;
+    }
+
+    public boolean isFavorite(long bookId) {
+        Cursor c = getReadableDatabase().rawQuery(
+                "SELECT favorite FROM books WHERE id = ?", new String[]{String.valueOf(bookId)});
+        try { return c.moveToFirst() && c.getInt(0) != 0; } finally { c.close(); }
+    }
+
+    public void setFavorite(long bookId, boolean favorite) {
+        ContentValues values = new ContentValues();
+        values.put("favorite", favorite ? 1 : 0);
+        getWritableDatabase().update("books", values, "id = ?", new String[]{String.valueOf(bookId)});
+    }
+
+    /** Monotonically increasing order preserves the sequence in which books are pinned. */
+    public void setPinned(long bookId, boolean pinned) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.beginTransaction();
+        try {
+            long order = 0;
+            if (pinned) {
+                Cursor c = db.rawQuery("SELECT COALESCE(MAX(pin_order), 0) + 1 FROM books", null);
+                try { if (c.moveToFirst()) order = c.getLong(0); } finally { c.close(); }
+            }
+            ContentValues values = new ContentValues();
+            values.put("pin_order", order);
+            db.update("books", values, "id = ?", new String[]{String.valueOf(bookId)});
+            db.setTransactionSuccessful();
+        } finally { db.endTransaction(); }
+    }
+
+    /** Both correct and incorrect answers must be counted for a meaningful error rate. */
+    public void incrementCorrectCount(long wordId, long bookId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("UPDATE words SET correct_count = correct_count + 1, updated_at = ? WHERE id = ? AND book_id = ?",
+                new Object[]{now(), wordId, bookId});
+        touchBook(db, bookId);
+    }
+
+    public void decrementCorrectCount(long wordId, long bookId) {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("UPDATE words SET correct_count = MAX(correct_count - 1, 0), updated_at = ? WHERE id = ? AND book_id = ?",
+                new Object[]{now(), wordId, bookId});
+        touchBook(db, bookId);
     }
 
     public boolean isVerbBook(long bookId) {
