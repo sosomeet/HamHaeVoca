@@ -282,10 +282,12 @@ public class MainActivity extends LocalizedActivity {
         addMenuItem(menu, t(1), String.valueOf(allBooks.size()), activeFolderId == null, () -> { activeFolderId=null; reload(); closeSideMenu(); });
         int favoriteCount = 0;
         for (long[] flags : bookFlags.values()) if (flags[0] == 1) favoriteCount++;
+        // Fixed virtual folders: Default first, Favorites second.
+        // Only user-created folders below are affected by folderSortMode.
+        addMenuItem(menu, t(2), String.valueOf(countBooksInFolder(null)), Long.valueOf(-1).equals(activeFolderId), () -> { activeFolderId=-1L; reload(); closeSideMenu(); });
         addMenuItem(menu, getString(R.string.ui_favorites), String.valueOf(favoriteCount),
                 Long.valueOf(FAVORITES_FOLDER_ID).equals(activeFolderId),
                 () -> { activeFolderId = FAVORITES_FOLDER_ID; reload(); closeSideMenu(); });
-        addMenuItem(menu, t(2), String.valueOf(countBooksInFolder(null)), Long.valueOf(-1).equals(activeFolderId), () -> { activeFolderId=-1L; reload(); closeSideMenu(); });
         for (DatabaseHelper.Folder folder : sortedFolders()) {
             addFolderMenuItem(menu, folder, String.valueOf(countBooksInFolder(folder.id)), Long.valueOf(folder.id).equals(activeFolderId), () -> {
                 activeFolderId=folder.id; reload(); closeSideMenu();
