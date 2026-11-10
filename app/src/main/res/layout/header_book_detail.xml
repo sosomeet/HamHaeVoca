@@ -33,6 +33,26 @@
             android:ellipsize="end"
             android:maxLines="2" />
 
+        <TextView
+            android:id="@+id/detailFavoriteStar"
+            android:layout_width="40dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text=""
+            android:textColor="#9A9A9A"
+            android:textSize="27sp"
+            android:contentDescription="@string/ui_favorite_toggle" />
+
+        <TextView
+            android:id="@+id/detailPinButton"
+            android:layout_width="36dp"
+            android:layout_height="48dp"
+            android:gravity="center"
+            android:text="📌"
+            android:textColor="@color/text_secondary"
+            android:textSize="22sp"
+            android:contentDescription="@string/ui_pin_toggle" />
+
         <ImageButton
             android:id="@+id/bookSettingsButton"
             android:layout_width="48dp"

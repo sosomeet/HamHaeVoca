@@ -32,6 +32,8 @@ public class BookDetailActivity extends LocalizedActivity {
     private long bookId;
     private DatabaseHelper db;
     private TextView titleView;
+    private TextView favoriteStar;
+    private TextView pinButton;
     private TextView statsView;
     private TextView filterResultText;
     private EditText searchInput;
@@ -53,6 +55,18 @@ public class BookDetailActivity extends LocalizedActivity {
         listView.addHeaderView(header, null, false);
 
         titleView = header.findViewById(R.id.detailBookTitle);
+        favoriteStar = header.findViewById(R.id.detailFavoriteStar);
+        pinButton = header.findViewById(R.id.detailPinButton);
+        favoriteStar.setOnClickListener(v -> {
+            db.setFavorite(bookId, !db.isFavorite(bookId));
+            updateBookFlags();
+        });
+        pinButton.setOnClickListener(v -> {
+            java.util.Map<Long, long[]> flags = db.getBookFlags();
+            long[] flag = flags.get(bookId);
+            db.setPinned(bookId, flag == null || flag[1] == 0);
+            updateBookFlags();
+        });
         statsView = header.findViewById(R.id.detailBookStats);
         filterResultText = header.findViewById(R.id.filterResultText);
         searchInput = header.findViewById(R.id.searchInput);
@@ -105,11 +119,23 @@ public class BookDetailActivity extends LocalizedActivity {
             return;
         }
         titleView.setText(summary.getName());
+        updateBookFlags();
         statsView.setText(Lang.text(BookDetailActivity.this, R.string.ui_57ff445a7f6b) + summary.getTotalCount() + Lang.text(BookDetailActivity.this, R.string.ui_4354af2c7ee7)
                 + summary.getMemorizedCount() + Lang.text(BookDetailActivity.this, R.string.ui_d6688e7f48b7) + summary.getUnmemorizedCount());
         allWords.clear();
         allWords.addAll(db.getWords(bookId));
         filterWords();
+    }
+
+    private void updateBookFlags() {
+        java.util.Map<Long, long[]> flags = db.getBookFlags();
+        long[] current = flags.get(bookId);
+        boolean favorite = current != null && current[0] == 1;
+        boolean pinned = current != null && current[1] > 0;
+        favoriteStar.setText(favorite ? "★" : "");
+        favoriteStar.setTextColor(favorite ? 0xFFFFC107 : 0xFF999999);
+        pinButton.setText(pinned ? "📌" : "📌");
+        pinButton.setTextColor(pinned ? 0xFF30BCA4 : 0xFF999999);
     }
 
     private void filterWords() {

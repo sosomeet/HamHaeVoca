@@ -26,6 +26,8 @@ import com.example.hamhaevoca.model.BookSummary;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Collections;
 import java.util.Comparator;
@@ -54,6 +56,8 @@ public class MainActivity extends LocalizedActivity {
     private final List<BookSummary> allBooks = new ArrayList<>();
     private String searchQuery = "";
     private Long activeFolderId = null;
+    private static final long FAVORITES_FOLDER_ID = -2L;
+    private final Map<Long, long[]> bookFlags = new HashMap<>();
     private final Set<Long> selectedIds = new LinkedHashSet<>();
     private boolean selectionMode = false;
     private int folderSortMode = 0; // 0 name ascending, 1 descending, 2 oldest created, 3 newest created
@@ -163,6 +167,9 @@ public class MainActivity extends LocalizedActivity {
     private void reload() {
         allBooks.clear();
         allBooks.addAll(db.getBookSummaries());
+        bookFlags.clear();
+        bookFlags.putAll(db.getBookFlags());
+        adapter.setFlags(bookFlags);
         updateFolderTitle();
         applyFilters();
     }
@@ -172,7 +179,10 @@ public class MainActivity extends LocalizedActivity {
         for (BookSummary book : allBooks) {
             if (!book.getName().toLowerCase(Locale.ROOT).contains(searchQuery)) continue;
             Long folderId = db.getBookFolderId(book.getId());
-            if (activeFolderId != null) {
+            if (Long.valueOf(FAVORITES_FOLDER_ID).equals(activeFolderId)) {
+                long[] flag = bookFlags.get(book.getId());
+                if (flag == null || flag[0] != 1) continue;
+            } else if (activeFolderId != null) {
                 if (activeFolderId == -1L && folderId != null) continue;
                 if (activeFolderId != -1L && !activeFolderId.equals(folderId)) continue;
             }
@@ -184,6 +194,15 @@ public class MainActivity extends LocalizedActivity {
             case 3: Collections.sort(books, (a,b) -> b.getName().compareToIgnoreCase(a.getName())); break;
             default: Collections.sort(books, (a,b) -> b.getUpdatedAt().compareTo(a.getUpdatedAt()));
         }
+        // Pinned books always appear first, in the order in which they were pinned.
+        Collections.sort(books, (a,b) -> {
+            long[] fa = bookFlags.get(a.getId()), fb = bookFlags.get(b.getId());
+            long pa = fa == null ? 0 : fa[1], pb = fb == null ? 0 : fb[1];
+            if (pa > 0 && pb > 0) return Long.compare(pa,pb);
+            if (pa > 0) return -1;
+            if (pb > 0) return 1;
+            return 0; // stable sort keeps user-selected book sorting
+        });
         adapter.setSelection(selectedIds, selectionMode);
         adapter.notifyDataSetChanged();
         emptyView.setText(allBooks.isEmpty() ? t(32) : t(33));
@@ -193,6 +212,8 @@ public class MainActivity extends LocalizedActivity {
     private void updateFolderTitle() {
         if (activeFolderId == null) {
             bookSectionTitle.setText(t(0));
+        } else if (activeFolderId == FAVORITES_FOLDER_ID) {
+            bookSectionTitle.setText(R.string.ui_favorites);
         } else if (activeFolderId == -1L) {
             bookSectionTitle.setText(t(2));
         } else {
@@ -256,6 +277,11 @@ public class MainActivity extends LocalizedActivity {
         header.setPadding(dp(10), 0, 0, dp(24));
         menu.addView(header);
         addMenuItem(menu, t(1), String.valueOf(allBooks.size()), activeFolderId == null, () -> { activeFolderId=null; reload(); closeSideMenu(); });
+        int favoriteCount = 0;
+        for (long[] flags : bookFlags.values()) if (flags[0] == 1) favoriteCount++;
+        addMenuItem(menu, getString(R.string.ui_favorites), String.valueOf(favoriteCount),
+                Long.valueOf(FAVORITES_FOLDER_ID).equals(activeFolderId),
+                () -> { activeFolderId = FAVORITES_FOLDER_ID; reload(); closeSideMenu(); });
         addMenuItem(menu, t(2), String.valueOf(countBooksInFolder(null)), Long.valueOf(-1).equals(activeFolderId), () -> { activeFolderId=-1L; reload(); closeSideMenu(); });
         for (DatabaseHelper.Folder folder : sortedFolders()) {
             addFolderMenuItem(menu, folder, String.valueOf(countBooksInFolder(folder.id)), Long.valueOf(folder.id).equals(activeFolderId), () -> {
@@ -556,6 +582,8 @@ public class MainActivity extends LocalizedActivity {
         private final LayoutInflater inflater;
         private Set<Long> selected = Collections.emptySet();
         private boolean selecting = false;
+        private Map<Long, long[]> flags = Collections.emptyMap();
+        void setFlags(Map<Long, long[]> values) { flags = values; }
         void setSelection(Set<Long> ids, boolean mode) { selected = ids; selecting = mode; }
 
         BookAdapter(Context context, List<BookSummary> data, DatabaseHelper db) {
@@ -570,6 +598,8 @@ public class MainActivity extends LocalizedActivity {
                 convertView = inflater.inflate(R.layout.row_book, parent, false);
                 holder = new ViewHolder();
                 holder.name = convertView.findViewById(R.id.bookName);
+                holder.favorite = convertView.findViewById(R.id.bookFavorite);
+                holder.pin = convertView.findViewById(R.id.bookPin);
                 holder.stats = convertView.findViewById(R.id.bookStats);
                 holder.date = convertView.findViewById(R.id.bookDate);
                 convertView.setTag(holder);
@@ -578,6 +608,24 @@ public class MainActivity extends LocalizedActivity {
             }
             BookSummary item = getItem(position);
             holder.name.setText(item.getName());
+            long[] values = flags.get(item.getId());
+            boolean favorite = values != null && values[0] == 1;
+            boolean pinned = values != null && values[1] > 0;
+            holder.favorite.setText(favorite ? "★" : "");
+            holder.favorite.setTextColor(favorite ? 0xFFFFC107 : 0xFF999999);
+            holder.pin.setText(pinned ? "📌" : "📌");
+            holder.pin.setTextColor(pinned ? 0xFF30BCA4 : 0xFF999999);
+            holder.favorite.setOnClickListener(v -> {
+                DatabaseHelper database = DatabaseHelper.getInstance(getContext());
+                database.setFavorite(item.getId(), !database.isFavorite(item.getId()));
+                if (getContext() instanceof MainActivity) ((MainActivity) getContext()).reload();
+            });
+            holder.pin.setOnClickListener(v -> {
+                DatabaseHelper database = DatabaseHelper.getInstance(getContext());
+                long[] flag = database.getBookFlags().get(item.getId());
+                database.setPinned(item.getId(), flag == null || flag[1] == 0);
+                if (getContext() instanceof MainActivity) ((MainActivity) getContext()).reload();
+            });
             if (selecting && selected.contains(item.getId())) {
                 // A single mint stroke. Do not stack an additional border around bg_card.
                 convertView.setBackgroundResource(R.drawable.bg_book_selected_glow);
@@ -603,6 +651,8 @@ public class MainActivity extends LocalizedActivity {
         private static float dpCard(Context context,int v) { return v*context.getResources().getDisplayMetrics().density; }
         private static class ViewHolder {
             TextView name;
+            TextView favorite;
+            TextView pin;
             TextView stats;
             TextView date;
         }
