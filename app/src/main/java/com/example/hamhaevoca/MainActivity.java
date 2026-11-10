@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.hamhaevoca.data.DatabaseHelper;
@@ -146,6 +147,8 @@ public class MainActivity extends LocalizedActivity {
         selectionLabel = findViewById(R.id.selectionCount);
         findViewById(R.id.moveSelectedButton).setOnClickListener(v -> moveSelectedBooks());
         findViewById(R.id.deleteSelectedButton).setOnClickListener(v -> confirmDeleteSelectedBooks());
+        findViewById(R.id.favoriteSelectedButton).setOnClickListener(v -> updateSelectedFavorites());
+        findViewById(R.id.pinSelectedButton).setOnClickListener(v -> updateSelectedPins());
         findViewById(R.id.cancelSelectionButton).setOnClickListener(v -> leaveSelectionMode());
         refreshLabels();
         if (savedInstanceState != null && savedInstanceState.getBoolean("drawer_open", false)) {
@@ -416,10 +419,38 @@ public class MainActivity extends LocalizedActivity {
         selectionLabel.setText(t(11)+" ("+selectedIds.size()+")");
         findViewById(R.id.moveSelectedButton).setEnabled(!selectedIds.isEmpty());
         findViewById(R.id.deleteSelectedButton).setEnabled(!selectedIds.isEmpty());
+        findViewById(R.id.favoriteSelectedButton).setEnabled(!selectedIds.isEmpty());
+        findViewById(R.id.pinSelectedButton).setEnabled(!selectedIds.isEmpty());
     }
     private void leaveSelectionMode() {
         selectionMode=false; selectedIds.clear(); adapter.setSelection(selectedIds, selectionMode); updateSelectionUi();adapter.notifyDataSetChanged();
     }
+    // HOME-04: actions on selected books only; no direct star/pin hit targets in cards.
+    private void updateSelectedFavorites() {
+        if (selectedIds.isEmpty()) return;
+        boolean makeFavorite = false;
+        for (Long id : selectedIds) {
+            if (!db.isFavorite(id)) { makeFavorite = true; break; }
+        }
+        for (Long id : new ArrayList<>(selectedIds)) db.setFavorite(id, makeFavorite);
+        leaveSelectionMode();
+        reload();
+    }
+
+    private void updateSelectedPins() {
+        if (selectedIds.isEmpty()) return;
+        Map<Long, long[]> flags = db.getBookFlags();
+        boolean makePinned = false;
+        for (Long id : selectedIds) {
+            long[] state = flags.get(id);
+            if (state == null || state[1] <= 0) { makePinned = true; break; }
+        }
+        // LinkedHashSet preserves the order in which the user selected books.
+        for (Long id : new ArrayList<>(selectedIds)) db.setPinned(id, makePinned);
+        leaveSelectionMode();
+        reload();
+    }
+
     private void moveSelectedBooks() {
         if (selectedIds.isEmpty()) { Toast.makeText(this,t(14),Toast.LENGTH_SHORT).show(); return; }
         List<DatabaseHelper.Folder> folders = sortedFolders();
@@ -611,21 +642,11 @@ public class MainActivity extends LocalizedActivity {
             long[] values = flags.get(item.getId());
             boolean favorite = values != null && values[0] == 1;
             boolean pinned = values != null && values[1] > 0;
-            holder.favorite.setText(favorite ? "★" : "");
-            holder.favorite.setTextColor(favorite ? 0xFFFFC107 : 0xFF999999);
-            holder.pin.setText(pinned ? "📌" : "📌");
-            holder.pin.setTextColor(pinned ? 0xFF30BCA4 : 0xFF999999);
-            holder.favorite.setOnClickListener(v -> {
-                DatabaseHelper database = DatabaseHelper.getInstance(getContext());
-                database.setFavorite(item.getId(), !database.isFavorite(item.getId()));
-                if (getContext() instanceof MainActivity) ((MainActivity) getContext()).reload();
-            });
-            holder.pin.setOnClickListener(v -> {
-                DatabaseHelper database = DatabaseHelper.getInstance(getContext());
-                long[] flag = database.getBookFlags().get(item.getId());
-                database.setPinned(item.getId(), flag == null || flag[1] == 0);
-                if (getContext() instanceof MainActivity) ((MainActivity) getContext()).reload();
-            });
+            holder.favorite.setVisibility(favorite ? View.VISIBLE : View.GONE);
+            holder.pin.setVisibility(pinned ? View.VISIBLE : View.GONE);
+            // Indicators are read-only. Selection toolbar is the only place to change them.
+            holder.favorite.setOnClickListener(null);
+            holder.pin.setOnClickListener(null);
             if (selecting && selected.contains(item.getId())) {
                 // A single mint stroke. Do not stack an additional border around bg_card.
                 convertView.setBackgroundResource(R.drawable.bg_book_selected_glow);
@@ -651,8 +672,8 @@ public class MainActivity extends LocalizedActivity {
         private static float dpCard(Context context,int v) { return v*context.getResources().getDisplayMetrics().density; }
         private static class ViewHolder {
             TextView name;
-            TextView favorite;
-            TextView pin;
+            ImageView favorite;
+            ImageView pin;
             TextView stats;
             TextView date;
         }

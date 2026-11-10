@@ -121,6 +121,24 @@
             android:src="@drawable/ic_action_delete"
             android:tint="@color/text_primary" />
         <ImageButton
+            android:id="@+id/favoriteSelectedButton"
+            android:layout_width="44dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="2dp"
+            android:background="@drawable/bg_icon_button"
+            android:contentDescription="@string/ui_favorite_toggle"
+            android:padding="12dp"
+            android:src="@drawable/ic_favorite_toggle" />
+        <ImageButton
+            android:id="@+id/pinSelectedButton"
+            android:layout_width="44dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="2dp"
+            android:background="@drawable/bg_icon_button"
+            android:contentDescription="@string/ui_pin_toggle"
+            android:padding="12dp"
+            android:src="@drawable/ic_pin_toggle" />
+        <ImageButton
             android:id="@+id/cancelSelectionButton"
             android:layout_width="48dp"
             android:layout_height="48dp"
