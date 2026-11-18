@@ -425,11 +425,9 @@ public class BookDetailActivity extends LocalizedActivity {
             VocabItem item = getItem(position);
             ((TextView) convertView.findViewById(R.id.wordTerm)).setText(item.getTerm());
             ((TextView) convertView.findViewById(R.id.wordMeaning)).setText(item.getMeaning());
-            int totalAnswers = item.getCorrectCount() + item.getIncorrectCount();
-            int wrongRate = totalAnswers == 0 ? 0
-                    : Math.round(item.getIncorrectCount() * 100f / totalAnswers);
+            int incorrectCount = item.getIncorrectCount();
             TextView wrongCount = convertView.findViewById(R.id.wordWrongCount);
-            wrongCount.setText(getContext().getString(R.string.ui_wrong_rate, wrongRate));
+            wrongCount.setText(getContext().getString(R.string.ui_wrong_count, incorrectCount));
             return convertView;
         }
     }

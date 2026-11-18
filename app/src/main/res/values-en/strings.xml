@@ -279,7 +279,7 @@
         <item>Oldest created</item>
         <item>Newest created</item>
     </string-array>
-    <string name="ui_wrong_rate">Wrong rate %1$d%%</string>
+    <string name="ui_wrong_count">Wrong %1$d times</string>
     <string name="ui_choose_file_first">Choose a file first.</string>
     <string name="ui_favorites">Favorites</string>
     <string name="ui_favorite_toggle">Toggle favorite</string>
