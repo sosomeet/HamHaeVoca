@@ -15,7 +15,7 @@
         <activity android:name=".QuizResultActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".PosQuizActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".WritingSetupActivity" android:screenOrientation="portrait" android:exported="false" />
-        <activity android:name=".WritingQuizActivity" android:screenOrientation="portrait" android:exported="false" />
+        <activity android:name=".WritingQuizActivity" android:screenOrientation="portrait" android:windowSoftInputMode="stateAlwaysHidden|adjustNothing" android:exported="false" />
         <activity android:name=".QuizActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".QuizSetupActivity" android:screenOrientation="portrait" android:exported="false" />
         <activity android:name=".FlashcardActivity" android:screenOrientation="portrait" android:exported="false" />

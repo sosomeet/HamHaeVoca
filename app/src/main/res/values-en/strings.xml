@@ -303,4 +303,6 @@
     <string name="writing_direction_meaning">Meaning → English</string>
     <string name="writing_direction_term">English → Meaning</string>
     <string name="writing_answer_hint">Type your answer</string>
+    <string name="book_action_choice_exam">Multiple-choice Quiz</string>
+    <string name="book_action_word_matching">Word Matching</string>
 </resources>

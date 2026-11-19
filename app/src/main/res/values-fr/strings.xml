@@ -303,4 +303,6 @@
     <string name="writing_direction_meaning">Sens → anglais</string>
     <string name="writing_direction_term">Anglais → sens</string>
     <string name="writing_answer_hint">Saisissez votre réponse</string>
+    <string name="book_action_choice_exam">QCM</string>
+    <string name="book_action_word_matching">Association de mots</string>
 </resources>

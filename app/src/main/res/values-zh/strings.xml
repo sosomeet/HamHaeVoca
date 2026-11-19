@@ -303,4 +303,6 @@
     <string name="writing_direction_meaning">释义 → 英语</string>
     <string name="writing_direction_term">英语 → 释义</string>
     <string name="writing_answer_hint">输入答案</string>
+    <string name="book_action_choice_exam">选择题测试</string>
+    <string name="book_action_word_matching">单词配对</string>
 </resources>

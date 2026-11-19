@@ -303,4 +303,6 @@
     <string name="writing_direction_meaning">意味 → 英語</string>
     <string name="writing_direction_term">英語 → 意味</string>
     <string name="writing_answer_hint">回答を入力</string>
+    <string name="book_action_choice_exam">選択式テスト</string>
+    <string name="book_action_word_matching">単語マッチング</string>
 </resources>

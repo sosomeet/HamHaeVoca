@@ -303,4 +303,6 @@
     <string name="writing_direction_meaning">Nghĩa → tiếng Anh</string>
     <string name="writing_direction_term">Tiếng Anh → nghĩa</string>
     <string name="writing_answer_hint">Nhập câu trả lời</string>
+    <string name="book_action_choice_exam">Trắc nghiệm</string>
+    <string name="book_action_word_matching">Ghép từ</string>
 </resources>

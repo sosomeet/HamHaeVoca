@@ -303,4 +303,6 @@
     <string name="writing_direction_meaning">Significado → inglés</string>
     <string name="writing_direction_term">Inglés → significado</string>
     <string name="writing_answer_hint">Escribe tu respuesta</string>
+    <string name="book_action_choice_exam">Examen de opción múltiple</string>
+    <string name="book_action_word_matching">Emparejar palabras</string>
 </resources>
