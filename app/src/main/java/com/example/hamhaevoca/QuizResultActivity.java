@@ -64,7 +64,7 @@ public class QuizResultActivity extends LocalizedActivity {
         review.setAlpha(wrongAnswers.isEmpty() ? 0.45f : 1f);
         review.setOnClickListener(v -> openWrongReview());
         findViewById(R.id.retryQuizButton).setOnClickListener(v -> {
-            Intent intent = new Intent(this, QuizSetupActivity.class);
+            Intent intent = new Intent(this, getIntent().getBooleanExtra("writing_exam", false) ? WritingSetupActivity.class : QuizSetupActivity.class);
             intent.putExtra("book_id", bookId);
             startActivity(intent);
             finish();

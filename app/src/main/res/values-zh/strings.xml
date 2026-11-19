@@ -284,4 +284,23 @@
     <string name="ui_favorites">收藏</string>
     <string name="ui_favorite_toggle">切换收藏</string>
     <string name="ui_pin_toggle">置顶切换</string>
+
+    <string name="writing_exam">拼写测试</string>
+    <string name="writing_setup_title">拼写测试设置</string>
+    <string name="writing_mode_meaning">释义 → 英语</string>
+    <string name="writing_mode_term">英语 → 释义</string>
+    <string name="writing_min_wrong">最少错误次数</string>
+    <string name="writing_max_questions">最多题数</string>
+    <string name="writing_available">可用单词：%1$d</string>
+    <string name="writing_start">不限时开始</string>
+    <string name="writing_quiz_title">拼写测试</string>
+    <string name="writing_check">检查答案</string>
+    <string name="writing_next">下一题</string>
+    <string name="writing_correct">正确</string>
+    <string name="writing_incorrect">错误。正确答案：%1$s</string>
+    <string name="writing_enter_answer">请输入答案</string>
+    <string name="writing_no_words">没有可用单词。</string>
+    <string name="writing_direction_meaning">释义 → 英语</string>
+    <string name="writing_direction_term">英语 → 释义</string>
+    <string name="writing_answer_hint">输入答案</string>
 </resources>

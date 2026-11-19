@@ -284,4 +284,23 @@
     <string name="ui_favorites">お気に入り</string>
     <string name="ui_favorite_toggle">お気に入り切り替え</string>
     <string name="ui_pin_toggle">先頭に固定</string>
+
+    <string name="writing_exam">記述テスト</string>
+    <string name="writing_setup_title">記述テスト設定</string>
+    <string name="writing_mode_meaning">意味 → 英語</string>
+    <string name="writing_mode_term">英語 → 意味</string>
+    <string name="writing_min_wrong">最低不正解回数</string>
+    <string name="writing_max_questions">最大問題数</string>
+    <string name="writing_available">利用可能な単語：%1$d</string>
+    <string name="writing_start">時間制限なしで開始</string>
+    <string name="writing_quiz_title">記述テスト</string>
+    <string name="writing_check">回答を確認</string>
+    <string name="writing_next">次の問題</string>
+    <string name="writing_correct">正解</string>
+    <string name="writing_incorrect">不正解。正解：%1$s</string>
+    <string name="writing_enter_answer">回答を入力してください</string>
+    <string name="writing_no_words">対象の単語がありません。</string>
+    <string name="writing_direction_meaning">意味 → 英語</string>
+    <string name="writing_direction_term">英語 → 意味</string>
+    <string name="writing_answer_hint">回答を入力</string>
 </resources>

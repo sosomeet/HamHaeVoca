@@ -284,4 +284,23 @@
     <string name="ui_favorites">Yêu thích</string>
     <string name="ui_favorite_toggle">Bật/tắt yêu thích</string>
     <string name="ui_pin_toggle">Ghim lên đầu</string>
+
+    <string name="writing_exam">Kiểm tra viết</string>
+    <string name="writing_setup_title">Cài đặt kiểm tra viết</string>
+    <string name="writing_mode_meaning">Nghĩa → tiếng Anh</string>
+    <string name="writing_mode_term">Tiếng Anh → nghĩa</string>
+    <string name="writing_min_wrong">Số lỗi tối thiểu</string>
+    <string name="writing_max_questions">Số câu tối đa</string>
+    <string name="writing_available">Số từ có thể dùng: %1$d</string>
+    <string name="writing_start">Bắt đầu không giới hạn thời gian</string>
+    <string name="writing_quiz_title">Kiểm tra viết</string>
+    <string name="writing_check">Kiểm tra đáp án</string>
+    <string name="writing_next">Câu tiếp theo</string>
+    <string name="writing_correct">Chính xác</string>
+    <string name="writing_incorrect">Sai. Đáp án: %1$s</string>
+    <string name="writing_enter_answer">Nhập câu trả lời</string>
+    <string name="writing_no_words">Không có từ phù hợp.</string>
+    <string name="writing_direction_meaning">Nghĩa → tiếng Anh</string>
+    <string name="writing_direction_term">Tiếng Anh → nghĩa</string>
+    <string name="writing_answer_hint">Nhập câu trả lời</string>
 </resources>

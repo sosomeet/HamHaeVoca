@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:background="@color/background">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="20dp" android:orientation="vertical">
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+  <ImageButton android:id="@+id/writingSetupBack" android:layout_width="48dp" android:layout_height="48dp" android:background="@drawable/bg_icon_button" android:padding="13dp" android:src="@drawable/ic_arrow_back" android:contentDescription="@string/ui_96dd037a45f9" />
+  <TextView style="@style/TopBarTitle" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:text="@string/writing_setup_title" />
+ </LinearLayout>
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="22dp" android:orientation="vertical" android:background="@drawable/bg_card" android:padding="18dp">
+  <RadioGroup android:id="@+id/writingModeGroup" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+   <RadioButton android:id="@+id/writingModeMeaning" android:layout_width="match_parent" android:layout_height="wrap_content" android:buttonTint="@color/primary" android:textColor="@color/text_primary" android:text="@string/writing_mode_meaning" android:checked="true" />
+   <RadioButton android:id="@+id/writingModeTerm" android:layout_width="match_parent" android:layout_height="wrap_content" android:buttonTint="@color/primary" android:textColor="@color/text_primary" android:text="@string/writing_mode_term" />
+  </RadioGroup>
+ </LinearLayout>
+ <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:orientation="horizontal" android:padding="18dp" android:background="@drawable/bg_card">
+  <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginEnd="8dp">
+   <TextView style="@style/BodyText" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/writing_min_wrong" />
+   <EditText android:id="@+id/writingMinWrong" style="@style/InputField" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:singleLine="true" android:text="0" />
+  </LinearLayout>
+  <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="8dp">
+   <TextView style="@style/BodyText" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/writing_max_questions" />
+   <EditText android:id="@+id/writingMaxQuestions" style="@style/InputField" android:layout_width="match_parent" android:layout_height="wrap_content" android:inputType="number" android:singleLine="true" />
+  </LinearLayout>
+ </LinearLayout>
+ <TextView android:id="@+id/writingAvailable" style="@style/BodyText" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="15dp" />
+ <Button android:id="@+id/writingStart" style="@style/PrimaryButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:text="@string/writing_start" />
+</LinearLayout></ScrollView>

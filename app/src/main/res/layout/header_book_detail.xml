@@ -54,35 +54,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="18dp"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/flashcardButton"
-            style="@style/PrimaryButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="5dp"
-            android:layout_weight="1"
-            android:text="@string/ui_0c05149c1c40" />
-
-        <Button
-            android:id="@+id/quizButton"
-            style="@style/SecondaryButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_marginEnd="5dp"
-            android:layout_weight="1"
-            android:text="@string/ui_3fcc7bebc2b4" />
-
-        <Button
-            android:id="@+id/matchingButton"
-            style="@style/SecondaryButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:layout_weight="1"
-            android:text="@string/ui_52f3a8789b84" />
+        android:orientation="vertical">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+            <Button android:id="@+id/flashcardButton" style="@style/PrimaryButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="5dp" android:text="@string/ui_0c05149c1c40" />
+            <Button android:id="@+id/quizButton" style="@style/SecondaryButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="5dp" android:text="@string/ui_3fcc7bebc2b4" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="horizontal">
+            <Button android:id="@+id/matchingButton" style="@style/SecondaryButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginEnd="5dp" android:text="@string/ui_52f3a8789b84" />
+            <Button android:id="@+id/writingQuizButton" style="@style/SecondaryButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="5dp" android:text="@string/writing_exam" />
+        </LinearLayout>
     </LinearLayout>
 
     <EditText

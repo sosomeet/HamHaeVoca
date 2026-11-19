@@ -284,4 +284,23 @@
     <string name="ui_favorites">Favoris</string>
     <string name="ui_favorite_toggle">Ajouter ou retirer des favoris</string>
     <string name="ui_pin_toggle">Épingler en haut</string>
+
+    <string name="writing_exam">Examen écrit</string>
+    <string name="writing_setup_title">Paramètres du test écrit</string>
+    <string name="writing_mode_meaning">Sens → anglais</string>
+    <string name="writing_mode_term">Anglais → sens</string>
+    <string name="writing_min_wrong">Erreurs minimales</string>
+    <string name="writing_max_questions">Nombre maximal</string>
+    <string name="writing_available">Mots disponibles : %1$d</string>
+    <string name="writing_start">Commencer sans limite de temps</string>
+    <string name="writing_quiz_title">Examen écrit</string>
+    <string name="writing_check">Vérifier</string>
+    <string name="writing_next">Question suivante</string>
+    <string name="writing_correct">Correct</string>
+    <string name="writing_incorrect">Incorrect. Réponse : %1$s</string>
+    <string name="writing_enter_answer">Saisissez une réponse</string>
+    <string name="writing_no_words">Aucun mot disponible.</string>
+    <string name="writing_direction_meaning">Sens → anglais</string>
+    <string name="writing_direction_term">Anglais → sens</string>
+    <string name="writing_answer_hint">Saisissez votre réponse</string>
 </resources>

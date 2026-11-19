@@ -83,6 +83,7 @@ public class BookDetailActivity extends LocalizedActivity {
         header.findViewById(R.id.bookSettingsButton).setOnClickListener(v -> openBookSettings());
         header.findViewById(R.id.flashcardButton).setOnClickListener(v -> openLearning(FlashcardActivity.class));
         header.findViewById(R.id.quizButton).setOnClickListener(v -> openLearning(QuizSetupActivity.class));
+        header.findViewById(R.id.writingQuizButton).setOnClickListener(v -> openLearning(WritingSetupActivity.class));
         header.findViewById(R.id.matchingButton).setOnClickListener(v -> openLearning(MatchingSetupActivity.class));
         wrongFilterButton.setOnClickListener(v -> showWrongFilterDialog());
     }

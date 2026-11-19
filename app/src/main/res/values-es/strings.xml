@@ -284,4 +284,23 @@
     <string name="ui_favorites">Favoritos</string>
     <string name="ui_favorite_toggle">Alternar favorito</string>
     <string name="ui_pin_toggle">Fijar arriba</string>
+
+    <string name="writing_exam">Prueba escrita</string>
+    <string name="writing_setup_title">Configuración de prueba escrita</string>
+    <string name="writing_mode_meaning">Significado → inglés</string>
+    <string name="writing_mode_term">Inglés → significado</string>
+    <string name="writing_min_wrong">Errores mínimos</string>
+    <string name="writing_max_questions">Máximo de preguntas</string>
+    <string name="writing_available">Palabras disponibles: %1$d</string>
+    <string name="writing_start">Comenzar sin límite de tiempo</string>
+    <string name="writing_quiz_title">Prueba escrita</string>
+    <string name="writing_check">Comprobar</string>
+    <string name="writing_next">Siguiente pregunta</string>
+    <string name="writing_correct">Correcto</string>
+    <string name="writing_incorrect">Incorrecto. Respuesta: %1$s</string>
+    <string name="writing_enter_answer">Escribe una respuesta</string>
+    <string name="writing_no_words">No hay palabras disponibles.</string>
+    <string name="writing_direction_meaning">Significado → inglés</string>
+    <string name="writing_direction_term">Inglés → significado</string>
+    <string name="writing_answer_hint">Escribe tu respuesta</string>
 </resources>

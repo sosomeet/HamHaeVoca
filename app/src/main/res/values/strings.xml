@@ -284,4 +284,23 @@
     <string name="ui_favorites">즐겨찾기</string>
     <string name="ui_favorite_toggle">즐겨찾기 전환</string>
     <string name="ui_pin_toggle">상단 고정 전환</string>
+
+    <string name="writing_exam">쓰기 시험</string>
+    <string name="writing_setup_title">쓰기 시험 설정</string>
+    <string name="writing_mode_meaning">뜻을 보고 영단어 입력</string>
+    <string name="writing_mode_term">영단어를 보고 뜻 입력</string>
+    <string name="writing_min_wrong">오답 최소 횟수</string>
+    <string name="writing_max_questions">최대 문제 수</string>
+    <string name="writing_available">사용 가능한 단어: %1$d개</string>
+    <string name="writing_start">시간 제한 없이 시작</string>
+    <string name="writing_quiz_title">쓰기 시험</string>
+    <string name="writing_check">정답 확인</string>
+    <string name="writing_next">다음 문제</string>
+    <string name="writing_correct">정답입니다</string>
+    <string name="writing_incorrect">오답입니다. 정답: %1$s</string>
+    <string name="writing_enter_answer">정답을 입력하세요</string>
+    <string name="writing_no_words">문제에 사용할 단어가 없습니다.</string>
+    <string name="writing_direction_meaning">뜻 → 영어</string>
+    <string name="writing_direction_term">영어 → 뜻</string>
+    <string name="writing_answer_hint">답안을 입력하세요</string>
 </resources>

@@ -284,4 +284,23 @@
     <string name="ui_favorites">Favorites</string>
     <string name="ui_favorite_toggle">Toggle favorite</string>
     <string name="ui_pin_toggle">Toggle pin to top</string>
+
+    <string name="writing_exam">Writing test</string>
+    <string name="writing_setup_title">Writing test settings</string>
+    <string name="writing_mode_meaning">Meaning → English</string>
+    <string name="writing_mode_term">English → Meaning</string>
+    <string name="writing_min_wrong">Minimum wrong answers</string>
+    <string name="writing_max_questions">Maximum questions</string>
+    <string name="writing_available">Available words: %1$d</string>
+    <string name="writing_start">Start (no time limit)</string>
+    <string name="writing_quiz_title">Writing test</string>
+    <string name="writing_check">Check answer</string>
+    <string name="writing_next">Next question</string>
+    <string name="writing_correct">Correct</string>
+    <string name="writing_incorrect">Incorrect. Answer: %1$s</string>
+    <string name="writing_enter_answer">Enter an answer</string>
+    <string name="writing_no_words">No eligible words found.</string>
+    <string name="writing_direction_meaning">Meaning → English</string>
+    <string name="writing_direction_term">English → Meaning</string>
+    <string name="writing_answer_hint">Type your answer</string>
 </resources>
